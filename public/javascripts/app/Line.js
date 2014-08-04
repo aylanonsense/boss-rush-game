@@ -8,7 +8,7 @@ define([
 ) {
 	function Line(x1, y1, x2, y2) {
 		Obstacle.apply(this, arguments);
-		this.type = 'line';
+		this.obstacleType = 'line';
 		var angle = Math.atan2(y2 - y1, x2 - x1);
 		this._cos = Math.cos(angle);
 		this._sin = Math.sin(angle);

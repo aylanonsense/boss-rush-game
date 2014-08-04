@@ -1,24 +1,112 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'app/Grapple',
 	'app/GeometryUtils'
 ], function(
-	Grapple,
 	GeometryUtils
 ) {
 	function Player(x, y) {
-		this.radius = 20;
-		this.mass = 1;
-		this.adjustMovement({ x: x, y: y }, { x: x, y: y }, { x: 0, y: 0 });
-		this._force = { x: 0, y: 0 };
-		this._instantForce = { x: 0, y: 0 };
+		this.pos = { x: x, y: y };
+		this.pos.prev = { x: x, y: y };
+		this.vel = { x: 0, y: 0 };
+		this._forceThisFrame = { x: 0, y: 0 };
+		this._forceThisFrame.instant = { x: 0, y: 0 };
+		this._durationOfMovement = 0;
+		this._recalculateMovementVectors();
+		this.width = 20;
+		this.height = 30;
+		this._isTryingToJump = false;
 	}
-	Player.prototype.adjustMovement = function(prevPos, pos, vel) {
-		this.pos = { x: pos.x, y: pos.y, prev: { x: prevPos.x, y: prevPos.y } };
-		this.lineOfMovement = GeometryUtils.toLine(this.pos.prev, this.pos);
-		if(vel) {
-			this.vel = { x: vel.x, y: vel.y };
+	Player.prototype.move = function(ms) {
+		var t = ms / 1000;
+		var u = 1 / 60; //constant time t
+
+		//apply velocity to position
+		var oldVel = { x: this.vel.x, y: this.vel.y };
+		this.vel.x += this._forceThisFrame.x * t + this._forceThisFrame.instant.x * u;
+		this.vel.y += this._forceThisFrame.y * t + this._forceThisFrame.instant.y * u;
+		this.pos.prev.x = this.pos.x;
+		this.pos.prev.y = this.pos.y;
+		//averaging allows the velocity's effect on position to be framerate-independent
+		this.pos.x += (this.vel.x + oldVel.x) / 2 * t;
+		this.pos.y += (this.vel.y + oldVel.y) / 2 * t;
+
+		//reset forces
+		this._forceThisFrame = { x: 0, y: 0 };
+		this._forceThisFrame.instant = { x: 0, y: 0 };
+
+		//round all the important bits
+		this.pos.x = GeometryUtils.round(this.pos.x);
+		this.pos.y = GeometryUtils.round(this.pos.y);
+		this.pos.prev.x = GeometryUtils.round(this.pos.prev.x);
+		this.pos.prev.y = GeometryUtils.round(this.pos.prev.y);
+		this.vel.x = GeometryUtils.round(this.vel.x);
+		this.vel.y = GeometryUtils.round(this.vel.y);
+
+		//calculate the line of movement
+		this._durationOfMovement = ms;
+		this._recalculateMovementVectors();
+	};
+	Player.prototype.handleInterruption = function(interruption) {
+		//rewind movement to just before the interruption
+		var msRemaining = this.rewindMovement(Math.sqrt(interruption.squareDistTo), true, interruption.x, interruption.y);
+		if(this._isTryingToJump) { //TODO only do this with collisions
+			this._isTryingToJump = false;
+			this.jump();
 		}
+
+		//apply any changes due to the interruption
+		interruption.handle();
+
+		//replay the remaining time
+		this.move(msRemaining);
+	};
+	Player.prototype.interruptRemainingMovement = function() {
+		this.pos.x = this.pos.prev.x;
+		this.pos.y = this.pos.prev.y;
+		this.vel.x = 0;
+		this.vel.y = 0;
+		this._recalculateMovementVectors();
+	};
+	Player.prototype._recalculateMovementVectors = function() {
+		var w = this.width / 2, h = this.height / 2;
+		this.lineOfMovement = GeometryUtils.toLine(this.pos.prev, this.pos);
+		this.collisionLines = [];
+		//if(this.pos.x > this.pos.prev.x || this.pos.y > this.pos.prev.y) { //moving right or down
+	//}
+	//if(this.pos.x < this.pos.prev.x || this.pos.y > this.pos.prev.y) { //moving left or down
+	//}
+	//if(this.pos.x > this.pos.prev.x || this.pos.y < this.pos.prev.y) { //moving right or up
+	//}
+	//if(this.pos.x < this.pos.prev.x || this.pos.y < this.pos.prev.y) { //moving left or up
+
+	//}
+		this.collisionLines.push(GeometryUtils.toLine(this.pos.prev.x + w, this.pos.prev.y + h,
+			this.pos.x + w, this.pos.y + h)); //lower right corner of bounding box
+		this.collisionLines.push(GeometryUtils.toLine(this.pos.prev.x - w, this.pos.prev.y + h,
+			this.pos.x - w, this.pos.y + h)); //lower left corner of bounding box
+		this.collisionLines.push(GeometryUtils.toLine(this.pos.prev.x + w, this.pos.prev.y - h,
+			this.pos.x + w, this.pos.y - h)); //upper right corner of bounding box
+		this.collisionLines.push(GeometryUtils.toLine(this.pos.prev.x - w, this.pos.prev.y - h,
+			this.pos.x - w, this.pos.y - h)); //upper left corner of bounding box\
+	};
+	Player.prototype.rewindMovement = function(distToRewind, isDistRemainingAfterRewind, x, y) {
+		if((isDistRemainingAfterRewind ? this.lineOfMovement.dist - distToRewind : distToRewind) === 0) {
+			return 0; //no rewind needs to be done
+		}
+		if(this.lineOfMovement.dist === 0) { throw new Error("Cannot rewind: player did not move any distance" +distToRewind); }
+		if(this._durationOfMovement === 0) { throw new Error("Cannot rewind: player did not spend any time moving"); }
+		if(distToRewind > this.lineOfMovement.dist) { throw new Error("Cannot rewind player further than distance moved: " + distToRewind + " > " + this.lineOfMovement.dist); }
+		if(distToRewind < 0) { throw new Error("Cannot rewind player a negative distance"); }
+		if(isDistRemainingAfterRewind) {
+			distToRewind = this.lineOfMovement.dist - distToRewind;
+		}
+		var p = (distToRewind / this.lineOfMovement.dist);
+		var rewindDuration = this._durationOfMovement * p;
+		this.pos.x = x;//-= this.lineOfMovement.diff.x * p;
+		this.pos.y = y;//-= this.lineOfMovement.diff.y * p;
+		this._durationOfMovement -= rewindDuration;
+		this._recalculateMovementVectors();
+		return rewindDuration;
 	};
 	Player.prototype.applyForce = function(forceX, forceY) { //or (force, dirX, dirY)
 		if(arguments.length === 3) {
@@ -26,12 +114,12 @@ define([
 			var dirX = arguments[1];
 			var dirY = arguments[2];
 			var totalDir = Math.sqrt(dirX * dirX + dirY * dirY);
-			this._force.x += force * dirX / totalDir;
-			this._force.y += force * dirY / totalDir;
+			this._forceThisFrame.x += force * dirX / totalDir;
+			this._forceThisFrame.y += force * dirY / totalDir;
 		}
 		else {
-			this._force.x += forceX;
-			this._force.y += forceY;
+			this._forceThisFrame.x += forceX;
+			this._forceThisFrame.y += forceY;
 		}
 	};
 	Player.prototype.applyInstantaneousForce = function(forceX, forceY) { //or (force, dirX, dirY)
@@ -40,75 +128,41 @@ define([
 			var dirX = arguments[1];
 			var dirY = arguments[2];
 			var totalDir = Math.sqrt(dirX * dirX + dirY * dirY);
-			this._instantForce.x += force * dirX / totalDir;
-			this._instantForce.y += force * dirY / totalDir;
+			this._forceThisFrame.instant.x += force * dirX / totalDir;
+			this._forceThisFrame.instant.y += force * dirY / totalDir;
 		}
 		else {
-			this._instantForce.x += forceX;
-			this._instantForce.y += forceY;
+			this._forceThisFrame.instant.x += forceX;
+			this._forceThisFrame.instant.y += forceY;
 		}
-	};
-	Player.prototype.tick = function(ms, friction) {
-		var t = ms / 1000;
-		var acc = { x: this._force.x / this.mass, y: this._force.y / this.mass };
-		var instantAcc = { x: this._instantForce.x / this.mass, y: this._instantForce.y / this.mass };
-		var oldVel = { x: this.vel.x, y: this.vel.y };
-		this.vel.x = (this.vel.x + acc.x * t + instantAcc.x / 60) * friction;
-		this.vel.y = (this.vel.y + acc.y * t + instantAcc.y / 60) * friction;
-		this.pos.prev.x = this.pos.x;
-		this.pos.prev.y = this.pos.y;
-		this.pos.x += (this.vel.x + oldVel.x) / 2 * t;
-		this.pos.y += (this.vel.y + oldVel.y) / 2 * t;
-		this._force = { x: 0, y: 0 };
-		this._instantForce = { x: 0, y: 0 };
-		this.lineOfMovement = GeometryUtils.toLine(this.pos.prev, this.pos);
 	};
 	Player.prototype.render = function(ctx, camera) {
-		/*if(this.pos.x !== this.pos.prev.x || this.pos.y !== this.pos.prev.y) {
-			ctx.strokeStyle = '#ddd';
-			ctx.lineWidth = 1;
+		ctx.fillStyle = '#fee';//'#f44';
+		ctx.fillRect(this.pos.x - camera.x - this.width / 2,
+			this.pos.y - camera.y - this.height / 2, this.width, this.height);
+
+		//debug -- draw collidable corners
+		ctx.fillStyle = '#000';
+		for(var i = 0; i < this.collisionLines.length; i++) {
+			var line = this.collisionLines[i];
 			ctx.beginPath();
-			if(this.pos.x === this.pos.prev.x) {
-				ctx.moveTo(this.pos.x - camera.x, -9999);
-				ctx.lineTo(this.pos.x - camera.x, 9999);
-			}
-			else {
-				var slope = (this.pos.y - this.pos.prev.y) / (this.pos.x - this.pos.prev.x);
-				var at0 = this.pos.y - slope * this.pos.x;
-				ctx.moveTo(-9999 - camera.x, slope * -9999 + at0 - camera.y);
-				ctx.lineTo(9999 - camera.x, slope * 9999 + at0 - camera.y);
-			}
-			ctx.stroke();
+			ctx.arc(line.end.x - camera.x, line.end.y - camera.y, 1.5, 0, 2 * Math.PI, false);
+			ctx.fill();
 		}
-		if(this.vel.x !== 0 || this.vel.y !== 0) {
-			ctx.strokeStyle = '#000';
-			ctx.lineWidth = 1;
-			ctx.beginPath();
-			ctx.moveTo(this.pos.x - camera.x, this.pos.y - camera.y);
-			ctx.lineTo(this.pos.x - camera.x + this.vel.x, this.pos.y - camera.y + this.vel.y);
-			ctx.stroke();
-		}*/
-		ctx.fillStyle = '#6c6';
-		ctx.beginPath();
-		ctx.arc(this.pos.x - camera.x, this.pos.y - camera.y, this.radius, 0, 2 * Math.PI, false);
-		ctx.fill();
 	};
 	Player.prototype.jump = function(dirX, dirY) {
 		if(arguments.length === 1) {
 			dirY = dirX.y;
 			dirX = dirX.x;
 		}
-		if(dirY < 0 && this.vel.y > 0) {
-			this.vel.y = 0;
+		else if(arguments.length === 0) {
+			dirX = 0;
+			dirY = -1;
 		}
 		this.applyInstantaneousForce(15000, dirX, dirY);
 	};
-	Player.prototype.shootGrapple = function(x, y) {
-		var dirX = x - this.pos.x;
-		var dirY = y - this.pos.y;
-		var dir = Math.sqrt(dirX * dirX + dirY * dirY);
-		return new Grapple(this, this.pos.x + this.radius * dirX / dir,
-			this.pos.y + this.radius * dirY / dir, dirX / dir, dirY / dir);
+	Player.prototype.jumpWhenPossible = function() {
+		this._isTryingToJump = true;
 	};
 	return Player;
 });

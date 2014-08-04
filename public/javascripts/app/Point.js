@@ -8,7 +8,7 @@ define([
 ) {
 	function Point(x, y) {
 		Obstacle.apply(this, arguments);
-		this.type = 'point';
+		this.obstacleType = 'point';
 		this.x = x;
 		this.y = y;
 		this._parentLines = [];
