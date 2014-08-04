@@ -35,7 +35,7 @@ define([
 		var firstIntersectionSquareDist = null;
 		var firstIntersectionLine = null;
 		for(var i = 0; i < player.collisionLines.length; i++) {
-			var intersection = GeometryUtils.findLineToLineIntersection(player.collisionLines[i], this._line, 0.001);
+			var intersection = GeometryUtils.findLineToLineIntersection(player.collisionLines[i], this._line, 0.0000000001);
 			if(intersection && intersection.intersectsBothSegments) {
 				//collisions only happen if the player's moving "towards" the line (from the "solid" side)
 				if(player.vel.x * this._sinOfLineAngle + player.vel.y * -this._cosOfLineAngle > 0) {
