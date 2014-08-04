@@ -34,14 +34,6 @@ define([
 		this._forceThisFrame = { x: 0, y: 0 };
 		this._forceThisFrame.instant = { x: 0, y: 0 };
 
-		//round all the important bits
-		this.pos.x = GeometryUtils.round(this.pos.x);
-		this.pos.y = GeometryUtils.round(this.pos.y);
-		this.pos.prev.x = GeometryUtils.round(this.pos.prev.x);
-		this.pos.prev.y = GeometryUtils.round(this.pos.prev.y);
-		this.vel.x = GeometryUtils.round(this.vel.x);
-		this.vel.y = GeometryUtils.round(this.vel.y);
-
 		//calculate the line of movement
 		this._durationOfMovement = ms;
 		this._recalculateMovementVectors();

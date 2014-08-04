@@ -165,14 +165,14 @@ define(function() {
 			else {
 				//if both lines are "true" lines, (b1 - b2) / (m2 - m1) will give us the intersection x-coordinate
 				intersection = {
-					x: round((line1.b - line2.b) / (line2.m - line1.m)),
-					y: round(line1.m * (line1.b - line2.b) / (line2.m - line1.m) + line1.b)
+					x: (line1.b - line2.b) / (line2.m - line1.m),
+					y: line1.m * (line1.b - line2.b) / (line2.m - line1.m) + line1.b
 				};
 			}
 		}
 		if(intersection) {
-			intersection.x = round(intersection.x);
-			intersection.y = round(intersection.y);
+			intersection.x = intersection.x;
+			intersection.y = intersection.y;
 			intersection.intersectsBothSegments =
 				((line1.start.x <= line1.end.x && line1.start.x - c <= intersection.x && intersection.x <= line1.end.x + c) ||
 				(line1.end.x < line1.start.x && line1.end.x - c <= intersection.x && intersection.x <= line1.start.x + c)) &&
@@ -185,12 +185,8 @@ define(function() {
 		}
 		return intersection;
 	}
-	function round(num) {
-		return num;//Math.round(num * 100000) / 100000;
-	}
 	return {
 		toLine: toLine,
-		findLineToLineIntersection: findLineToLineIntersection,
-		round: round
+		findLineToLineIntersection: findLineToLineIntersection
 	};
 });
