@@ -1,15 +1,11 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'jquery',
-	'app/PlayerOld',
 	'app/Player',
-	'app/LineObstacle',
 	'app/Level'
 ], function(
 	$,
-	PlayerOld,
 	Player,
-	LineObstacle,
 	Level
 ) {
 	return function() {
@@ -20,14 +16,12 @@ define([
 
 		//create stuff
 		var player = new Player(1000, 1000);
-		player.vel.x = 1; //debug
 		var camera = { x: player.pos.x, y: player.pos.y };
 		var level = new Level();
 
 		//add input bindings
 		var keys = { pressed: {} };
 		var KEY = { W: 87, A: 65, S: 83, D: 68, R: 82, P: 80, G: 71, SHIFT: 16, SPACE: 32 };
-		var JUMP_KEY = KEY.SPACE;
 		var PAUSE_KEY = KEY.P;
 		$(document).on('keydown', function(evt) {
 			if(!keys[evt.which]) {
@@ -35,9 +29,6 @@ define([
 				keys.pressed[evt.which] = true;
 				if(evt.which === PAUSE_KEY) {
 					isPaused = !isPaused;
-				}
-				if(evt.which === JUMP_KEY) {
-					player.jumpWhenPossible();
 				}
 			}
 		});
@@ -50,41 +41,44 @@ define([
 
 		//important stuff that happens every frame
 		function tick(ms) {
-			//console.log("---");
 			//player.applyForce(0, 600); //gravity
 			if(keys[KEY.A]) { player.applyForce(-400, 0); }
 			if(keys[KEY.D]) { player.applyForce(400, 0); }
 			if(keys[KEY.W]) { player.applyForce(0, -400); }
 			if(keys[KEY.S]) { player.applyForce(0, 400); }
 			player.move(ms);
-			//console.log("start of frame:", player.pos.prev.y);
-			//console.log("potential end of frame:", player.pos.y);
+
+			//find mid-frame collisions
 			var interruption = findInterruption();
-			var interruptionKeys = [];
+			var interruptionKeysAlreadyUsed = [];
 			for(var i = 0; i < 100 && interruption; i++) {
-				if(interruptionKeys.indexOf(interruption.key) !== -1) {
+				if(interruptionKeysAlreadyUsed.indexOf(interruption.key) !== -1) {
 					player.interruptRemainingMovement();
 					break;
 				}
-				interruptionKeys.push(interruption.key);
+				interruptionKeysAlreadyUsed.push(interruption.key);
 				player.handleInterruption(interruption);
 				interruption = findInterruption(interruption.key);
 			}
+
+			//if we find waaaay too many collisions, that means the player is stuck (in a good way) between obstacles
 			if(i === 100) {
 				player.interruptRemainingMovement();
 			}
-			//console.log(i);
-			//console.log("actual end of frame:", player.pos.y);
 		}
 
 		function findInterruption(prohibitedInterruptionKey) {
 			var interruptions = [];
+
+			//find any potential collisions with obstacles this frame
 			for(var i = 0; i < level.obstacles.length; i++) {
 				var interruption = level.obstacles[i].checkForCollisionWithPlayer(player);
 				if(interruption && interruption.key !== prohibitedInterruptionKey) {
 					interruptions.push(interruption);
 				}
 			}
+
+			//we only need to handle the first collision right now
 			interruptions.sort(function(a, b) { return a.squareDistTo - b.squareDistTo; });
 			return interruptions[0] || null;
 		}

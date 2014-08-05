@@ -6,6 +6,7 @@ define([
 	Obstacle,
 	GeometryUtils
 ) {
+	var INTERSECTION_LEEWAY = 0.0000000001;
 	function LineObstacle(x1, y1, x2, y2) {
 		Obstacle.apply(this, arguments);
 		this.obstacleType = 'line';
@@ -30,75 +31,73 @@ define([
 	}
 	LineObstacle.prototype = Object.create(Obstacle.prototype);
 	LineObstacle.prototype.checkForCollisionWithPlayer = function(player) {
-		var potentialIntersections = [];
-		//var firstIntersection = null;
-		//var firstIntersectionSquareDist = null;
-		//var firstIntersectionLine = null;
-		for(var i = 0; i < player.collisionLines.length; i++) {
-			var intersection = GeometryUtils.findLineToLineIntersection(player.collisionLines[i], this._line, 0.0000000001);
-			if(intersection && intersection.intersectsBothSegments) {
-				//collisions only happen if the player's moving "towards" the line (from the "solid" side)
-				if(player.vel.x * this._sinOfLineAngle + player.vel.y * -this._cosOfLineAngle > 0) {
-					//figure out the distance to the intersection point, since we want the one closest
-					var dx = intersection.x - player.collisionLines[i].start.x;
-					var dy = intersection.y - player.collisionLines[i].start.y;
-					var squareDistToIntersection = dx * dx + dy * dy;
-					potentialIntersections.push({
-						intersection: intersection,
-						squareDist: squareDistToIntersection,
-						line: player.collisionLines[i]
-					});
-					/*if(firstIntersectionSquareDist === null || squareDistToIntersection < firstIntersectionSquareDist) {
-						firstIntersection = intersection;
-						firstIntersectionSquareDist = squareDistToIntersection;
-						firstIntersectionLine = player.collisionLines[i];
-					}*/
-				}
-			}
+		var dx, dy, i;
+		var collisionsThisFrame = [];
+
+		//collisions only happen if the player's moving towards the "solid" side of the line
+		if(player.vel.x * this._sinOfLineAngle + player.vel.y * -this._cosOfLineAngle <= 0) {
+			return null;
 		}
-		var startLine = GeometryUtils.toLine(
-			this._line.start.x - player.lineOfMovement.diff.x,
-			this._line.start.y - player.lineOfMovement.diff.y,
-			this._line.start.x, this._line.start.y);
-		var endLine = GeometryUtils.toLine(
-			this._line.end.x - player.lineOfMovement.diff.x,
-			this._line.end.y - player.lineOfMovement.diff.y,
-			this._line.end.x, this._line.end.y);
-		var midwayIntersections = [
-			{ isHorizontal: false, line: startLine, intersection: GeometryUtils.findLineToLineIntersection(startLine, player._verticalBound, 0.0000000001) },
-			{ isHorizontal: false, line: endLine, intersection: GeometryUtils.findLineToLineIntersection(endLine, player._verticalBound, 0.0000000001) },
-			{ isHorizontal: true, line: startLine, intersection: GeometryUtils.findLineToLineIntersection(startLine, player._horizontalBound, 0.0000000001) },
-			{ isHorizontal: true, line: endLine, intersection: GeometryUtils.findLineToLineIntersection(endLine, player._horizontalBound, 0.0000000001) }
-		];
-		for(i = 0; i < midwayIntersections.length; i++) {
-			var a = midwayIntersections[i];
-			if(a.intersection && a.intersection.intersectsBothSegments) {
-				var dx2 = a.line.end.x - a.intersection.x;
-				var dy2 = a.line.end.y - a.intersection.y;
-				var squareDist2 = dx2 * dx2 + dy2 * dy2;
-				potentialIntersections.push({
-					intersection: a.line.end,
-					squareDist: squareDist2,
-					line: a.line,
-					isHorizontal: a.isHorizontal,
-					bloop: true
+
+		//find any collisions that occur from the player's projected movement vectors
+		for(i = 0; i < player.collisionLines.length; i++) {
+			var intersection = GeometryUtils.findLineToLineIntersection(player.collisionLines[i], this._line, INTERSECTION_LEEWAY);
+			if(intersection && intersection.intersectsBothSegments) {
+				//figure out the distance to the intersection point, since we want the one closest
+				dx = intersection.x - player.collisionLines[i].start.x;
+				dy = intersection.y - player.collisionLines[i].start.y;
+				collisionsThisFrame.push({
+					intersection: intersection,
+					squareDist: dx * dx + dy * dy,
+					line: player.collisionLines[i],
+					isEndpointCollision: false
 				});
 			}
 		}
-		potentialIntersections.sort(function(a, b) { return a.squareDist - b.squareDist; });
-		if(potentialIntersections.length > 0) {
-			var bill = potentialIntersections[0];
+
+		//find any collisions that occur from the player's movement projected to the line's endpoints
+		var toLineStart = GeometryUtils.toLine(this._line.start.x - player.lineOfMovement.diff.x,
+			this._line.start.y - player.lineOfMovement.diff.y, this._line.start.x, this._line.start.y);
+		var toLineEnd = GeometryUtils.toLine(this._line.end.x - player.lineOfMovement.diff.x,
+			this._line.end.y - player.lineOfMovement.diff.y, this._line.end.x, this._line.end.y);
+		var endpointCollisions = [
+			{ intersection: GeometryUtils.findLineToLineIntersection(toLineStart, player._verticalBound, INTERSECTION_LEEWAY),
+				isHorizontal: false, line: toLineStart },
+			{ intersection: GeometryUtils.findLineToLineIntersection(toLineEnd, player._verticalBound, INTERSECTION_LEEWAY),
+				isHorizontal: false, line: toLineEnd },
+			{ intersection: GeometryUtils.findLineToLineIntersection(toLineStart, player._horizontalBound, INTERSECTION_LEEWAY),
+				isHorizontal: true, line: toLineStart },
+			{ intersection: GeometryUtils.findLineToLineIntersection(toLineEnd, player._horizontalBound, INTERSECTION_LEEWAY),
+				isHorizontal: true, line: toLineEnd }
+		];
+		for(i = 0; i < endpointCollisions.length; i++) {
+			if(endpointCollisions[i].intersection && endpointCollisions[i].intersection.intersectsBothSegments) {
+				dx = endpointCollisions[i].line.end.x - endpointCollisions[i].intersection.x;
+				dy = endpointCollisions[i].line.end.y - endpointCollisions[i].intersection.y;
+				collisionsThisFrame.push({
+					intersection: endpointCollisions[i].line.end,
+					squareDist: dx * dx + dy * dy,
+					line: endpointCollisions[i].line,
+					isEndpointCollision: true,
+					isHorizontal: endpointCollisions[i].isHorizontal //true iff colliding with the player's left or right bound
+				});
+			}
+		}
+
+		//we only care about the earliest collision
+		collisionsThisFrame.sort(function(a, b) { return a.squareDist - b.squareDist; });
+		var collision = collisionsThisFrame[0] || null;
+		if(collision) {
 			var self = this;
-			if(bill.bloop) {
-				var dx3 = bill.line.end.x - bill.intersection.x;
-				var dy3 = bill.line.end.y - bill.intersection.y;
+			if(collision.isEndpointCollision) {
 				return {
 					key: 'Collision with line ' + this._obstacleId,
-					x: player.pos.prev.x + dx3,
-					y: player.pos.prev.y + dy3,
-					squareDistTo: bill.squareDist,
+					x: player.pos.prev.x + collision.line.end.x - collision.intersection.x,
+					y: player.pos.prev.y + collision.line.end.y - collision.intersection.y,
+					squareDistTo: collision.squareDist,
 					handle: function() {
-						if(bill.isHorizontal) {
+						//endpoint collisions are easy, they either cancel out all vertical or all horizontal velocity
+						if(collision.isHorizontal) {
 							player.vel.x = 0;
 						}
 						else {
@@ -110,9 +109,9 @@ define([
 			else {
 				return {
 					key: 'Collision with line ' + this._obstacleId,
-					x: bill.intersection.x - bill.line.start.x + player.pos.prev.x,
-					y: bill.intersection.y - bill.line.start.y + player.pos.prev.y,
-					squareDistTo: bill.squareDist,
+					x: collision.intersection.x - collision.line.start.x + player.pos.prev.x,
+					y: collision.intersection.y - collision.line.start.y + player.pos.prev.y,
+					squareDistTo: collision.squareDist,
 					handle: function() {
 						//rotate the velocity to vectors parallel (x) and perpendicular (y) to the line segment
 						var rotatedPlayerVelocity = {
@@ -124,9 +123,10 @@ define([
 						rotatedPlayerVelocity.y = 0;
 
 						//apply the new velocity
-						player.vel.x = rotatedPlayerVelocity.x * -self._cosOfLineAngle + rotatedPlayerVelocity.y * self._sinOfLineAngle;
-						player.vel.y = rotatedPlayerVelocity.x * -self._sinOfLineAngle + rotatedPlayerVelocity.y * -self._cosOfLineAngle;
-						//console.log("Intersection with line", self._obstacleId);
+						player.vel.x = rotatedPlayerVelocity.x * -self._cosOfLineAngle +
+							rotatedPlayerVelocity.y * self._sinOfLineAngle;
+						player.vel.y = rotatedPlayerVelocity.x * -self._sinOfLineAngle +
+							rotatedPlayerVelocity.y * -self._cosOfLineAngle;
 					}
 				};
 			}

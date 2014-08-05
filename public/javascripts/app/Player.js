@@ -14,7 +14,6 @@ define([
 		this._recalculateMovementVectors();
 		this.width = 20;
 		this.height = 30;
-		this._isTryingToJump = false;
 	}
 	Player.prototype.move = function(ms) {
 		var t = ms / 1000;
@@ -41,10 +40,6 @@ define([
 	Player.prototype.handleInterruption = function(interruption) {
 		//rewind movement to just before the interruption
 		var msRemaining = this.rewindMovement(Math.sqrt(interruption.squareDistTo), true, interruption.x, interruption.y);
-		if(this._isTryingToJump) { //TODO only do this with collisions
-			this._isTryingToJump = false;
-			this.jump();
-		}
 
 		//apply any changes due to the interruption
 		interruption.handle();
@@ -63,15 +58,6 @@ define([
 		var w = this.width / 2, h = this.height / 2;
 		this.lineOfMovement = GeometryUtils.toLine(this.pos.prev, this.pos);
 		this.collisionLines = [];
-		//if(this.pos.x > this.pos.prev.x || this.pos.y > this.pos.prev.y) { //moving right or down
-	//}
-	//if(this.pos.x < this.pos.prev.x || this.pos.y > this.pos.prev.y) { //moving left or down
-	//}
-	//if(this.pos.x > this.pos.prev.x || this.pos.y < this.pos.prev.y) { //moving right or up
-	//}
-	//if(this.pos.x < this.pos.prev.x || this.pos.y < this.pos.prev.y) { //moving left or up
-
-	//}
 		this.collisionLines.push(GeometryUtils.toLine(this.pos.prev.x + w, this.pos.prev.y + h,
 			this.pos.x + w, this.pos.y + h)); //lower right corner of bounding box
 		this.collisionLines.push(GeometryUtils.toLine(this.pos.prev.x - w, this.pos.prev.y + h,
@@ -182,9 +168,6 @@ define([
 			dirY = -1;
 		}
 		this.applyInstantaneousForce(15000, dirX, dirY);
-	};
-	Player.prototype.jumpWhenPossible = function() {
-		this._isTryingToJump = true;
 	};
 	return Player;
 });

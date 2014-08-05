@@ -1,9 +1,7 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'app/Point',
 	'app/LineObstacle'
 ], function(
-	Point,
 	LineObstacle
 ) {
 	function Level() {
