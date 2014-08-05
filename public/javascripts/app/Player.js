@@ -80,6 +80,36 @@ define([
 			this.pos.x + w, this.pos.y - h)); //upper right corner of bounding box
 		this.collisionLines.push(GeometryUtils.toLine(this.pos.prev.x - w, this.pos.prev.y - h,
 			this.pos.x - w, this.pos.y - h)); //upper left corner of bounding box\
+		if(this.pos.x > this.pos.prev.x) { //moving right, bound is on right side
+			this._horizontalBoundIsLeft = false;
+			this._horizontalBound = GeometryUtils.toLine(
+				this.pos.prev.x + this.width / 2, this.pos.prev.y + this.height / 2,
+				this.pos.prev.x + this.width / 2, this.pos.prev.y - this.height / 2);
+		}
+		else if(this.pos.x < this.pos.prev.x) { //moving left, bound is on left side
+			this._horizontalBoundIsLeft = true;
+			this._horizontalBound = GeometryUtils.toLine(
+				this.pos.prev.x - this.width / 2, this.pos.prev.y + this.height / 2,
+				this.pos.prev.x - this.width / 2, this.pos.prev.y - this.height / 2);
+		}
+		else { //not moving horizontally, no bound
+			this._horizontalBound = null;
+		}
+		if(this.pos.y > this.pos.prev.y) { //moving down, bound is on bottom side
+			this._verticalBoundIsTop = false;
+			this._verticalBound = GeometryUtils.toLine(
+				this.pos.prev.x + this.width / 2, this.pos.prev.y + this.height / 2,
+				this.pos.prev.x - this.width / 2, this.pos.prev.y + this.height / 2);
+		}
+		else if(this.pos.y < this.pos.prev.y) { //moving up, bound is on top side
+			this._verticalBoundIsTop = true;
+			this._verticalBound = GeometryUtils.toLine(
+				this.pos.prev.x + this.width / 2, this.pos.prev.y - this.height / 2,
+				this.pos.prev.x - this.width / 2, this.pos.prev.y - this.height / 2);
+		}
+		else { //not moving horizontally, no bound
+			this._verticalBound = null;
+		}
 	};
 	Player.prototype.rewindMovement = function(distToRewind, isDistRemainingAfterRewind, x, y) {
 		if((isDistRemainingAfterRewind ? this.lineOfMovement.dist - distToRewind : distToRewind) === 0) {

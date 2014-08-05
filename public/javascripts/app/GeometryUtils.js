@@ -45,6 +45,9 @@ define(function() {
 		};
 	}
 	function findLineToLineIntersection(line1, line2, err) {
+		if(!line1 || !line2) {
+			return null;
+		}
 		var c = err || 0;
 		var intersection = null;
 		var k, intersectionX, intersectionY;
