@@ -35,13 +35,24 @@ define([
 		var collisionsThisFrame = [];
 
 		//collisions only happen if the player's moving towards the "solid" side of the line
-		if(player.vel.x * this._sinOfLineAngle + player.vel.y * -this._cosOfLineAngle <= 0) {
+		if(player.vel.x * this._sinOfLineAngle + player.vel.y * -this._cosOfLineAngle <= -INTERSECTION_LEEWAY) {
+			this._debug_cannotCollide = true;
 			return null;
+		}
+		this._debug_cannotCollide = false;
+
+		//if you just "skim" a line you ignore its endpoints, otherwise it gets gross
+		var ignoreEndpoints = !GeometryUtils.isLineBetweenParallelLines(this._line, player.lowerLineOfMovement, player.upperLineOfMovement, INTERSECTION_LEEWAY);
+		this._debug_isIgnoringEndpoints = ignoreEndpoints;
+
+		//oh wait... if none of the endpoints or main line segment are between the lines of movement... it will never collide
+		if(ignoreEndpoints) {
+			return false;
 		}
 
 		//find any collisions that occur from the player's projected movement vectors
 		for(i = 0; i < player.collisionLines.length; i++) {
-			var intersection = GeometryUtils.findLineToLineIntersection(player.collisionLines[i], this._line, INTERSECTION_LEEWAY);
+			var intersection = GeometryUtils.findLineToLineIntersection(player.collisionLines[i], this._line, INTERSECTION_LEEWAY, ignoreEndpoints);
 			if(intersection && intersection.intersectsBothSegments) {
 				//figure out the distance to the intersection point, since we want the one closest
 				dx = intersection.x - player.collisionLines[i].start.x;
@@ -61,13 +72,13 @@ define([
 		var toLineEnd = GeometryUtils.toLine(this._line.end.x - player.lineOfMovement.diff.x,
 			this._line.end.y - player.lineOfMovement.diff.y, this._line.end.x, this._line.end.y);
 		var endpointCollisions = [
-			{ intersection: GeometryUtils.findLineToLineIntersection(toLineStart, player.leadingTopOrBottomEdge, INTERSECTION_LEEWAY),
+			{ intersection: GeometryUtils.findLineToLineIntersection(toLineStart, player.leadingTopOrBottomEdge, INTERSECTION_LEEWAY, ignoreEndpoints),
 				isLeftOrRightEdge: false, line: toLineStart },
-			{ intersection: GeometryUtils.findLineToLineIntersection(toLineEnd, player.leadingTopOrBottomEdge, INTERSECTION_LEEWAY),
+			{ intersection: GeometryUtils.findLineToLineIntersection(toLineEnd, player.leadingTopOrBottomEdge, INTERSECTION_LEEWAY, ignoreEndpoints),
 				isLeftOrRightEdge: false, line: toLineEnd },
-			{ intersection: GeometryUtils.findLineToLineIntersection(toLineStart, player.leadingLeftOrRightEdge, INTERSECTION_LEEWAY),
+			{ intersection: GeometryUtils.findLineToLineIntersection(toLineStart, player.leadingLeftOrRightEdge, INTERSECTION_LEEWAY, ignoreEndpoints),
 				isLeftOrRightEdge: true, line: toLineStart },
-			{ intersection: GeometryUtils.findLineToLineIntersection(toLineEnd, player.leadingLeftOrRightEdge, INTERSECTION_LEEWAY),
+			{ intersection: GeometryUtils.findLineToLineIntersection(toLineEnd, player.leadingLeftOrRightEdge, INTERSECTION_LEEWAY, ignoreEndpoints),
 				isLeftOrRightEdge: true, line: toLineEnd }
 		];
 		for(i = 0; i < endpointCollisions.length; i++) {
@@ -136,7 +147,7 @@ define([
 		}
 	};
 	LineObstacle.prototype.render = function(ctx, camera) {
-		ctx.strokeStyle = '#059';
+		ctx.strokeStyle = this._debug_cannotCollide ? '#ccc' : (this._debug_isIgnoringEndpoints ? '#f55' :'#059');
 		ctx.lineWidth = 1;
 		ctx.beginPath();
 		ctx.moveTo(this._line.start.x - camera.x, this._line.start.y - camera.y);

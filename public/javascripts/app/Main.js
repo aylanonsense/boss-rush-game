@@ -18,10 +18,12 @@ define([
 		var player = new Player(1000, 1000);
 		var camera = { x: player.pos.x, y: player.pos.y };
 		var level = new Level();
+		var grapples = [];
 
 		//add input bindings
 		var keys = { pressed: {} };
 		var KEY = { W: 87, A: 65, S: 83, D: 68, R: 82, P: 80, G: 71, SHIFT: 16, SPACE: 32 };
+		var JUMP_KEY = KEY.SPACE;
 		var PAUSE_KEY = KEY.P;
 		$(document).on('keydown', function(evt) {
 			if(!keys[evt.which]) {
@@ -29,6 +31,9 @@ define([
 				keys.pressed[evt.which] = true;
 				if(evt.which === PAUSE_KEY) {
 					isPaused = !isPaused;
+				}
+				if(evt.which === JUMP_KEY) {
+					player.jumpWhenPossible();
 				}
 			}
 		});
@@ -38,10 +43,19 @@ define([
 				keys.pressed[evt.which] = false;
 			}
 		});
+		$(document).on('click', function(evt) {
+			grapples.push(player.shootGrapple(evt.offsetX + camera.x, evt.offsetY + camera.y));
+		});
 
 		//important stuff that happens every frame
 		function tick(ms) {
-			//player.applyForce(0, 600); //gravity
+			//make the grapples
+			for(var i = 0; i < grapples.length; i++) {
+				grapples[i].move(ms);
+			}
+
+			//move the player
+			player.applyForce(0, 600); //gravity
 			if(keys[KEY.A]) { player.applyForce(-400, 0); }
 			if(keys[KEY.D]) { player.applyForce(400, 0); }
 			if(keys[KEY.W]) { player.applyForce(0, -400); }
@@ -51,7 +65,7 @@ define([
 			//find mid-frame collisions
 			var interruption = findInterruption();
 			var interruptionKeysAlreadyUsed = [];
-			for(var i = 0; i < 100 && interruption; i++) {
+			for(i = 0; i < 100 && interruption; i++) {
 				if(interruptionKeysAlreadyUsed.indexOf(interruption.key) !== -1) {
 					player.interruptRemainingMovement();
 					break;
@@ -87,6 +101,9 @@ define([
 			ctx.fillStyle = '#fff';
 			ctx.fillRect(0, 0, WIDTH, HEIGHT);
 			level.render(ctx, camera);
+			for(var i = 0; i < grapples.length; i++) {
+				grapples[i].render(ctx, camera);
+			}
 			player.render(ctx, camera);
 		}
 

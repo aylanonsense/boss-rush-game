@@ -1,12 +1,15 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'app/GeometryUtils'
+	'app/GeometryUtils',
+	'app/Grapple'
 ], function(
-	GeometryUtils
+	GeometryUtils,
+	Grapple
 ) {
+	var MIN_VELOCITY = 0.00000001;
 	function Player(x, y) {
-		this.width = 50;
-		this.height = 50;
+		this.width = 20;
+		this.height = 30;
 		this.pos = { x: x, y: y };
 		this.pos.prev = { x: x, y: y };
 		this.vel = { x: 0, y: 0 };
@@ -14,6 +17,7 @@ define([
 		this._forceThisFrame.instant = { x: 0, y: 0 };
 		this._durationOfMovement = 0;
 		this._recalculateMovementVectors();
+		this._jumpingWhenPossible = false;
 	}
 	Player.prototype.move = function(ms) {
 		var t = ms / 1000;
@@ -23,6 +27,12 @@ define([
 		var oldVel = { x: this.vel.x, y: this.vel.y };
 		this.vel.x += this._forceThisFrame.x * t + this._forceThisFrame.instant.x * u;
 		this.vel.y += this._forceThisFrame.y * t + this._forceThisFrame.instant.y * u;
+		if(-MIN_VELOCITY <= this.vel.x && this.vel.x <= MIN_VELOCITY) {
+			this.vel.x = 0;
+		}
+		if(-MIN_VELOCITY <= this.vel.y && this.vel.y <= MIN_VELOCITY) {
+			this.vel.y = 0;
+		}
 		this.pos.prev.x = this.pos.x;
 		this.pos.prev.y = this.pos.y;
 		//averaging allows the velocity's effect on position to be framerate-independent
@@ -61,6 +71,12 @@ define([
 		//apply any changes due to the interruption
 		interruption.handle();
 
+		//jump (debug)
+		if(this._jumpingWhenPossible) {
+			this.jump(0, -1);
+			this._jumpingWhenPossible = false;
+		}
+
 		//replay the remaining time
 		this.move(msRemaining);
 	};
@@ -80,11 +96,56 @@ define([
 		this.lineOfMovement = GeometryUtils.toLine(start, end);
 
 		//project movement vector from all four corners of the player's bound box
-		this.collisionLines = [];
-		this.collisionLines.push(GeometryUtils.toLine(start.x + w, start.y + h, end.x + w, end.y + h));
-		this.collisionLines.push(GeometryUtils.toLine(start.x - w, start.y + h, end.x - w, end.y + h));
-		this.collisionLines.push(GeometryUtils.toLine(start.x + w, start.y - h, end.x + w, end.y - h));
-		this.collisionLines.push(GeometryUtils.toLine(start.x - w, start.y - h, end.x - w, end.y - h));
+		var lowerRightLine = GeometryUtils.toLine(start.x + w, start.y + h, end.x + w, end.y + h);
+		var lowerLeftLine = GeometryUtils.toLine(start.x - w, start.y + h, end.x - w, end.y + h);
+		var upperRightLine = GeometryUtils.toLine(start.x + w, start.y - h, end.x + w, end.y - h);
+		var upperLeftLine = GeometryUtils.toLine(start.x - w, start.y - h, end.x - w, end.y - h);
+
+		if(this.pos.x > this.pos.prev.x && this.pos.y < this.pos.prev.y) { //moving up and to the right
+			this.lowerLineOfMovement = lowerRightLine;
+			this.upperLineOfMovement = upperLeftLine;
+			this.collisionLines = [ lowerRightLine, upperRightLine, upperLeftLine ];
+		}
+		else if(this.pos.x < this.pos.prev.x && this.pos.y < this.pos.prev.y) { //moving up and to the left
+			this.lowerLineOfMovement = lowerLeftLine;
+			this.upperLineOfMovement = upperRightLine;
+			this.collisionLines = [ lowerLeftLine, upperLeftLine, upperRightLine ];
+		}
+		else if(this.pos.x > this.pos.prev.x && this.pos.y > this.pos.prev.y) { //moving down and to the right
+			this.lowerLineOfMovement = lowerLeftLine;
+			this.upperLineOfMovement = upperRightLine;
+			this.collisionLines = [ lowerLeftLine, lowerRightLine, upperRightLine ];
+		}
+		else if(this.pos.x < this.pos.prev.x && this.pos.y > this.pos.prev.y) { //moving down and to the left
+			this.lowerLineOfMovement = lowerRightLine;
+			this.upperLineOfMovement = upperLeftLine;
+			this.collisionLines = [ lowerRightLine, lowerLeftLine, upperLeftLine ];
+		}
+		else if(this.pos.x > this.pos.prev.x) { //moving right
+			this.lowerLineOfMovement = lowerRightLine;
+			this.upperLineOfMovement = upperRightLine;
+			this.collisionLines = [ lowerRightLine, upperRightLine ];
+		}
+		else if(this.pos.x < this.pos.prev.x) { //moving left
+			this.lowerLineOfMovement = lowerLeftLine;
+			this.upperLineOfMovement = upperLeftLine;
+			this.collisionLines = [ lowerLeftLine, upperLeftLine ];
+		}
+		else if(this.pos.y < this.pos.prev.y) { //moving up
+			this.lowerLineOfMovement = upperLeftLine;
+			this.upperLineOfMovement = upperRightLine;
+			this.collisionLines = [ upperLeftLine, upperRightLine ];
+		}
+		else if(this.pos.y > this.pos.prev.y) { //moving down
+			this.lowerLineOfMovement = lowerLeftLine;
+			this.upperLineOfMovement = lowerRightLine;
+			this.collisionLines = [ lowerLeftLine, lowerRightLine ];
+		}
+		else { //not moving
+			this.lowerLineOfMovement = null;
+			this.upperLineOfMovement = null;
+			this.collisionLines = [];
+		}
 
 		//create line along the two bounding box edges in the direction of movement
 		this.leadingLeftOrRightEdge = null;
@@ -139,18 +200,23 @@ define([
 			ctx.arc(line.end.x - camera.x, line.end.y - camera.y, 1.5, 0, 2 * Math.PI, false);
 			ctx.fill();
 		}
-		ctx.strokeStyle = '#000';
-		ctx.lineWidth = 1;
-		if(this.leadingTopOrBottomEdge) {
+
+		ctx.strokeStyle = '#ddd';
+		ctx.lineWidth = 0.5;
+		if(this.lowerLineOfMovement) {
 			ctx.beginPath();
-			ctx.moveTo(this.leadingTopOrBottomEdge.start.x - camera.x, this.leadingTopOrBottomEdge.start.y - camera.y);
-			ctx.lineTo(this.leadingTopOrBottomEdge.end.x - camera.x, this.leadingTopOrBottomEdge.end.y - camera.y);
+			ctx.moveTo(this.lowerLineOfMovement.end.x - camera.x - 10000 * this.lowerLineOfMovement.diff.x,
+				this.lowerLineOfMovement.end.y - camera.y - 10000 * this.lowerLineOfMovement.diff.y);
+			ctx.lineTo(this.lowerLineOfMovement.end.x - camera.x + 10000 * this.lowerLineOfMovement.diff.x,
+				this.lowerLineOfMovement.end.y - camera.y + 10000 * this.lowerLineOfMovement.diff.y);
 			ctx.stroke();
 		}
-		if(this.leadingLeftOrRightEdge) {
+		if(this.upperLineOfMovement) {
 			ctx.beginPath();
-			ctx.moveTo(this.leadingLeftOrRightEdge.start.x - camera.x, this.leadingLeftOrRightEdge.start.y - camera.y);
-			ctx.lineTo(this.leadingLeftOrRightEdge.end.x - camera.x, this.leadingLeftOrRightEdge.end.y - camera.y);
+			ctx.moveTo(this.upperLineOfMovement.end.x - camera.x - 10000 * this.upperLineOfMovement.diff.x,
+				this.upperLineOfMovement.end.y - camera.y - 10000 * this.upperLineOfMovement.diff.y);
+			ctx.lineTo(this.upperLineOfMovement.end.x - camera.x + 10000 * this.upperLineOfMovement.diff.x,
+				this.upperLineOfMovement.end.y - camera.y + 10000 * this.upperLineOfMovement.diff.y);
 			ctx.stroke();
 		}
 	};
@@ -164,6 +230,13 @@ define([
 			dirY = -1;
 		}
 		this.applyInstantaneousForce(15000, dirX, dirY);
+		this._jumpingWhenPossible = false;
+	};
+	Player.prototype.jumpWhenPossible = function() {
+		this._jumpingWhenPossible = true;
+	};
+	Player.prototype.shootGrapple = function(x, y) {
+		return new Grapple(this, x - this.pos.x, y - this.pos.y);
 	};
 	return Player;
 });
