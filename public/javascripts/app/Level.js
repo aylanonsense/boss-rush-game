@@ -51,7 +51,7 @@ define([
 		this._createPoly([910,760,   930,760,   930,780,   910,780], true);
 		this._createPoly([1070,840,  1090,840,  1090,860,  1070,860], true);
 		this._createPoly([1070,760,  1090,760,  1090,780,  1070,780], true);
-		this._createPoly([800,1000,  680,1100,  625,1085,  590,980,], false);
+		//this._createPoly([800,1000,  680,1100,  625,1085,  590,980,], false);
 	}
 	Level.prototype.render = function(ctx, camera) {
 		for(var i = 0; i < this.obstacles.length; i++) {

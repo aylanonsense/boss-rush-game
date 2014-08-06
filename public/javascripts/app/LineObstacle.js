@@ -30,6 +30,20 @@ define([
 		};
 	}
 	LineObstacle.prototype = Object.create(Obstacle.prototype);
+	LineObstacle.prototype.checkForCollisionWithGrapple = function(grapple) {
+		var intersection = GeometryUtils.findLineToLineIntersection(grapple.lineOfMovement, this._line, INTERSECTION_LEEWAY);
+		if(intersection && intersection.intersectsBothSegments) {
+			var dx = grapple.pos.prev.x - intersection.x;
+			var dy = grapple.pos.prev.y - intersection.y;
+			return {
+				key: 'Collision with line ' + this._obstacleId,
+				x: intersection.x,
+				y: intersection.y,
+				squareDistTo: dx * dx + dy * dy
+			};
+		}
+		return null;
+	};
 	LineObstacle.prototype.checkForCollisionWithPlayer = function(player) {
 		var dx, dy, i;
 		var collisionsThisFrame = [];

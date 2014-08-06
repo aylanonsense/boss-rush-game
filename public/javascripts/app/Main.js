@@ -49,9 +49,28 @@ define([
 
 		//important stuff that happens every frame
 		function tick(ms) {
-			//make the grapples
-			for(var i = 0; i < grapples.length; i++) {
+			var i, j;
+			//move the grapples
+			for(i = 0; i < grapples.length; i++) {
 				grapples[i].move(ms);
+				//if the grapples are unlatched we need to check for collisions
+				if(!grapples[i].isLatched) {
+					var grappleCollision = null;
+					for(j = 0; j < level.obstacles.length; j++) {
+						var potentialGrappleCollision = level.obstacles[j].checkForCollisionWithGrapple(grapples[i]);
+						if(potentialGrappleCollision && (!grappleCollision ||
+							potentialGrappleCollision.squareDistTo < grappleCollision.squareDistTo)) {
+							grappleCollision = potentialGrappleCollision;
+						}
+					}
+					if(grappleCollision) {
+						grapples[i].latchTo(grappleCollision.x, grappleCollision.y);
+					}
+				}
+				//if the grapples are latched they apply a force to the player
+				if(grapples[i].isLatched) {
+					grapples[i].applyForceToPlayer();
+				}
 			}
 
 			//move the player
