@@ -5,6 +5,8 @@ define([
 	GeometryUtils
 ) {
 	function Player(x, y) {
+		this.width = 50;
+		this.height = 50;
 		this.pos = { x: x, y: y };
 		this.pos.prev = { x: x, y: y };
 		this.vel = { x: 0, y: 0 };
@@ -12,8 +14,6 @@ define([
 		this._forceThisFrame.instant = { x: 0, y: 0 };
 		this._durationOfMovement = 0;
 		this._recalculateMovementVectors();
-		this.width = 20;
-		this.height = 30;
 	}
 	Player.prototype.move = function(ms) {
 		var t = ms / 1000;
@@ -37,9 +37,26 @@ define([
 		this._durationOfMovement = ms;
 		this._recalculateMovementVectors();
 	};
+	Player.prototype._rewindMovementTo = function(x, y) {
+		//determine how long of a rewind this is
+		var dx = this.pos.x - x;
+		var dy = this.pos.y - y;
+		var distRewind = Math.sqrt(dx * dx + dy * dy);
+		var p = distRewind / this.lineOfMovement.dist;
+		var rewindDuration = this._durationOfMovement * p;
+		this._durationOfMovement -= rewindDuration;
+
+		//apply rewind to player's position
+		this.pos.x = x;
+		this.pos.y = y;
+		this._recalculateMovementVectors();
+
+		//return how many ms were undone due to rewinding
+		return rewindDuration;
+	};
 	Player.prototype.handleInterruption = function(interruption) {
 		//rewind movement to just before the interruption
-		var msRemaining = this.rewindMovement(Math.sqrt(interruption.squareDistTo), true, interruption.x, interruption.y);
+		var msRemaining = this._rewindMovementTo(interruption.x, interruption.y);
 
 		//apply any changes due to the interruption
 		interruption.handle();
@@ -56,65 +73,30 @@ define([
 	};
 	Player.prototype._recalculateMovementVectors = function() {
 		var w = this.width / 2, h = this.height / 2;
-		this.lineOfMovement = GeometryUtils.toLine(this.pos.prev, this.pos);
+		var start = this.pos.prev;
+		var end = this.pos;
+
+		//project movement vector from center of player's bounding box
+		this.lineOfMovement = GeometryUtils.toLine(start, end);
+
+		//project movement vector from all four corners of the player's bound box
 		this.collisionLines = [];
-		this.collisionLines.push(GeometryUtils.toLine(this.pos.prev.x + w, this.pos.prev.y + h,
-			this.pos.x + w, this.pos.y + h)); //lower right corner of bounding box
-		this.collisionLines.push(GeometryUtils.toLine(this.pos.prev.x - w, this.pos.prev.y + h,
-			this.pos.x - w, this.pos.y + h)); //lower left corner of bounding box
-		this.collisionLines.push(GeometryUtils.toLine(this.pos.prev.x + w, this.pos.prev.y - h,
-			this.pos.x + w, this.pos.y - h)); //upper right corner of bounding box
-		this.collisionLines.push(GeometryUtils.toLine(this.pos.prev.x - w, this.pos.prev.y - h,
-			this.pos.x - w, this.pos.y - h)); //upper left corner of bounding box\
-		if(this.pos.x > this.pos.prev.x) { //moving right, bound is on right side
-			this._horizontalBoundIsLeft = false;
-			this._horizontalBound = GeometryUtils.toLine(
-				this.pos.prev.x + this.width / 2, this.pos.prev.y + this.height / 2,
-				this.pos.prev.x + this.width / 2, this.pos.prev.y - this.height / 2);
+		this.collisionLines.push(GeometryUtils.toLine(start.x + w, start.y + h, end.x + w, end.y + h));
+		this.collisionLines.push(GeometryUtils.toLine(start.x - w, start.y + h, end.x - w, end.y + h));
+		this.collisionLines.push(GeometryUtils.toLine(start.x + w, start.y - h, end.x + w, end.y - h));
+		this.collisionLines.push(GeometryUtils.toLine(start.x - w, start.y - h, end.x - w, end.y - h));
+
+		//create line along the two bounding box edges in the direction of movement
+		this.leadingLeftOrRightEdge = null;
+		if(start.x !== end.x) {
+			this.leadingLeftOrRightEdge = GeometryUtils.toLine(start.x + (start.x < end.x ? w : -w), start.y + h,
+				start.x + (start.x < end.x ? w : -w), start.y - h);
 		}
-		else if(this.pos.x < this.pos.prev.x) { //moving left, bound is on left side
-			this._horizontalBoundIsLeft = true;
-			this._horizontalBound = GeometryUtils.toLine(
-				this.pos.prev.x - this.width / 2, this.pos.prev.y + this.height / 2,
-				this.pos.prev.x - this.width / 2, this.pos.prev.y - this.height / 2);
+		this.leadingTopOrBottomEdge = null;
+		if(start.y !== end.y) {
+			this.leadingTopOrBottomEdge = GeometryUtils.toLine(start.x + w, start.y + (start.y < end.y ? h : -h),
+				start.x - w, start.y + (start.y < end.y ? h : -h));
 		}
-		else { //not moving horizontally, no bound
-			this._horizontalBound = null;
-		}
-		if(this.pos.y > this.pos.prev.y) { //moving down, bound is on bottom side
-			this._verticalBoundIsTop = false;
-			this._verticalBound = GeometryUtils.toLine(
-				this.pos.prev.x + this.width / 2, this.pos.prev.y + this.height / 2,
-				this.pos.prev.x - this.width / 2, this.pos.prev.y + this.height / 2);
-		}
-		else if(this.pos.y < this.pos.prev.y) { //moving up, bound is on top side
-			this._verticalBoundIsTop = true;
-			this._verticalBound = GeometryUtils.toLine(
-				this.pos.prev.x + this.width / 2, this.pos.prev.y - this.height / 2,
-				this.pos.prev.x - this.width / 2, this.pos.prev.y - this.height / 2);
-		}
-		else { //not moving horizontally, no bound
-			this._verticalBound = null;
-		}
-	};
-	Player.prototype.rewindMovement = function(distToRewind, isDistRemainingAfterRewind, x, y) {
-		if((isDistRemainingAfterRewind ? this.lineOfMovement.dist - distToRewind : distToRewind) === 0) {
-			return 0; //no rewind needs to be done
-		}
-		if(this.lineOfMovement.dist === 0) { throw new Error("Cannot rewind: player did not move any distance" +distToRewind); }
-		if(this._durationOfMovement === 0) { throw new Error("Cannot rewind: player did not spend any time moving"); }
-		if(distToRewind > this.lineOfMovement.dist) { throw new Error("Cannot rewind player further than distance moved: " + distToRewind + " > " + this.lineOfMovement.dist); }
-		if(distToRewind < 0) { throw new Error("Cannot rewind player a negative distance"); }
-		if(isDistRemainingAfterRewind) {
-			distToRewind = this.lineOfMovement.dist - distToRewind;
-		}
-		var p = (distToRewind / this.lineOfMovement.dist);
-		var rewindDuration = this._durationOfMovement * p;
-		this.pos.x = x;//-= this.lineOfMovement.diff.x * p;
-		this.pos.y = y;//-= this.lineOfMovement.diff.y * p;
-		this._durationOfMovement -= rewindDuration;
-		this._recalculateMovementVectors();
-		return rewindDuration;
 	};
 	Player.prototype.applyForce = function(forceX, forceY) { //or (force, dirX, dirY)
 		if(arguments.length === 3) {
@@ -156,6 +138,20 @@ define([
 			ctx.beginPath();
 			ctx.arc(line.end.x - camera.x, line.end.y - camera.y, 1.5, 0, 2 * Math.PI, false);
 			ctx.fill();
+		}
+		ctx.strokeStyle = '#000';
+		ctx.lineWidth = 1;
+		if(this.leadingTopOrBottomEdge) {
+			ctx.beginPath();
+			ctx.moveTo(this.leadingTopOrBottomEdge.start.x - camera.x, this.leadingTopOrBottomEdge.start.y - camera.y);
+			ctx.lineTo(this.leadingTopOrBottomEdge.end.x - camera.x, this.leadingTopOrBottomEdge.end.y - camera.y);
+			ctx.stroke();
+		}
+		if(this.leadingLeftOrRightEdge) {
+			ctx.beginPath();
+			ctx.moveTo(this.leadingLeftOrRightEdge.start.x - camera.x, this.leadingLeftOrRightEdge.start.y - camera.y);
+			ctx.lineTo(this.leadingLeftOrRightEdge.end.x - camera.x, this.leadingLeftOrRightEdge.end.y - camera.y);
+			ctx.stroke();
 		}
 	};
 	Player.prototype.jump = function(dirX, dirY) {

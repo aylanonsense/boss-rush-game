@@ -61,14 +61,14 @@ define([
 		var toLineEnd = GeometryUtils.toLine(this._line.end.x - player.lineOfMovement.diff.x,
 			this._line.end.y - player.lineOfMovement.diff.y, this._line.end.x, this._line.end.y);
 		var endpointCollisions = [
-			{ intersection: GeometryUtils.findLineToLineIntersection(toLineStart, player._verticalBound, INTERSECTION_LEEWAY),
-				isHorizontal: false, line: toLineStart },
-			{ intersection: GeometryUtils.findLineToLineIntersection(toLineEnd, player._verticalBound, INTERSECTION_LEEWAY),
-				isHorizontal: false, line: toLineEnd },
-			{ intersection: GeometryUtils.findLineToLineIntersection(toLineStart, player._horizontalBound, INTERSECTION_LEEWAY),
-				isHorizontal: true, line: toLineStart },
-			{ intersection: GeometryUtils.findLineToLineIntersection(toLineEnd, player._horizontalBound, INTERSECTION_LEEWAY),
-				isHorizontal: true, line: toLineEnd }
+			{ intersection: GeometryUtils.findLineToLineIntersection(toLineStart, player.leadingTopOrBottomEdge, INTERSECTION_LEEWAY),
+				isLeftOrRightEdge: false, line: toLineStart },
+			{ intersection: GeometryUtils.findLineToLineIntersection(toLineEnd, player.leadingTopOrBottomEdge, INTERSECTION_LEEWAY),
+				isLeftOrRightEdge: false, line: toLineEnd },
+			{ intersection: GeometryUtils.findLineToLineIntersection(toLineStart, player.leadingLeftOrRightEdge, INTERSECTION_LEEWAY),
+				isLeftOrRightEdge: true, line: toLineStart },
+			{ intersection: GeometryUtils.findLineToLineIntersection(toLineEnd, player.leadingLeftOrRightEdge, INTERSECTION_LEEWAY),
+				isLeftOrRightEdge: true, line: toLineEnd }
 		];
 		for(i = 0; i < endpointCollisions.length; i++) {
 			if(endpointCollisions[i].intersection && endpointCollisions[i].intersection.intersectsBothSegments) {
@@ -79,7 +79,7 @@ define([
 					squareDist: dx * dx + dy * dy,
 					line: endpointCollisions[i].line,
 					isEndpointCollision: true,
-					isHorizontal: endpointCollisions[i].isHorizontal //true iff colliding with the player's left or right bound
+					isLeftOrRightEdge: endpointCollisions[i].isLeftOrRightEdge //true iff colliding with the player's left or right bound
 				});
 			}
 		}
@@ -97,7 +97,7 @@ define([
 					squareDistTo: collision.squareDist,
 					handle: function() {
 						//endpoint collisions are easy, they either cancel out all vertical or all horizontal velocity
-						if(collision.isHorizontal) {
+						if(collision.isLeftOrRightEdge) {
 							player.vel.x = 0;
 						}
 						else {
