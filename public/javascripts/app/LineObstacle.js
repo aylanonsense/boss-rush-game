@@ -75,11 +75,11 @@ define([
 				dx = endpointCollisions[i].line.end.x - endpointCollisions[i].intersection.x;
 				dy = endpointCollisions[i].line.end.y - endpointCollisions[i].intersection.y;
 				collisionsThisFrame.push({
-					intersection: endpointCollisions[i].line.end,
+					intersection: endpointCollisions[i].intersection,
 					squareDist: dx * dx + dy * dy,
 					line: endpointCollisions[i].line,
 					isEndpointCollision: true,
-					isLeftOrRightEdge: endpointCollisions[i].isLeftOrRightEdge //true iff colliding with the player's left or right bound
+					isLeftOrRightEdge: endpointCollisions[i].isLeftOrRightEdge //true iff colliding with the player's left/right bound
 				});
 			}
 		}

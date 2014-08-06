@@ -42,7 +42,7 @@ define([
 		var dx = this.pos.x - x;
 		var dy = this.pos.y - y;
 		var distRewind = Math.sqrt(dx * dx + dy * dy);
-		var p = distRewind / this.lineOfMovement.dist;
+		var p = (this.lineOfMovement.dist === 0 ? 0 : distRewind / this.lineOfMovement.dist);
 		var rewindDuration = this._durationOfMovement * p;
 		this._durationOfMovement -= rewindDuration;
 
