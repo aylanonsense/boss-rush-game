@@ -17,7 +17,7 @@ define([
 			this.obstacles[i].render(ctx, camera);
 		}
 	};
-	EditableLevel.prototype.createPoly = function(points, closePoly) {
+	EditableLevel.prototype.createPoly = function(points) {
 		var i, line;
 		var poly = {
 			points: points,
@@ -25,10 +25,6 @@ define([
 		};
 		for(i = 0; i < points.length - 2; i += 2) {
 			line = new LineObstacle(points[i], points[i + 1], points[i + 2], points[i + 3]);
-			poly.lines.push(line);
-		}
-		if(typeof closePoly === 'undefined' || closePoly) {
-			line = new LineObstacle(points[points.length - 2], points[points.length - 1], points[0], points[1]);
 			poly.lines.push(line);
 		}
 		this._polys.push(poly);

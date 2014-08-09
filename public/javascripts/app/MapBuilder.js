@@ -55,14 +55,16 @@ define([
 				if(evt.which === CREATE_POLY_KEY) {
 					isCreatingPoly = false;
 					if(newPolyPoints.length > 2) {
-						level.createPoly(newPolyPoints, true);
+						newPolyPoints.push(newPolyPoints[0]);
+						newPolyPoints.push(newPolyPoints[1]);
+						level.createPoly(newPolyPoints);
 					}
 					newPolyPoints = [];
 				}
 				if(evt.which === CREATE_LINES_KEY) {
 					isCreatingLines = false;
 					if(newPolyPoints.length > 2) {
-						level.createPoly(newPolyPoints, false);
+						level.createPoly(newPolyPoints);
 					}
 					newPolyPoints = [];
 				}
