@@ -26,7 +26,7 @@ define([
 		this.move(ms);
 		this._isAirborne = true;
 		this._isStanding = false;
-	}
+	};
 	Player.prototype.move = function(ms) {
 		var t = ms / 1000;
 		var u = 1 / 60; //constant time t

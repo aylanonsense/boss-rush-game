@@ -7,7 +7,7 @@ define([
 	function Level() {
 		this.obstacles = [];
 		this._polys = [];
-		this.startingPoint = { x: 175, y: 0 };
+		this.startingPoint = { x: 0, y: 0 };
 	}
 	Level.prototype.render = function(ctx, camera) {
 		for(var i = 0; i < this.obstacles.length; i++) {
@@ -21,7 +21,7 @@ define([
 			lines: []
 		};
 		for(i = 0; i < points.length - 2; i += 2) {
-			line = new LineObstacle(points[i], points[i + 1], points[i + 2], points[i + 3]);
+			line = new LineObstacle(points[i + 2], points[i + 3], points[i], points[i + 1]);
 			poly.lines.push(line);
 		}
 		this._polys.push(poly);

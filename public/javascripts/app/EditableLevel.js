@@ -24,7 +24,7 @@ define([
 			lines: []
 		};
 		for(i = 0; i < points.length - 2; i += 2) {
-			line = new LineObstacle(points[i], points[i + 1], points[i + 2], points[i + 3]);
+			line = new LineObstacle(points[i + 2], points[i + 3], points[i], points[i + 1]);
 			poly.lines.push(line);
 		}
 		this._polys.push(poly);
