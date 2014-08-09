@@ -10,8 +10,8 @@ define([
 		var dir = Math.sqrt(dirX * dirX + dirY * dirY);
 		this._player = player;
 		var l = (this._player.width < this._player.height ? this._player.width : this._player.height);
-		this.pos = { x: this._player.pos.x + l * dirX / dir, y: this._player.pos.y + l * dirX / dir };
-		this.pos.prev = { x: this._player.pos.x + l * dirX / dir, y: this._player.pos.y + l * dirX / dir };
+		this.pos = { x: this._player.pos.x + l * dirX / dir, y: this._player.pos.y + l * dirY / dir };
+		this.pos.prev = { x: this._player.pos.x + l * dirX / dir, y: this._player.pos.y + l * dirY / dir };
 		this.vel = { x: GRAPPLE_SPEED * dirX / dir, y: GRAPPLE_SPEED * dirY / dir };
 		this.isLatched = false;
 		this._latchDist = null;

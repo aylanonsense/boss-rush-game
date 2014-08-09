@@ -2,38 +2,49 @@ if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'jquery',
 	'app/Player',
-	'app/Level'
+	'app/EditableLevel'
 ], function(
 	$,
 	Player,
-	Level
+	EditableLevel
 ) {
 	return function() {
 		//canvas
-		var WIDTH = 800, HEIGHT = 600, isPaused = false;
+		var WIDTH = 800, HEIGHT = 600;
 		var canvas = $('<canvas width="' + WIDTH + 'px" height = "' + HEIGHT + 'px" />').appendTo(document.body);
 		var ctx = canvas[0].getContext('2d');
 
 		//create stuff
-		var level = new Level();
+		var level = new EditableLevel();
 		var player = new Player(level.startingPoint.x, level.startingPoint.y);
 		var camera = { x: player.pos.x, y: player.pos.y };
-		var grapples = [];
 
 		//add input bindings
 		var keys = { pressed: {} };
-		var KEY = { W: 87, A: 65, S: 83, D: 68, R: 82, P: 80, G: 71, SHIFT: 16, SPACE: 32 };
-		var JUMP_KEY = KEY.SPACE;
-		var PAUSE_KEY = KEY.P;
+		var KEY = { W: 87, A: 65, S: 83, D: 68, R: 82, P: 80, G: 71, Z: 90, X: 88, C: 67, V: 86, SHIFT: 16, SPACE: 32 };
+		var CREATE_POLY_KEY = KEY.C;
+		var CREATE_LINES_KEY = KEY.X;
+		var UNDO_KEY = KEY.Z;
+		var EXPORT_KEY = KEY.V;
+		var isCreatingPoly = false;
+		var isCreatingLines = false;
+		var newPolyPoints = [];
+		var mouse = { x: 0, y: 0 };
 		$(document).on('keydown', function(evt) {
 			if(!keys[evt.which]) {
 				keys[evt.which] = true;
 				keys.pressed[evt.which] = true;
-				if(evt.which === PAUSE_KEY) {
-					isPaused = !isPaused;
+				if(evt.which === CREATE_POLY_KEY) {
+					isCreatingPoly = true;
 				}
-				if(evt.which === JUMP_KEY) {
-					player.jumpWhenPossible();
+				if(evt.which === CREATE_LINES_KEY) {
+					isCreatingLines = true;
+				}
+				if(evt.which === UNDO_KEY) {
+					level.deleteLastCreatedPoly();
+				}
+				if(evt.which === EXPORT_KEY) {
+					level.exportLevel();
 				}
 			}
 		});
@@ -41,50 +52,50 @@ define([
 			if(keys[evt.which]) {
 				keys[evt.which] = false;
 				keys.pressed[evt.which] = false;
+				if(evt.which === CREATE_POLY_KEY) {
+					isCreatingPoly = false;
+					if(newPolyPoints.length > 2) {
+						level.createPoly(newPolyPoints, true);
+					}
+					newPolyPoints = [];
+				}
+				if(evt.which === CREATE_LINES_KEY) {
+					isCreatingLines = false;
+					if(newPolyPoints.length > 2) {
+						level.createPoly(newPolyPoints, false);
+					}
+					newPolyPoints = [];
+				}
 			}
 		});
 		$(document).on('click', function(evt) {
-			grapples.push(player.shootGrapple(evt.offsetX + camera.x, evt.offsetY + camera.y));
+			if(isCreatingPoly || isCreatingLines) {
+				newPolyPoints.push(Math.floor((evt.offsetX + camera.x) / 10) * 10);
+				newPolyPoints.push(Math.floor((evt.offsetY + camera.y) / 10) * 10);
+			}
+		});
+		$(document).on('mousemove', function(evt) {
+			mouse = {
+				x: Math.floor((evt.offsetX + camera.x) / 10) * 10,
+				y: Math.floor((evt.offsetY + camera.y) / 10) * 10
+			};
 		});
 
 		//important stuff that happens every frame
 		function tick(ms) {
-			var i, j;
-			//move the grapples
-			for(i = 0; i < grapples.length; i++) {
-				grapples[i].move(ms);
-				//if the grapples are unlatched we need to check for collisions
-				if(!grapples[i].isLatched) {
-					var grappleCollision = null;
-					for(j = 0; j < level.obstacles.length; j++) {
-						var potentialGrappleCollision = level.obstacles[j].checkForCollisionWithGrapple(grapples[i]);
-						if(potentialGrappleCollision && (!grappleCollision ||
-							potentialGrappleCollision.squareDistTo < grappleCollision.squareDistTo)) {
-							grappleCollision = potentialGrappleCollision;
-						}
-					}
-					if(grappleCollision) {
-						grapples[i].latchTo(grappleCollision.x, grappleCollision.y);
-					}
-				}
-				//if the grapples are latched they apply a force to the player
-				if(grapples[i].isLatched) {
-					grapples[i].applyForceToPlayer();
-				}
-			}
-
 			//move the player
-			player.applyForce(0, 600); //gravity
-			if(keys[KEY.A]) { player.applyForce(-400, 0); }
-			if(keys[KEY.D]) { player.applyForce(400, 0); }
-			if(keys[KEY.W]) { player.applyForce(0, -400); }
-			if(keys[KEY.S]) { player.applyForce(0, 400); }
+			player.vel.x = 0;
+			if(keys[KEY.A]) { player.vel.x = -265; }
+			if(keys[KEY.D]) { player.vel.x = 265; }
+			player.vel.y = 0;
+			if(keys[KEY.W]) { player.vel.y = -265; }
+			if(keys[KEY.S]) { player.vel.y = 265; }
 			player.move(ms);
 
 			//find mid-frame collisions
 			var interruption = findInterruption();
 			var interruptionKeysAlreadyUsed = [];
-			for(i = 0; i < 100 && interruption; i++) {
+			for(var i = 0; i < 100 && interruption; i++) {
 				if(interruptionKeysAlreadyUsed.indexOf(interruption.key) !== -1) {
 					player.interruptRemainingMovement();
 					break;
@@ -117,21 +128,32 @@ define([
 		}
 
 		function render() {
-			ctx.fillStyle = '#fff';
+			ctx.fillStyle = '#fffff2';
 			ctx.fillRect(0, 0, WIDTH, HEIGHT);
 			level.render(ctx, camera);
-			for(var i = 0; i < grapples.length; i++) {
-				grapples[i].render(ctx, camera);
-			}
 			player.render(ctx, camera);
+			if(newPolyPoints.length > 0) {
+				ctx.strokeStyle = '#666';
+				ctx.lineWidth = 0.5;
+				ctx.beginPath();
+				if(isCreatingLines) {
+					ctx.moveTo(mouse.x - camera.x, mouse.y - camera.y);
+				}
+				else {
+					ctx.moveTo(newPolyPoints[0] - camera.x, newPolyPoints[1] - camera.y);
+					ctx.lineTo(mouse.x - camera.x, mouse.y - camera.y);
+				}
+				for(var i = newPolyPoints.length - 2; i >= 0; i -= 2) {
+					ctx.lineTo(newPolyPoints[i] - camera.x, newPolyPoints[i+1] - camera.y);
+				}
+				ctx.stroke();
+			}
 		}
 
 		function everyFrame(ms) {
-			if(!isPaused) {
-				tick(ms);
-				camera.x = player.pos.x - WIDTH / 2;
-				camera.y = player.pos.y - HEIGHT / 2;
-			}
+			tick(ms);
+			camera.x = player.pos.x - WIDTH / 2;
+			camera.y = player.pos.y - HEIGHT / 2;
 			render();
 		}
 

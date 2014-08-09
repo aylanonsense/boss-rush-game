@@ -6,9 +6,13 @@ define([
 ) {
 	function Level() {
 		this.obstacles = [];
+		this.startingPoint = { x: 175, y: 0 };
 
 		//create the level
-		this._createPoly([900,1100,  1100,1100, 1100,1110, 900,1110], true);
+		this._createPoly([100,100,   250,100,   245,110,   200,125,   160,160,   140,130,   105,110], true);
+		this._createPoly([390,-110,  450,-110,  420,-85], true);
+		this._createPoly([555,50,    725,50,    705,130], true);
+		/*this._createPoly([900,1100,  1100,1100, 1100,1110, 900,1110], true);
 		this._createPoly([1150,1100, 1175,1100, 1175,1110, 1150,1110], true);
 		this._createPoly([1200,1100, 1250,1103, 1250,1107, 1200,1110], true);
 		this._createPoly([1300,1100, 1310,1100, 1310,1110, 1300,1110], true);
@@ -51,7 +55,7 @@ define([
 		this._createPoly([910,760,   930,760,   930,780,   910,780], true);
 		this._createPoly([1070,840,  1090,840,  1090,860,  1070,860], true);
 		this._createPoly([1070,760,  1090,760,  1090,780,  1070,780], true);
-		//this._createPoly([800,1000,  680,1100,  625,1085,  590,980,], false);
+		//this._createPoly([800,1000,  680,1100,  625,1085,  590,980,], false);*/
 	}
 	Level.prototype.render = function(ctx, camera) {
 		for(var i = 0; i < this.obstacles.length; i++) {
