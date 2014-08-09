@@ -119,7 +119,13 @@ define([
 					key: 'Collision with line ' + this._obstacleId,
 					x: player.pos.prev.x + collision.line.end.x - collision.intersection.x,
 					y: player.pos.prev.y + collision.line.end.y - collision.intersection.y,
+					contactPoint: collision.intersection,
 					squareDistTo: collision.squareDist,
+					platform: GeometryUtils.toLine(
+						collision.intersection.x + (collision.isLeftOrRightEdge ? 0 : 1),
+						collision.intersection.y + (collision.isLeftOrRightEdge ? 1 : 0),
+						collision.intersection.x - (collision.isLeftOrRightEdge ? 0 : 1),
+						collision.intersection.y - (collision.isLeftOrRightEdge ? 1 : 0)),
 					handle: function() {
 						//endpoint collisions are easy, they either cancel out all vertical or all horizontal velocity
 						if(collision.isLeftOrRightEdge) {
@@ -136,7 +142,9 @@ define([
 					key: 'Collision with line ' + this._obstacleId,
 					x: collision.intersection.x - collision.line.start.x + player.pos.prev.x,
 					y: collision.intersection.y - collision.line.start.y + player.pos.prev.y,
+					contactPoint: collision.intersection,
 					squareDistTo: collision.squareDist,
+					platform: this._line,
 					handle: function() {
 						//rotate the velocity to vectors parallel (x) and perpendicular (y) to the line segment
 						var rotatedPlayerVelocity = {

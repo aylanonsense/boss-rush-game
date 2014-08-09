@@ -7,6 +7,7 @@ define([
 	Grapple
 ) {
 	var MIN_VELOCITY = 0.00000001;
+	var MAX_STANDABLE_SLOPE = 1;
 	function Player(x, y) {
 		this.width = 20;
 		this.height = 30;
@@ -19,10 +20,12 @@ define([
 		this._recalculateMovementVectors();
 		this._jumpingWhenPossible = false;
 		this._isAirborne = true;
+		this._isStanding = false;
 	}
 	Player.prototype.tick = function(ms) {
 		this.move(ms);
 		this._isAirborne = true;
+		this._isStanding = false;
 	}
 	Player.prototype.move = function(ms) {
 		var t = ms / 1000;
@@ -72,7 +75,14 @@ define([
 	Player.prototype.handleInterruption = function(interruption) {
 		//rewind movement to just before the interruption
 		var msRemaining = this._rewindMovementTo(interruption.x, interruption.y);
-		this._isAirborne = false;
+		if(interruption.platform) {
+			this._isAirborne = false;
+			if(-MAX_STANDABLE_SLOPE <= interruption.platform.m &&
+				interruption.platform.m <= MAX_STANDABLE_SLOPE &&
+				interruption.contactPoint.y >= this.pos.y) {
+				this._isStanding = true;
+			}
+		}
 
 		//apply any changes due to the interruption
 		interruption.handle();
@@ -194,7 +204,7 @@ define([
 		}
 	};
 	Player.prototype.render = function(ctx, camera) {
-		ctx.fillStyle = this._isAirborne ? '#bef' : '#fdd';
+		ctx.fillStyle = this._isAirborne ? '#bef' : (this._isStanding ? '#fdd' : '#feb');
 		ctx.fillRect(this.pos.x - camera.x - this.width / 2,
 			this.pos.y - camera.y - this.height / 2, this.width, this.height);
 
