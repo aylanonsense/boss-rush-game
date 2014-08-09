@@ -92,7 +92,7 @@ define([
 			player.vel.y = 0;
 			if(keys[KEY.W]) { player.vel.y = -265; }
 			if(keys[KEY.S]) { player.vel.y = 265; }
-			player.move(ms);
+			player.tick(ms);
 
 			//find mid-frame collisions
 			var interruption = findInterruption();

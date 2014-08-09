@@ -80,7 +80,7 @@ define([
 			if(keys[KEY.D]) { player.applyForce(400, 0); }
 			if(keys[KEY.W]) { player.applyForce(0, -400); }
 			if(keys[KEY.S]) { player.applyForce(0, 400); }
-			player.move(ms);
+			player.tick(ms);
 
 			//find mid-frame collisions
 			var interruption = findInterruption();

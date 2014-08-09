@@ -18,6 +18,11 @@ define([
 		this._durationOfMovement = 0;
 		this._recalculateMovementVectors();
 		this._jumpingWhenPossible = false;
+		this._isAirborne = true;
+	}
+	Player.prototype.tick = function(ms) {
+		this.move(ms);
+		this._isAirborne = true;
 	}
 	Player.prototype.move = function(ms) {
 		var t = ms / 1000;
@@ -67,6 +72,7 @@ define([
 	Player.prototype.handleInterruption = function(interruption) {
 		//rewind movement to just before the interruption
 		var msRemaining = this._rewindMovementTo(interruption.x, interruption.y);
+		this._isAirborne = false;
 
 		//apply any changes due to the interruption
 		interruption.handle();
@@ -188,7 +194,7 @@ define([
 		}
 	};
 	Player.prototype.render = function(ctx, camera) {
-		ctx.fillStyle = '#fee';//'#f44';
+		ctx.fillStyle = this._isAirborne ? '#bef' : '#fdd';
 		ctx.fillRect(this.pos.x - camera.x - this.width / 2,
 			this.pos.y - camera.y - this.height / 2, this.width, this.height);
 
