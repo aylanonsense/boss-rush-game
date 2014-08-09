@@ -48,7 +48,7 @@ define(function() {
 		if(!line || !parallelLine1 || !parallelLine2) {
 			return false;
 		}
-		if(parallelLine1.isSinglePoint || parallelLine2.isSinglePoint) { throw new Error("How can a point and a line be parallel?"); }
+		if(parallelLine1.isSinglePoint !== parallelLine2.isSinglePoint) { throw new Error("How can a point and a line be parallel?"); }
 		if(parallelLine1.isVertical !== parallelLine2.isVertical) { throw new Error("How can a vertical line and a non-verticla line be parallel?"); }
 		//if(parallelLine1.m !== parallelLine2.m) { throw new Error("How can two lines with diffent slopes be parallel? " + parallelLine1.m + " " + parallelLine2.m); }
 
