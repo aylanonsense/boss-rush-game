@@ -38,6 +38,7 @@ define([
 		this._spriteOffset = { x: -16, y: -10 };
 		this._sprite = new SpriteSheet('/image/mailman-spritesheet.gif', 2, 24, 24);
 		this._runAnimation = 0;
+		this._skidAnimation = 0;
 		this._facing = 1;
 	}
 	Player.prototype._recalculateCollisionBoxes = function() {
@@ -284,14 +285,26 @@ define([
 		if(this.vel.x === 0) {
 			//standing animation
 			this._runAnimation = 0;
+			this._skidAnimation = 0;
 		}
 		else if(Math.abs(this.vel.x) > MAX_WALK_SPEED && (this._moveDir.x === 0 || (this._moveDir.x > 0) !== (this.vel.x > 0))) {
-			frame = 50;
 			this._runAnimation = 0;
+			if(this._moveDir.x === 0) {
+				frame = 50;
+				this._skidAnimation = 0;
+			}
+			else {
+				this._skidAnimation += 1;
+				if(this._skidAnimation > 16) {
+					this._skidAnimation = 0;
+				}
+				frame = this._skidAnimation > 8 ? 52 : 53;
+			}
 		}
 		else if(Math.abs(this.vel.x) <= MAX_WALK_SPEED && this._moveDir.x !== 0 && (this._moveDir.x > 0) !== (this.vel.x > 0)) {
 			frame = 51;
 			this._runAnimation = 0;
+			this._skidAnimation = 0;
 		}
 		else {
 			//running animation
@@ -310,6 +323,7 @@ define([
 			}
 			else {
 				this._runAnimation = 0;
+				this._skidAnimation = 0;
 				frame = 41;
 			}
 		}
