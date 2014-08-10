@@ -9,7 +9,7 @@ define(function() {
 		if(this._tiles.minRow === null || tile.row < this._tiles.minRow) {
 			this._tiles.minRow = tile.row;
 		}
-		if(this._tiles.maxRow === null || this.row > this._tiles.maxRow) {
+		if(this._tiles.maxRow === null || tile.row > this._tiles.maxRow) {
 			this._tiles.maxRow = tile.row;
 		}
 		if(!this._tiles[tile.row]) {
@@ -22,7 +22,7 @@ define(function() {
 			if(tile.col < this._tiles[tile.row].minCol) {
 				this._tiles[tile.row].minCol = tile.col;
 			}
-			else if(this.col > this._tiles[tile.row].maxCol) {
+			else if(tile.col > this._tiles[tile.row].maxCol) {
 				this._tiles[tile.row].maxCol = tile.col;
 			}
 		}

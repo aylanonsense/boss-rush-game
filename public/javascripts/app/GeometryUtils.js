@@ -1,6 +1,15 @@
 /* istanbul ignore if  */ if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(function() {
 	var START_TIME = Date.now();
+	function areRectsColliding(rect1, rect2) {
+		return rect1 && rect2 &&
+			rect1.width > 0 && rect2.width > 0 &&
+			rect1.height > 0 && rect2.height > 0 &&
+			((rect1.x <= rect2.x && rect1.x + rect1.width > rect2.x) ||
+			(rect2.x <= rect1.x && rect2.x + rect2.width > rect1.x)) &&
+			((rect1.y <= rect2.y && rect1.y + rect1.height > rect2.y) ||
+			(rect2.y <= rect1.y && rect2.y + rect2.height > rect1.y));
+	}
 	function toLine(start, end) {
 		if(arguments.length === 4) {
 			start = { x: arguments[0], y: arguments[1] };
@@ -248,6 +257,7 @@ define(function() {
 		return intersection;
 	}
 	return {
+		areRectsColliding: areRectsColliding,
 		toLine: toLine,
 		isLineBetweenParallelLines: isLineBetweenParallelLines,
 		findLineToLineIntersection: findLineToLineIntersection
