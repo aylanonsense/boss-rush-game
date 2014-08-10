@@ -282,9 +282,19 @@ define([
 		var frame = 40;
 		var flip = this._facing < 0;
 		if(this.vel.x === 0) {
+			//standing animation
+			this._runAnimation = 0;
+		}
+		else if(Math.abs(this.vel.x) > MAX_WALK_SPEED && (this._moveDir.x === 0 || (this._moveDir.x > 0) !== (this.vel.x > 0))) {
+			frame = 50;
+			this._runAnimation = 0;
+		}
+		else if(Math.abs(this.vel.x) <= MAX_WALK_SPEED && this._moveDir.x !== 0 && (this._moveDir.x > 0) !== (this.vel.x > 0)) {
+			frame = 51;
 			this._runAnimation = 0;
 		}
 		else {
+			//running animation
 			this._runAnimation += Math.abs(this.vel.x / 600);
 			if(this._runAnimation < 6) {
 				frame = 41;
