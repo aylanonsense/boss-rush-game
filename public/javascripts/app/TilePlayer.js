@@ -1,8 +1,10 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'app/GeometryUtils'
+	'app/GeometryUtils',
+	'app/SpriteSheet'
 ], function(
-	GeometryUtils
+	GeometryUtils,
+	SpriteSheet
 ) {
 	//variables to control how the player moves
 	var MAX_WALK_SPEED = 250;
@@ -23,7 +25,7 @@ define([
 	var DRAG_DEC_SUPPRESSED = 0;
 	var DRAG_DEC_ENHANCED = 2;
 	function Player(x, y) {
-		this.width = 26;
+		this.width = 22;
 		this.height = 36;
 		this.pos = { x: x, y: y }; //the upper left point of the player
 		this.pos.prev = { x: x, y: y };
@@ -33,6 +35,10 @@ define([
 		this._recalculateCollisionBoxes();
 		this._isTryingToJump = false;
 		this._isAirborne = true;
+		this._spriteOffset = { x: -16, y: -10 };
+		this._sprite = new SpriteSheet('/image/mailman-spritesheet.gif', 2, 24, 24);
+		this._runAnimation = 0;
+		this._facing = 1;
 	}
 	Player.prototype._recalculateCollisionBoxes = function() {
 		var w = this.width, h = this.height;
@@ -111,6 +117,7 @@ define([
 				//you start moving with a certain velocity
 				if(this._moveDir.x !== 0) {
 					this.vel.x = this._moveDir.x * AIR_ACC_INITIAL;
+					this._facing = this._moveDir.x;
 				}
 			}
 			//already moving and not pressing anything
@@ -137,6 +144,7 @@ define([
 				//if you're moving slow enough you switch directions
 				else if(Math.abs(this.vel.x) < AIR_DEC_ENHANCED) {
 					this.vel.x = this._moveDir.x * AIR_ACC_INITIAL;
+					this._facing = this._moveDir.x;
 				}
 				//otherwise you slow down
 				else {
@@ -168,6 +176,7 @@ define([
 				//you start moving with a certain velocity
 				if(this._moveDir.x !== 0) {
 					this.vel.x = this._moveDir.x * WALK_ACC_INITIAL;
+					this._facing = this._moveDir.x;
 				}
 			}
 			//already moving and not pressing anything
@@ -194,6 +203,7 @@ define([
 				//if you're moving slow enough you switch directions
 				else if(Math.abs(this.vel.x) < WALK_DEC_ENHANCED) {
 					this.vel.x = this._moveDir.x * WALK_ACC_INITIAL;
+					this._facing = this._moveDir.x;
 				}
 				//otherwise you slow down
 				else {
@@ -269,12 +279,37 @@ define([
 		this._moveDir = { x: dirX, y: dirY };
 	};
 	Player.prototype.render = function(ctx, camera) {
-		ctx.fillStyle = this._isAirborne ? '#fbb' : '#bef';
+		var frame = 40;
+		var flip = this._facing < 0;
+		if(this.vel.x === 0) {
+			this._runAnimation = 0;
+		}
+		else {
+			this._runAnimation += Math.abs(this.vel.x / 600);
+			if(this._runAnimation < 6) {
+				frame = 41;
+			}
+			else if(this._runAnimation < 10) {
+				frame = 42;
+			}
+			else if(this._runAnimation < 16) {
+				frame = 43;
+			}
+			else if(this._runAnimation < 20) {
+				frame = 42;
+			}
+			else {
+				this._runAnimation = 0;
+				frame = 41;
+			}
+		}
+		this._sprite.render(ctx, camera, this.pos.x + this._spriteOffset.x, this.pos.y + this._spriteOffset.y, frame, flip);
+		/*ctx.fillStyle = this._isAirborne ? '#fbb' : '#bef';
 		ctx.fillRect(this.pos.x - camera.x, this.pos.y - camera.y, this.width, this.height);
 		ctx.fillStyle = '#000';
 		ctx.font = "10px Arial";
 		ctx.fillText("" + Math.round(this.vel.x), this.pos.x + 2 - camera.x, this.pos.y + 32 - camera.y);
-		/*ctx.fillStyle = '#00f';
+		ctx.fillStyle = '#00f';
 		ctx.fillRect(this._topBox.x - camera.x, this._topBox.y - camera.y, this._topBox.width, this._topBox.height);
 		ctx.fillStyle = '#f00';
 		ctx.fillRect(this._bottomBox.x - camera.x, this._bottomBox.y - camera.y, this._bottomBox.width, this._bottomBox.height);
