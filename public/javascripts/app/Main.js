@@ -20,15 +20,20 @@ define([
 		var player = new Player(0, 0);
 		var camera = { x: player.pos.x, y: player.pos.y };
 		var tiles = new TileWorld();
-		tiles.add(new SquareTile(tiles, -2, 3));
-		tiles.add(new SquareTile(tiles, -1, 3));
-		tiles.add(new SquareTile(tiles, 0, 3));
-		tiles.add(new SquareTile(tiles, -1, 1));
-		tiles.add(new SquareTile(tiles, 0, 1));
-		tiles.add(new SquareTile(tiles, 1, 1));
-		tiles.add(new SquareTile(tiles, 2, 1));
+		for(var i = -40; i <= 0; i++) {
+			tiles.add(new SquareTile(tiles, i, 1));
+		}
+		tiles.add(new SquareTile(tiles, 1, 0));
+		tiles.add(new SquareTile(tiles, 2, 0));
 		tiles.add(new SquareTile(tiles, 3, 0));
 		tiles.add(new SquareTile(tiles, 4, 0));
+		tiles.add(new SquareTile(tiles, 5, -1));
+		tiles.add(new SquareTile(tiles, 5, -3));
+		tiles.add(new SquareTile(tiles, 5, -4));
+		tiles.add(new SquareTile(tiles, 2, -4));
+		tiles.add(new SquareTile(tiles, 2, -5));
+		tiles.add(new SquareTile(tiles, 2, -6));
+		tiles.add(new SquareTile(tiles, 2, -7));
 
 		//add input bindings
 		var keys = { pressed: {} };
@@ -41,6 +46,9 @@ define([
 				keys.pressed[evt.which] = true;
 				if(evt.which === PAUSE_KEY) {
 					isPaused = !isPaused;
+				}
+				if(evt.which === JUMP_KEY) {
+					player.jump();
 				}
 			}
 		});
@@ -57,10 +65,7 @@ define([
 
 			//move the player
 			player.applyForce(0, 600); //gravity
-			if(keys[KEY.A]) { player.applyForce(-400, 0); }
-			if(keys[KEY.D]) { player.applyForce(400, 0); }
-			if(keys[KEY.W]) { player.applyForce(0, -400); }
-			if(keys[KEY.S]) { player.applyForce(0, 400); }
+			player.setMoveDir(keys[KEY.A] ? -1 : (keys[KEY.D] ? 1 : 0), keys[KEY.W] ? -1 : (keys[KEY.S] ? 1 : 0));
 			player.tick(ms);
 			player.checkForCollisions(tiles);
 		}
