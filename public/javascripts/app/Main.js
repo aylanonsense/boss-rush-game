@@ -2,11 +2,15 @@ if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'jquery',
 	'app/Player',
-	'app/Level'
+	'app/Level',
+	'app/TileWorld',
+	'app/tile/SquareTile'
 ], function(
 	$,
 	Player,
-	Level
+	Level,
+	TileWorld,
+	SquareTile
 ) {
 	return function() {
 		//canvas
@@ -20,6 +24,9 @@ define([
 		var player = new Player(level.startingPoint.x, level.startingPoint.y);
 		var camera = { x: player.pos.x, y: player.pos.y };
 		var grapples = [];
+		var tiles = new TileWorld();
+		tiles.add(new SquareTile(tiles, 2, 0));
+		tiles.add(new SquareTile(tiles, -1, -1));
 
 		//add input bindings
 		var keys = { pressed: {} };
@@ -124,6 +131,7 @@ define([
 			for(var i = 0; i < grapples.length; i++) {
 				grapples[i].render(ctx, camera);
 			}
+			tiles.render(ctx, camera);
 			player.render(ctx, camera);
 		}
 
