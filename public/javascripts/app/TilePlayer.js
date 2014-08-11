@@ -24,6 +24,12 @@ define([
 	var DRAG_DEC = 1;
 	var DRAG_DEC_SUPPRESSED = 0;
 	var DRAG_DEC_ENHANCED = 2;
+	//some extra for jumping/falling
+	var FALL_ACC = 20;
+	var JUMP_SPEED = 600;
+	var JUMP_STOP_SPEED = 200;
+	var MAX_FALL_SPEED = 1000;
+	var MAX_RISE_SPEED = 1000;
 	function Player(x, y) {
 		this.width = 33;
 		this.height = 54;
@@ -85,7 +91,7 @@ define([
 				self._isAirborne = false;
 				if(self._isTryingToJump) {
 					self._isTryingToJump = false;
-					self.applyInstantaneousForce(0, -20000);
+					self.vel.y = -JUMP_SPEED;
 				}
 			}
 			if(GeometryUtils.areRectsColliding(self._leftBox, tile.box)) {
@@ -108,6 +114,14 @@ define([
 	Player.prototype.move = function(ms) {
 		var u = 1 / 60; //constant time t
 		var t = u; //ms / 1000;
+
+		this.vel.y += FALL_ACC;
+		if(this.vel.y > MAX_FALL_SPEED) {
+			this.vel.y = MAX_FALL_SPEED;
+		}
+		if(this.vel.y < -MAX_RISE_SPEED) {
+			this.vel.y = -MAX_RISE_SPEED;
+		}
 
 		if(this._isAirborne) {
 			//just starting to move
@@ -274,8 +288,8 @@ define([
 		this._isTryingToJump = true;
 	};
 	Player.prototype.stopJumping = function() {
-		if(this.vel.y < -125) {
-			this.vel.y = -125;
+		if(this.vel.y < -JUMP_STOP_SPEED) {
+			this.vel.y = -JUMP_STOP_SPEED;
 		}
 	}
 	Player.prototype.setMoveDir = function(dirX, dirY) {
@@ -285,13 +299,13 @@ define([
 		var frame = 40;
 		var flip = this._facing < 0;
 		if(this._isAirborne) {
-			if(this.vel.y > 400) {
+			if(this.vel.y > 600) {
 				frame = 73;
 			}
-			else if(this.vel.y > 75) {
+			else if(this.vel.y > 100) {
 				frame = 72;
 			}
-			else if(this.vel.y > -200) {
+			else if(this.vel.y > -300) {
 				frame = 71;
 			}
 			else {

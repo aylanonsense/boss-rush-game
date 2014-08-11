@@ -66,7 +66,6 @@ define([
 			var i, j;
 
 			//move the player
-			player.applyForce(0, 600); //gravity
 			player.setMoveDir(keys[KEY.A] ? -1 : (keys[KEY.D] ? 1 : 0), keys[KEY.W] ? -1 : (keys[KEY.S] ? 1 : 0));
 			player.tick(ms);
 			player.checkForCollisions(tiles);
