@@ -112,13 +112,19 @@ define([
 			if(GeometryUtils.areRectsColliding(self._topBox, tile.box)) {
 				self.vel.y = 0;
 				self.pos.y = tile.box.y + tile.box.height;
-				self._wallClinging = false;
+				if(self._wallClinging) {
+					self._facing *= -1;
+					self._wallClinging = false;
+				}
 				self._recalculateCollisionBoxes();
 			}
 			if(GeometryUtils.areRectsColliding(self._bottomBox, tile.box)) {
 				self.vel.y = 0;
 				self.pos.y = tile.box.y - self.height;
-				self._wallClinging = false;
+				if(self._wallClinging) {
+					self._facing *= -1;
+					self._wallClinging = false;
+				}
 				self._recalculateCollisionBoxes();
 				self._isAirborne = false;
 				if(self._isTryingToJump) {
