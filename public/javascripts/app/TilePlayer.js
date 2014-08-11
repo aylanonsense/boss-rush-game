@@ -276,55 +276,100 @@ define([
 	Player.prototype.jump = function() {
 		this._isTryingToJump = true;
 	};
+	Player.prototype.stopJumping = function() {
+		if(this.vel.y < -125) {
+			this.vel.y = -125;
+		}
+	}
 	Player.prototype.setMoveDir = function(dirX, dirY) {
 		this._moveDir = { x: dirX, y: dirY };
 	};
 	Player.prototype.render = function(ctx, camera) {
 		var frame = 40;
 		var flip = this._facing < 0;
-		if(this.vel.x === 0) {
-			//standing animation
-			this._runAnimation = 0;
-			this._skidAnimation = 0;
-		}
-		else if(Math.abs(this.vel.x) > MAX_WALK_SPEED && (this._moveDir.x === 0 || (this._moveDir.x > 0) !== (this.vel.x > 0))) {
-			this._runAnimation = 0;
-			if(this._moveDir.x === 0) {
-				frame = 50;
-				this._skidAnimation = 0;
+		if(this._isAirborne) {
+			if(this.vel.y > 400) {
+				frame = 73;
+			}
+			else if(this.vel.y > 75) {
+				frame = 72;
+			}
+			else if(this.vel.y > -200) {
+				frame = 71;
 			}
 			else {
-				this._skidAnimation += 1;
-				if(this._skidAnimation > 16) {
-					this._skidAnimation = 0;
-				}
-				frame = this._skidAnimation > 8 ? 52 : 53;
+				frame = 70;
 			}
-		}
-		else if(Math.abs(this.vel.x) <= MAX_WALK_SPEED && this._moveDir.x !== 0 && (this._moveDir.x > 0) !== (this.vel.x > 0)) {
-			frame = 51;
-			this._runAnimation = 0;
-			this._skidAnimation = 0;
 		}
 		else {
-			//running animation
-			this._runAnimation += Math.abs(this.vel.x / 600);
-			if(this._runAnimation < 6) {
-				frame = 41;
-			}
-			else if(this._runAnimation < 10) {
-				frame = 42;
-			}
-			else if(this._runAnimation < 16) {
-				frame = 43;
-			}
-			else if(this._runAnimation < 20) {
-				frame = 42;
-			}
-			else {
+			if(this.vel.x === 0) {
+				//standing animation
 				this._runAnimation = 0;
 				this._skidAnimation = 0;
-				frame = 41;
+			}
+			else if(Math.abs(this.vel.x) > MAX_WALK_SPEED) {
+				//normal skid animation
+				if(this._moveDir.x === 0) {
+					frame = 50;
+					this._skidAnimation = 0;
+					this._runAnimation = 0;
+				}
+				//run animation
+				else if((this._moveDir.x > 0) === (this.vel.x > 0)) {
+					this._skidAnimation = 0;
+					this._runAnimation += Math.abs(this.vel.x / 600);
+					if(this._runAnimation < 5) {
+						frame = 60;
+					}
+					else if(this._runAnimation < 10) {
+						frame = 61;
+					}
+					else if(this._runAnimation < 15) {
+						frame = 62;
+					}
+					else if(this._runAnimation < 20) {
+						frame = 63;
+					}
+					else {
+						this._runAnimation = 0;
+						frame = 60;
+					}
+				}
+				//extra skid animation
+				else {
+					this._runAnimation = 0;
+					this._skidAnimation += 1;
+					if(this._skidAnimation > 16) {
+						this._skidAnimation = 0;
+					}
+					frame = this._skidAnimation > 8 ? 52 : 53;
+				}
+			}
+			else if(Math.abs(this.vel.x) <= MAX_WALK_SPEED && this._moveDir.x !== 0 && (this._moveDir.x > 0) !== (this.vel.x > 0)) {
+				frame = 51;
+				this._runAnimation = 0;
+				this._skidAnimation = 0;
+			}
+			else {
+				//running animation
+				this._runAnimation += Math.abs(this.vel.x / 600);
+				if(this._runAnimation < 6) {
+					frame = 41;
+				}
+				else if(this._runAnimation < 10) {
+					frame = 42;
+				}
+				else if(this._runAnimation < 16) {
+					frame = 43;
+				}
+				else if(this._runAnimation < 20) {
+					frame = 42;
+				}
+				else {
+					this._runAnimation = 0;
+					this._skidAnimation = 0;
+					frame = 41;
+				}
 			}
 		}
 		this._sprite.render(ctx, camera, this.pos.x + this._spriteOffset.x, this.pos.y + this._spriteOffset.y, frame, flip);

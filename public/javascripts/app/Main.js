@@ -55,6 +55,9 @@ define([
 			if(keys[evt.which]) {
 				keys[evt.which] = false;
 				keys.pressed[evt.which] = false;
+				if(evt.which === JUMP_KEY) {
+					player.stopJumping();
+				}
 			}
 		});
 
