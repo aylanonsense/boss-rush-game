@@ -37,8 +37,12 @@ define([
 	var WALLCLING_DROP_SPEED = { x: 50, y: 0 };
 	var WALLCLING_DURATION = 18;
 	var WALLCLING_SLIDE_ACC = 2;
+	var WALLCLING_SLIDE_ACC_SUPRESSED = 2;
+	var WALLCLING_SLIDE_ACC_ENHANCED = 20;
 	var WALLCLING_SLIDE_DEC = 50;
 	var WALLCLING_SLIDE_SPEED = 200;
+	var WALLCLING_SLIDE_SPEED_SUPRESSED = 125;
+	var WALLCLING_SLIDE_SPEED_ENHANCED = 1000;
 	var WALLCLING_OVERRIDE_SPEED = 1000;
 	function Player(x, y) {
 		this.width = 33;
@@ -198,8 +202,8 @@ define([
 			//after a while of clinging
 			else if(this._framesSpentWallClinging >= WALLCLING_DURATION || this._beganWallClingSliding || this._moveDir.y === 1) {
 				//if we aren't sliding down fast enough, accelerate
-				var speed = (this._moveDir.y === 1 ? MAX_FALL_SPEED : WALLCLING_SLIDE_SPEED);
-				var acc = (this._moveDir.y === 1 ? FALL_ACC : WALLCLING_SLIDE_ACC);
+				var speed = (this._moveDir.y === -1 ? WALLCLING_SLIDE_SPEED_SUPRESSED : (this._moveDir.y === 1 ? WALLCLING_SLIDE_SPEED_ENHANCED : WALLCLING_SLIDE_SPEED));
+				var acc = (this._moveDir.y === -1 ? WALLCLING_SLIDE_ACC_SUPRESSED : (this._moveDir.y === 1 ? WALLCLING_SLIDE_ACC_ENHANCED : WALLCLING_SLIDE_ACC));
 				var dec = WALLCLING_SLIDE_DEC;
 				if(this.vel.y < speed) {
 					this.vel.y += acc;
