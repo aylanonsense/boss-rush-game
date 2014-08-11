@@ -25,8 +25,8 @@ define([
 	var DRAG_DEC_SUPPRESSED = 0;
 	var DRAG_DEC_ENHANCED = 2;
 	function Player(x, y) {
-		this.width = 22;
-		this.height = 36;
+		this.width = 33;
+		this.height = 54;
 		this.pos = { x: x, y: y }; //the upper left point of the player
 		this.pos.prev = { x: x, y: y };
 		this.vel = { x: 0, y: 0 };
@@ -35,16 +35,16 @@ define([
 		this._recalculateCollisionBoxes();
 		this._isTryingToJump = false;
 		this._isAirborne = true;
-		this._spriteOffset = { x: -16, y: -10 };
-		this._sprite = new SpriteSheet('/image/mailman-spritesheet.gif', 2, 24, 24);
+		this._spriteOffset = { x: -24, y: -15 };
+		this._sprite = new SpriteSheet('/image/mailman-spritesheet.gif', 3, 24, 24);
 		this._runAnimation = 0;
 		this._skidAnimation = 0;
 		this._facing = 1;
 	}
 	Player.prototype._recalculateCollisionBoxes = function() {
 		var w = this.width, h = this.height;
-		var m = 5; //how inset the vertical detectors are
-		var p = 6; //how inset the horizontal detectors are
+		var m = 7; //how inset the vertical detectors are
+		var p = 9; //how inset the horizontal detectors are
 		this._topBox = {
 			x: this.pos.x + m,
 			y: this.pos.y,
@@ -77,7 +77,6 @@ define([
 				self.vel.y = 0;
 				self.pos.y = tile.box.y + tile.box.height;
 				self._recalculateCollisionBoxes();
-				self._isAirborne = false;
 			}
 			if(GeometryUtils.areRectsColliding(self._bottomBox, tile.box)) {
 				self.vel.y = 0;
@@ -93,13 +92,11 @@ define([
 				self.vel.x = 0;
 				self.pos.x = tile.box.x + tile.box.width;
 				self._recalculateCollisionBoxes();
-				self._isAirborne = false;
 			}
 			if(GeometryUtils.areRectsColliding(self._rightBox, tile.box)) {
 				self.vel.x = 0;
 				self.pos.x = tile.box.x - self.width;
 				self._recalculateCollisionBoxes();
-				self._isAirborne = false;
 			}
 		});
 		self._isTryingToJump = false;
