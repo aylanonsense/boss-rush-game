@@ -17,9 +17,13 @@ define([
 		var ctx = canvas[0].getContext('2d');
 
 		//create stuff
-		var player = new Player(-1600, 0);
+		var player = new Player(-1500, 0);
 		var camera = { x: player.pos.x, y: player.pos.y };
 		var tiles = new TileWorld();
+		tiles.add(new SquareTile(tiles, -41, -3));
+		tiles.add(new SquareTile(tiles, -41, -2));
+		tiles.add(new SquareTile(tiles, -41, -1));
+		tiles.add(new SquareTile(tiles, -41, 0));
 		for(var i = -40; i <= 1; i++) {
 			tiles.add(new SquareTile(tiles, i, 1));
 		}
