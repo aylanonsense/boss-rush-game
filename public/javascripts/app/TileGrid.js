@@ -1,11 +1,11 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(function() {
-	function TileWorld() {
+	function TileGrid() {
 		this._tiles = {};
 		this._tiles.minRow = null;
 		this._tiles.maxRow = null;
 	}
-	TileWorld.prototype.add = function(tile) {
+	TileGrid.prototype.add = function(tile) {
 		if(this._tiles.minRow === null || tile.row < this._tiles.minRow) {
 			this._tiles.minRow = tile.row;
 		}
@@ -28,7 +28,7 @@ define(function() {
 		}
 		this._tiles[tile.row][tile.col] = tile;
 	};
-	TileWorld.prototype.forEach = function(callback) {
+	TileGrid.prototype.forEach = function(callback) {
 		if(this._tiles.minRow !== null) {
 			for(var r = this._tiles.minRow; r <= this._tiles.maxRow; r++) {
 				if(this._tiles[r]) {
@@ -41,10 +41,10 @@ define(function() {
 			}
 		}
 	};
-	TileWorld.prototype.render = function(ctx, camera) {
+	TileGrid.prototype.render = function(ctx, camera) {
 		this.forEach(function(tile) {
 			tile.render(ctx, camera);
 		});
 	};
-	return TileWorld;
+	return TileGrid;
 });

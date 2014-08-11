@@ -1,13 +1,13 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'jquery',
-	'app/TilePlayer',
-	'app/TileWorld',
+	'app/Player',
+	'app/TileGrid',
 	'app/tile/SquareTile'
 ], function(
 	$,
 	Player,
-	TileWorld,
+	TileGrid,
 	SquareTile
 ) {
 	return function() {
@@ -19,7 +19,7 @@ define([
 		//create stuff
 		var player = new Player(-1500, 0);
 		var camera = { x: player.pos.x, y: player.pos.y };
-		var tiles = new TileWorld();
+		var tiles = new TileGrid();
 		for(var i = -5; i <= 30; i++) {
 			tiles.add(new SquareTile(tiles, -44, i));
 		}
