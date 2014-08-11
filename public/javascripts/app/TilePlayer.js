@@ -35,6 +35,11 @@ define([
 	var WALLCLING_JUMP_SPEED_SUPPRESSED = { x: 75, y: 500 };
 	var WALLCLING_JUMP_SPEED_ENHANCED = { x: 350, y: 300 };
 	var WALLCLING_DROP_SPEED = { x: 50, y: 0 };
+	var WALLCLING_DURATION = 18;
+	var WALLCLING_SLIDE_ACC = 2;
+	var WALLCLING_SLIDE_DEC = 50;
+	var WALLCLING_SLIDE_SPEED = 200;
+	var WALLCLING_OVERRIDE_SPEED = 1000;
 	function Player(x, y) {
 		this.width = 33;
 		this.height = 54;
@@ -52,6 +57,8 @@ define([
 		this._skidAnimation = 0;
 		this._facing = 1;
 		this._wallClinging = false;
+		this._beganWallClingSliding = false;
+		this._framesSpentWallClinging = 0;
 	}
 	Player.prototype._recalculateCollisionBoxes = function() {
 		var w = this.width, h = this.height;
@@ -101,11 +108,13 @@ define([
 			if(GeometryUtils.areRectsColliding(self._topBox, tile.box)) {
 				self.vel.y = 0;
 				self.pos.y = tile.box.y + tile.box.height;
+				self._wallClinging = false;
 				self._recalculateCollisionBoxes();
 			}
 			if(GeometryUtils.areRectsColliding(self._bottomBox, tile.box)) {
 				self.vel.y = 0;
 				self.pos.y = tile.box.y - self.height;
+				self._wallClinging = false;
 				self._recalculateCollisionBoxes();
 				self._isAirborne = false;
 				if(self._isTryingToJump) {
@@ -114,6 +123,7 @@ define([
 				}
 			}
 		});
+		var keepWallClinging = false;
 		tiles.forEach(function(tile) {
 			if(GeometryUtils.areRectsColliding(self._leftBox, tile.box)) {
 				self.vel.x = 0;
@@ -126,17 +136,33 @@ define([
 				self._recalculateCollisionBoxes();
 			}
 			if(!self._wallClinging && self.vel.y > 0) {
-				if(GeometryUtils.areRectsColliding(self._leftClingBox, tile.box)) {
+				if(self._facing === -1 && GeometryUtils.areRectsColliding(self._leftClingBox, tile.box)) {
 					self._wallClinging = true;
-					self.vel.y = 0;
+					self._framesSpentWallClinging = 0;
+					self._beganWallClingSliding = self._moveDir.y === 1 || (self.vel.y >= WALLCLING_OVERRIDE_SPEED);
+					keepWallClinging = true;
 				}
-				if(GeometryUtils.areRectsColliding(self._rightClingBox, tile.box)) {
+				if(self._facing === 1 &&GeometryUtils.areRectsColliding(self._rightClingBox, tile.box)) {
 					self._wallClinging = true;
-					self.vel.y = 0;
+					self._framesSpentWallClinging = 0;
+					self._beganWallClingSliding = self._moveDir.y === 1 || (self.vel.y >= WALLCLING_OVERRIDE_SPEED);
+					keepWallClinging = true;
+				}
+			}
+			else if(self._wallClinging) {
+				if(self._facing === -1 && GeometryUtils.areRectsColliding(self._leftClingBox, tile.box)) {
+					keepWallClinging = true;
+				}
+				if(self._facing === 1 &&GeometryUtils.areRectsColliding(self._rightClingBox, tile.box)) {
+					keepWallClinging = true;
 				}
 			}
 		});
-		self._isTryingToJump = false;
+		if(this._wallClinging && !keepWallClinging) {
+			this._wallClinging = false;
+			this._facing *= -1;
+		}
+		this._isTryingToJump = false;
 	};
 	Player.prototype.tick = function(ms) {
 		this.move(ms);
@@ -168,6 +194,37 @@ define([
 				}
 				this._isTryingToJump = false;
 				this._wallClinging = false;
+			}
+			//after a while of clinging
+			else if(this._framesSpentWallClinging >= WALLCLING_DURATION || this._beganWallClingSliding || this._moveDir.y === 1) {
+				//if we aren't sliding down fast enough, accelerate
+				var speed = (this._moveDir.y === 1 ? MAX_FALL_SPEED : WALLCLING_SLIDE_SPEED);
+				var acc = (this._moveDir.y === 1 ? FALL_ACC : WALLCLING_SLIDE_ACC);
+				var dec = WALLCLING_SLIDE_DEC;
+				if(this.vel.y < speed) {
+					this.vel.y += acc;
+					if(this.vel.y > speed) {
+						this.vel.y = speed;
+					}
+				}
+				//if we're sliding down too fast, decelerate
+				else if(this.vel.y > speed) {
+					this.vel.y -= dec;
+					if(this.vel.y < speed) {
+						this.vel.y = speed;
+					}
+				}
+			}
+			//for the first split second after clinging
+			else {
+				//slow down to a stop
+				this.vel.y -= WALLCLING_SLIDE_DEC;
+				if(this.vel.y < 0) {
+					this.vel.y = 0;
+				}
+				if(this.vel.y === 0) {
+					this._framesSpentWallClinging++;
+				}
 			}
 		}
 		else {

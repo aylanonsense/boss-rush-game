@@ -20,11 +20,13 @@ define([
 		var player = new Player(-1500, 0);
 		var camera = { x: player.pos.x, y: player.pos.y };
 		var tiles = new TileWorld();
-		tiles.add(new SquareTile(tiles, -41, -3));
+		for(var i = -5; i <= 30; i++) {
+			tiles.add(new SquareTile(tiles, -44, i));
+		}
 		tiles.add(new SquareTile(tiles, -41, -2));
 		tiles.add(new SquareTile(tiles, -41, -1));
 		tiles.add(new SquareTile(tiles, -41, 0));
-		for(var i = -40; i <= 1; i++) {
+		for(i = -40; i <= 1; i++) {
 			tiles.add(new SquareTile(tiles, i, 1));
 		}
 		tiles.add(new SquareTile(tiles, 2, 0));
