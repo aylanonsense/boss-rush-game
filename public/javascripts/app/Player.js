@@ -469,7 +469,7 @@ define([
 					frame = 80; //crouching
 				}
 				else if(this._moveDir.y === -1) {
-					frame = 40; //TODO looking up
+					frame = 83; //looking up
 				}
 				else {
 					frame = 40; //just standing
