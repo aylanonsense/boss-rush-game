@@ -148,7 +148,7 @@ define([
 				self.pos.x = tile.box.x - self.width;
 				self._recalculateCollisionBoxes();
 			}
-			if(!self._wallClinging && self.vel.y > 0) {
+			if(!self._wallClinging && self.vel.y > -300 && self._isAirborne) {
 				if(self._facing === -1 && GeometryUtils.areRectsColliding(self._leftClingBox, tile.box)) {
 					self._wallClinging = true;
 					self._framesSpentWallClinging = 0;
