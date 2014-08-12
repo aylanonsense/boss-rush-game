@@ -1,9 +1,11 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'app/GeometryUtils',
+	'app/Grapple',
 	'app/SpriteSheet'
 ], function(
 	GeometryUtils,
+	Grapple,
 	SpriteSheet
 ) {
 	//variables to control how the player moves
@@ -63,6 +65,7 @@ define([
 		this._wallClinging = false;
 		this._beganWallClingSliding = false;
 		this._framesSpentWallClinging = 0;
+		this.grappleOffset = { x: 16.5, y: 28 };
 	}
 	Player.prototype._recalculateCollisionBoxes = function() {
 		var w = this.width, h = this.height;
@@ -407,6 +410,11 @@ define([
 			this._forceThisFrame.instant.x += forceX;
 			this._forceThisFrame.instant.y += forceY;
 		}
+	};
+	Player.prototype.shootGrapple = function(x, y) {
+		var dirX = x - this.pos.x - this.grappleOffset.x;
+		var dirY = y - this.pos.y - this.grappleOffset.y;
+		return new Grapple(this, dirX, dirY);
 	};
 	Player.prototype.jump = function() {
 		this._isTryingToJump = true;

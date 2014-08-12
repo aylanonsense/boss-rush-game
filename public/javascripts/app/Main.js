@@ -18,6 +18,7 @@ define([
 
 		//create stuff
 		var player = new Player(-1500, 0);
+		var grapples = [];
 		var camera = { x: player.pos.x, y: player.pos.y };
 		var tiles = new TileGrid();
 		for(var i = -5; i <= 30; i++) {
@@ -66,6 +67,9 @@ define([
 				}
 			}
 		});
+		$(document).on('click', function(evt) {
+			grapples.push(player.shootGrapple(evt.offsetX + camera.x, evt.offsetY + camera.y));
+		});
 
 		//important stuff that happens every frame
 		function tick(ms) {
@@ -75,6 +79,11 @@ define([
 			player.setMoveDir(keys[KEY.A] ? -1 : (keys[KEY.D] ? 1 : 0), keys[KEY.W] ? -1 : (keys[KEY.S] ? 1 : 0));
 			player.tick(ms);
 			player.checkForCollisions(tiles);
+
+			//move grapples
+			for(var i = 0; i < grapples.length; i++) {
+				grapples[i].tick(ms);
+			}
 		}
 
 		function findInterruption(prohibitedInterruptionKey) {
@@ -87,6 +96,9 @@ define([
 			ctx.fillStyle = '#fff';
 			ctx.fillRect(0, 0, WIDTH, HEIGHT);
 			tiles.render(ctx, camera);
+			for(var i = 0; i < grapples.length; i++) {
+				grapples[i].render(ctx, camera);
+			}
 			player.render(ctx, camera);
 		}
 
