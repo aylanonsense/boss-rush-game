@@ -59,13 +59,13 @@ define([
 		this._isAirborne = true;
 		this._spriteOffset = { x: -21, y: -15 };
 		this._sprite = new SpriteSheet('/image/mailman-spritesheet.gif', 3, 24, 24);
-		this._runAnimation = 0;
-		this._skidAnimation = 0;
 		this._facing = 1;
 		this._wallClinging = false;
 		this._beganWallClingSliding = false;
 		this._framesSpentWallClinging = 0;
 		this.grappleOffset = { x: 16.5, y: 28 };
+		this._currAnimation = null;
+		this._currAnimationTime = 0;
 	}
 	Player.prototype._recalculateCollisionBoxes = function() {
 		var w = this.width, h = this.height;
@@ -427,118 +427,118 @@ define([
 	Player.prototype.setMoveDir = function(dirX, dirY) {
 		this._moveDir = { x: dirX, y: dirY };
 	};
-	Player.prototype.render = function(ctx, camera) {
-		var frame;
-		var flip = this._facing < 0;
-		if(this._wallClinging) {
-			frame = 82;
+	Player.prototype._setAnimation = function(anim) {
+		if(this._currAnimation !== anim) {
+			this._currAnimation = anim;
+			this._currAnimationTime	= 0;
 		}
+	};
+	Player.prototype.render = function(ctx, camera) {
+		var frame, flip = this._facing < 0;
+		var speed = this.vel.x < 0 ? -this.vel.x : this.vel.x;
+
+		//wallclinging only has one animation
+		if(this._wallClinging) {
+			this._setAnimation('clinging');
+			frame = 82; //clinging to the wall
+		}
+
+		//while airborne, frame is just determined by vertical velocity
 		else if(this._isAirborne) {
+			this._setAnimation('jumping');
 			if(this.vel.y > 600) {
-				frame = 73;
+				frame = 73; //moving downward really fast
 			}
 			else if(this.vel.y > 100) {
-				frame = 72;
+				frame = 72; //moving downward
 			}
 			else if(this.vel.y > -300) {
-				frame = 71;
+				frame = 71; //moving upward
 			}
 			else {
-				frame = 70;
+				frame = 70; //moving upward really fast
 			}
 		}
+
+		//there's a lot of different stuff that could be happening on the ground
 		else {
-			if(this.vel.x === 0) {
-				//standing animation
-				this._runAnimation = 0;
-				this._skidAnimation = 0;
+			//if standing still
+			if(speed === 0) {
+				this._setAnimation('standing');
 				if(this._moveDir.y === 1) {
-					frame = 80;
+					frame = 80; //crouching
+				}
+				else if(this._moveDir.y === -1) {
+					frame = 40; //TODO looking up
 				}
 				else {
-					frame = 40;
+					frame = 40; //just standing
 				}
 			}
-			else if(Math.abs(this.vel.x) > MAX_WALK_SPEED) {
-				//normal skid animation
+
+			//if moving faster than the max walk speed
+			else if(speed > MAX_WALK_SPEED) {
+				//normal skid animation when not pressing a direction
 				if(this._moveDir.x === 0) {
-					frame = 50;
-					this._skidAnimation = 0;
-					this._runAnimation = 0;
+					this._setAnimation('skidding');
+					frame = 50; //skidding
 				}
-				//run animation
+
+				//if pressing in the direction of movement, a multi-frame run animation is played
 				else if((this._moveDir.x > 0) === (this.vel.x > 0)) {
-					this._skidAnimation = 0;
-					this._runAnimation += Math.abs(this.vel.x / 600);
-					if(this._runAnimation < 5) {
-						frame = 60;
+					this._setAnimation('running');
+					this._currAnimationTime = (this._currAnimationTime + speed / 600) % 20;
+					if(this._currAnimationTime < 5) {
+						frame = 60; //run 1
 					}
-					else if(this._runAnimation < 10) {
-						frame = 61;
+					else if(this._currAnimationTime < 10) {
+						frame = 61; //run 2
 					}
-					else if(this._runAnimation < 15) {
-						frame = 62;
-					}
-					else if(this._runAnimation < 20) {
-						frame = 63;
+					else if(this._currAnimationTime < 15) {
+						frame = 62; //run 3
 					}
 					else {
-						this._runAnimation = 0;
-						frame = 60;
+						frame = 63; //run 4
 					}
 				}
-				//extra skid animation
+
+				//if pressing the the direction opposite of movement, a multi-frame super skid animation is played
 				else {
-					this._runAnimation = 0;
-					this._skidAnimation += 1;
-					if(this._skidAnimation > 16) {
-						this._skidAnimation = 0;
-					}
-					frame = this._skidAnimation > 8 ? 52 : 53;
+					this._setAnimation('super skidding');
+					this._currAnimationTime = (this._currAnimationTime + 1) % 16;
+					frame = this._skidAnimation > 8 ? 52 : 53; //super-skid 1 / super-skid 2
 				}
 			}
-			else if(Math.abs(this.vel.x) <= MAX_WALK_SPEED && this._moveDir.x !== 0 && (this._moveDir.x > 0) !== (this.vel.x > 0)) {
-				frame = 51;
-				this._runAnimation = 0;
-				this._skidAnimation = 0;
-			}
+
+			//if walking (at or below the max walk speed)
 			else {
-				//running animation
-				this._runAnimation += Math.abs(this.vel.x / 600);
-				if(this._runAnimation < 6) {
-					frame = 41;
+				//if pressing in the direction opposite movement, display a turning animation
+				if((this._moveDir.x > 0 && this.vel.x < 0) || (this._moveDir.x < 0 && this.vel.x > 0)) {
+					this._setAnimation('turning');
+					frame = 51; //turning
 				}
-				else if(this._runAnimation < 10) {
-					frame = 42;
-				}
-				else if(this._runAnimation < 16) {
-					frame = 43;
-				}
-				else if(this._runAnimation < 20) {
-					frame = 42;
-				}
+
+				//otherwise display a multi-frame walking animation
 				else {
-					this._runAnimation = 0;
-					this._skidAnimation = 0;
-					frame = 41;
+					this._setAnimation('walking');
+					this._currAnimationTime = (this._currAnimationTime + speed / 600) % 20;
+					console.log(this._currAnimationTime);
+					if(this._currAnimationTime < 6) {
+						frame = 41; //walk 1
+					}
+					else if(this._currAnimationTime < 10) {
+						frame = 42; //walk 2
+					}
+					else if(this._currAnimationTime < 16) {
+						frame = 43; //walk 3
+					}
+					else {
+						frame = 42; //walk 2 (repeated)
+					}
 				}
 			}
 		}
 		this._sprite.render(ctx, camera, this.pos.x + this._spriteOffset.x, this.pos.y + this._spriteOffset.y, frame, flip);
-		/*ctx.fillStyle = this._isAirborne ? '#fbb' : '#bef';
-		ctx.fillRect(this.pos.x - camera.x, this.pos.y - camera.y, this.width, this.height);
-		ctx.fillStyle = '#000';
-		ctx.font = "10px Arial";
-		ctx.fillText("" + Math.round(this.vel.x), this.pos.x + 2 - camera.x, this.pos.y + 32 - camera.y);
-		ctx.fillStyle = '#00f';
-		ctx.fillRect(this._topBox.x - camera.x, this._topBox.y - camera.y, this._topBox.width, this._topBox.height);
-		ctx.fillStyle = '#f00';
-		ctx.fillRect(this._bottomBox.x - camera.x, this._bottomBox.y - camera.y, this._bottomBox.width, this._bottomBox.height);
-		ctx.lineWidth = 2.5;
-		ctx.strokeStyle = '#ff0';
-		ctx.strokeRect(this._leftBox.x - camera.x, this._leftBox.y - camera.y, this._leftBox.width, this._leftBox.height);
-		ctx.strokeStyle = '#0f0';
-		ctx.strokeRect(this._rightBox.x - camera.x, this._rightBox.y - camera.y, this._rightBox.width, this._rightBox.height);*/
 	};
 	return Player;
 });
