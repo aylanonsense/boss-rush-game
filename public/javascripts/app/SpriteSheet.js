@@ -68,33 +68,3 @@ define(function() {
 	};
 	return SpriteSheet;
 });
-/*
-img.onload = function() {
-
-    var scale = 8;
-
-    var tempCanvas = document.createElement('canvas');
-    tempCanvas.width = this.width;
-    tempCanvas.height = this.height;
-
-    var tempCtx = tempCanvas.getContext('2d');
-    tempCtx.drawImage(this, 0, 0);
-    var sourceData = tempCtx.getImageData(0, 0, this.width, this.height).data;
-
-    var self._scaledImageCanvas = document.getElementById('canvas');
-    self._scaledImageCanvas.width = this.width * scale;
-    self._scaledImageCanvas.height = this.height * scale;
-    var self._scaledImageCanvas = self._scaledImageCanvas.getContext('2d');
-
-    var offset = 0;
-    for (var y = 0; y < this.height; ++y) {
-        for (var x = 0; x < this.width; ++x) {
-            var r = sourceData[offset++];
-            var g = sourceData[offset++];
-            var b = sourceData[offset++];
-            var a = sourceData[offset++] / 100.0;
-            self._scaledImageCanvas.fillStyle = 'rgba(' + [r, g, b, a].join(',') + ')';
-            self._scaledImageCanvas.fillRect(x * scale, y * scale, scale, scale);
-        }
-    }
-};*/

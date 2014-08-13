@@ -1,5 +1,9 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(function() {
+define([
+	'app/Constants'
+], function(
+	Constants
+) {
 	function TileGrid() {
 		this._tiles = {};
 		this._tiles.minRow = null;
@@ -37,6 +41,19 @@ define(function() {
 							callback(this._tiles[r][c]);
 						}
 					}
+				}
+			}
+		}
+	};
+	TileGrid.prototype.forEachNearby = function(rect, callback) {
+		var rowOfRectTop = Math.floor(rect.y / Constants.TILE_SIZE);
+		var rowOfRectBottom = Math.floor((rect.y + rect.height) / Constants.TILE_SIZE);
+		var colOfRectLeft = Math.floor(rect.x / Constants.TILE_SIZE);
+		var colOfRectRight = Math.floor((rect.x + rect.width) / Constants.TILE_SIZE);
+		for(var r = rowOfRectTop; r <= rowOfRectBottom; r++) {
+			for(var c = colOfRectLeft; c <= colOfRectRight; c++) {
+				if(this._tiles[r] && this._tiles[r][c]) {
+					callback(this._tiles[r][c]);
 				}
 			}
 		}

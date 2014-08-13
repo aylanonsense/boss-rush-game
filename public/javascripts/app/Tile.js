@@ -1,7 +1,10 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(function() {
+define([
+	'app/Constants',
+], function(
+	Constants
+) {
 	function Tile(tileWorld, col, row) {
-		this.TILE_SIZE = 40;
 		this._tileWorld = tileWorld;
 		this.row = row;
 		this.col = col;
@@ -11,7 +14,9 @@ define(function() {
 		ctx.strokeStyle = '#aaa';
 		ctx.lineWidth = 0.5;
 		ctx.beginPath();
-		ctx.rect(this.col * this.TILE_SIZE - camera.x, this.row * this.TILE_SIZE - camera.y, this.TILE_SIZE, this.TILE_SIZE);
+		ctx.rect(this.col * Constants.TILE_SIZE - camera.x,
+			this.row * Constants.TILE_SIZE - camera.y,
+			Constants.TILE_SIZE, Constants.TILE_SIZE);
 		ctx.stroke();
 	};
 	return Tile;

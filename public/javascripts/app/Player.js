@@ -2,11 +2,13 @@ if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'app/GeometryUtils',
 	'app/Grapple',
-	'app/SpriteSheet'
+	'app/SpriteSheet',
+	'app/Rect'
 ], function(
 	GeometryUtils,
 	Grapple,
-	SpriteSheet
+	SpriteSheet,
+	Rect
 ) {
 	//variables to control how the player moves
 	var MAX_WALK_SPEED = 250;
@@ -32,6 +34,9 @@ define([
 	var JUMP_STOP_SPEED = 200;
 	var MAX_FALL_SPEED = 1000;
 	var MAX_RISE_SPEED = 1000;
+	//some absolutes
+	var MAX_HORIZONTAL_SPEED = 2000;
+	var MAX_VERTICAL_SPEED = 2000;
 	//and wallcling jumping
 	var WALLCLING_JUMP_SPEED = { x: 300, y: 475 };
 	var WALLCLING_JUMP_SPEED_SUPPRESSED = { x: 75, y: 500 };
@@ -46,6 +51,12 @@ define([
 	var WALLCLING_SLIDE_SPEED_SUPRESSED = 125;
 	var WALLCLING_SLIDE_SPEED_ENHANCED = 1000;
 	var WALLCLING_OVERRIDE_SPEED = 1000;
+	//collision box curiousities
+	var HORIZONTAL_BOX_INSET_FROM_TOP = 9;
+	var HORIZONTAL_BOX_INSET_FROM_BOTTOM = 9;
+	var VERTICAL_BOX_INSET = 7;
+	//calculate max move amounts (for splitting frames)
+
 	function Player(x, y) {
 		this.width = 33;
 		this.height = 54;
@@ -69,32 +80,36 @@ define([
 	}
 	Player.prototype._recalculateCollisionBoxes = function() {
 		var w = this.width, h = this.height;
-		var m = 7; //how inset the vertical detectors are
-		var p = 9; //how inset the horizontal detectors are
 		var q = 24; //how inset the horizontal cling detectors are
+		this._boundingBox = {
+			x: this.pos.x - 1,
+			y: this.pos.y - 1,
+			width: w + 2,
+			height: h + 2
+		};
 		this._topBox = {
-			x: this.pos.x + m,
+			x: this.pos.x + VERTICAL_BOX_INSET,
 			y: this.pos.y,
-			width: w - 2 * m,
+			width: w - 2 * VERTICAL_BOX_INSET,
 			height: h / 2
 		};
 		this._bottomBox = {
-			x: this.pos.x + m,
+			x: this.pos.x + VERTICAL_BOX_INSET,
 			y: this.pos.y + h / 2,
-			width: w - 2 * m,
+			width: w - 2 * VERTICAL_BOX_INSET,
 			height: h / 2
 		};
 		this._leftBox = {
 			x: this.pos.x,
-			y: this.pos.y + p,
+			y: this.pos.y + HORIZONTAL_BOX_INSET_FROM_TOP,
 			width: w / 2,
-			height: h - 2 * p
+			height: h - HORIZONTAL_BOX_INSET_FROM_TOP - HORIZONTAL_BOX_INSET_FROM_BOTTOM
 		};
 		this._rightBox = {
 			x: this.pos.x + w / 2,
-			y: this.pos.y + p,
+			y: this.pos.y + HORIZONTAL_BOX_INSET_FROM_TOP,
 			width: w / 2,
-			height: h - 2 * p
+			height: h - HORIZONTAL_BOX_INSET_FROM_TOP - HORIZONTAL_BOX_INSET_FROM_BOTTOM
 		};
 		this._leftClingBox = {
 			x: this.pos.x - 1,
@@ -111,7 +126,7 @@ define([
 	};
 	Player.prototype.checkForCollisions = function(tiles) {
 		var self = this;
-		tiles.forEach(function(tile) {
+		tiles.forEachNearby(this._boundingBox, function(tile) {
 			if(GeometryUtils.areRectsColliding(self._topBox, tile.box)) {
 				self.vel.y = 0;
 				self.pos.y = tile.box.y + tile.box.height;
@@ -137,7 +152,7 @@ define([
 			}
 		});
 		var keepWallClinging = false;
-		tiles.forEach(function(tile) {
+		tiles.forEachNearby(this._boundingBox, function(tile) {
 			if(GeometryUtils.areRectsColliding(self._leftBox, tile.box)) {
 				self.vel.x = 0;
 				self.pos.x = tile.box.x + tile.box.width;
@@ -369,9 +384,25 @@ define([
 			}
 		}
 
-		//apply velocity to position
+		//increase velocity
 		this.vel.x += this._forceThisFrame.x * t + this._forceThisFrame.instant.x * u;
 		this.vel.y += this._forceThisFrame.y * t + this._forceThisFrame.instant.y * u;
+
+		//apply limits to velocity
+		if(this.vel.x > 0 && this.vel.x > MAX_HORIZONTAL_SPEED) {
+			this.vel.x = MAX_HORIZONTAL_SPEED;
+		}
+		else if(this.vel.x < 0 && this.vel.x < -MAX_HORIZONTAL_SPEED) {
+			this.vel.x = -MAX_HORIZONTAL_SPEED;
+		}
+		if(this.vel.y > 0 && this.vel.y > MAX_VERTICAL_SPEED) {
+			this.vel.y = MAX_VERTICAL_SPEED;
+		}
+		else if(this.vel.y < 0 && this.vel.y < -MAX_VERTICAL_SPEED) {
+			this.vel.y = -MAX_VERTICAL_SPEED;
+		}
+
+		//apply velocity to position
 		this.pos.prev.x = this.pos.x;
 		this.pos.prev.y = this.pos.y;
 		this.pos.x += this.vel.x * t;
@@ -506,7 +537,7 @@ define([
 				else {
 					this._setAnimation('super skidding');
 					this._currAnimationTime = (this._currAnimationTime + 1) % 16;
-					frame = this._skidAnimation > 8 ? 52 : 53; //super-skid 1 / super-skid 2
+					frame = this._currAnimationTime > 8 ? 52 : 53; //super-skid 1 / super-skid 2
 				}
 			}
 
@@ -522,7 +553,6 @@ define([
 				else {
 					this._setAnimation('walking');
 					this._currAnimationTime = (this._currAnimationTime + speed / 600) % 20;
-					console.log(this._currAnimationTime);
 					if(this._currAnimationTime < 6) {
 						frame = 41; //walk 1
 					}

@@ -46,6 +46,7 @@ define([
 		var KEY = { W: 87, A: 65, S: 83, D: 68, R: 82, P: 80, G: 71, SHIFT: 16, SPACE: 32 };
 		var JUMP_KEY = KEY.SPACE;
 		var PAUSE_KEY = KEY.P;
+		var SUPER_BOOST_KEY = KEY.SHIFT;
 		$(document).on('keydown', function(evt) {
 			if(!keys[evt.which]) {
 				keys[evt.which] = true;
@@ -55,6 +56,11 @@ define([
 				}
 				if(evt.which === JUMP_KEY) {
 					player.jump();
+				}
+				if(evt.which === SUPER_BOOST_KEY) {
+					if(player._moveDir.x !== 0 || player._moveDir.y !== 0) {
+						player.applyInstantaneousForce(9999999, player._moveDir.x, player._moveDir.y);
+					}
 				}
 			}
 		});
