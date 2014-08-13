@@ -1,11 +1,9 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'app/GeometryUtils',
 	'app/Grapple',
 	'app/SpriteSheet',
 	'app/Rect'
 ], function(
-	GeometryUtils,
 	Grapple,
 	SpriteSheet,
 	Rect
@@ -55,6 +53,10 @@ define([
 	var HORIZONTAL_BOX_INSET_FROM_TOP = 9;
 	var HORIZONTAL_BOX_INSET_FROM_BOTTOM = 9;
 	var VERTICAL_BOX_INSET = 7;
+	var ADDITIONAL_CLING_WIDTH = 1;
+	var CLING_BOX_INSET_FROM_TOP = 9;
+	var CLING_BOX_INSET_FROM_BOTTOM = 9;
+	var CLING_BOX_WIDTHS = 3;
 	//calculate max move amounts (for splitting frames)
 
 	function Player(x, y) {
@@ -79,55 +81,33 @@ define([
 		this._currAnimationTime = 0;
 	}
 	Player.prototype._recalculateCollisionBoxes = function() {
-		var w = this.width, h = this.height;
+		var x = this.pos.x, y = this.pos.y, w = this.width, h = this.height;
+		var a = VERTICAL_BOX_INSET;
+		var b = HORIZONTAL_BOX_INSET_FROM_TOP;
+		var c = HORIZONTAL_BOX_INSET_FROM_BOTTOM;
+		var d = ADDITIONAL_CLING_WIDTH;
+		var e = CLING_BOX_INSET_FROM_TOP;
+		var f = CLING_BOX_INSET_FROM_BOTTOM;
+		var g = CLING_BOX_WIDTHS;
 		var q = 24; //how inset the horizontal cling detectors are
-		this._boundingBox = {
-			x: this.pos.x - 1,
-			y: this.pos.y - 1,
-			width: w + 2,
-			height: h + 2
-		};
-		this._topBox = {
-			x: this.pos.x + VERTICAL_BOX_INSET,
-			y: this.pos.y,
-			width: w - 2 * VERTICAL_BOX_INSET,
-			height: h / 2
-		};
-		this._bottomBox = {
-			x: this.pos.x + VERTICAL_BOX_INSET,
-			y: this.pos.y + h / 2,
-			width: w - 2 * VERTICAL_BOX_INSET,
-			height: h / 2
-		};
-		this._leftBox = {
-			x: this.pos.x,
-			y: this.pos.y + HORIZONTAL_BOX_INSET_FROM_TOP,
-			width: w / 2,
-			height: h - HORIZONTAL_BOX_INSET_FROM_TOP - HORIZONTAL_BOX_INSET_FROM_BOTTOM
-		};
-		this._rightBox = {
-			x: this.pos.x + w / 2,
-			y: this.pos.y + HORIZONTAL_BOX_INSET_FROM_TOP,
-			width: w / 2,
-			height: h - HORIZONTAL_BOX_INSET_FROM_TOP - HORIZONTAL_BOX_INSET_FROM_BOTTOM
-		};
-		this._leftClingBox = {
-			x: this.pos.x - 1,
-			y: this.pos.y + q,
-			width: w / 2 + 1,
-			height: h - 2 * q
-		};
-		this._rightClingBox = {
-			x: this.pos.x + w / 2,
-			y: this.pos.y + q,
-			width: w / 2 + 1,
-			height: h - 2 * q
-		};
+		this._boundingBox = new Rect(x - d, y - d, w + 2 * d, h + 2 * d, "rgba(0, 0, 0, 0.9)");
+		this._topBox = new Rect(x + a, y, w - 2 * a, h / 2, "rgba(0, 255, 255, 0.9)");
+		this._bottomBox = new Rect(x + a, y + h / 2, w - 2 * a, h / 2, "rgba(255, 0, 0, 0.9)");
+		this._leftBox = new Rect(x, y + b, w / 2, h - b - c, "rgba(255, 255, 0, 0.9)");
+		this._rightBox = new Rect(x + w / 2, y + b, w / 2, h - b - c, "rgba(0, 255, 0, 0.9)");
+		if(this._facing === 1) {
+			this._upperClingBox = new Rect(x + w / 2, y + e, w / 2 + d, g, "rgba(150, 0, 255, 1.0)");
+			this._lowerClingBox = new Rect(x + w / 2, y + h - f - g, w / 2 + d, g, "rgba(150, 0, 255, 1.0)");
+		}
+		else {
+			this._upperClingBox = new Rect(x - d, y + e, w / 2 + d, g, "rgba(150, 0, 255, 1.0)");
+			this._lowerClingBox = new Rect(x - d, y + h - f - g, w / 2 + d, g, "rgba(150, 0, 255, 1.0)");
+		}
 	};
 	Player.prototype.checkForCollisions = function(tiles) {
 		var self = this;
 		tiles.forEachNearby(this._boundingBox, function(tile) {
-			if(GeometryUtils.areRectsColliding(self._topBox, tile.box)) {
+			if(self._topBox.isIntersecting(tile.box)) {
 				self.vel.y = 0;
 				self.pos.y = tile.box.y + tile.box.height;
 				if(self._wallClinging) {
@@ -136,7 +116,7 @@ define([
 				}
 				self._recalculateCollisionBoxes();
 			}
-			if(GeometryUtils.areRectsColliding(self._bottomBox, tile.box)) {
+			if(self._bottomBox.isIntersecting(tile.box)) {
 				self.vel.y = 0;
 				self.pos.y = tile.box.y - self.height;
 				if(self._wallClinging) {
@@ -151,42 +131,36 @@ define([
 				}
 			}
 		});
-		var keepWallClinging = false;
 		tiles.forEachNearby(this._boundingBox, function(tile) {
-			if(GeometryUtils.areRectsColliding(self._leftBox, tile.box)) {
+			if(self._leftBox.isIntersecting(tile.box)) {
 				self.vel.x = 0;
 				self.pos.x = tile.box.x + tile.box.width;
 				self._recalculateCollisionBoxes();
 			}
-			if(GeometryUtils.areRectsColliding(self._rightBox, tile.box)) {
+			if(self._rightBox.isIntersecting(tile.box)) {
 				self.vel.x = 0;
 				self.pos.x = tile.box.x - self.width;
 				self._recalculateCollisionBoxes();
 			}
-			if(!self._wallClinging && self.vel.y > -300 && self._isAirborne) {
-				if(self._facing === -1 && GeometryUtils.areRectsColliding(self._leftClingBox, tile.box)) {
-					self._wallClinging = true;
-					self._framesSpentWallClinging = 0;
-					self._beganWallClingSliding = self._moveDir.y === 1 || (self.vel.y >= WALLCLING_OVERRIDE_SPEED);
-					keepWallClinging = true;
-				}
-				if(self._facing === 1 &&GeometryUtils.areRectsColliding(self._rightClingBox, tile.box)) {
-					self._wallClinging = true;
-					self._framesSpentWallClinging = 0;
-					self._beganWallClingSliding = self._moveDir.y === 1 || (self.vel.y >= WALLCLING_OVERRIDE_SPEED);
-					keepWallClinging = true;
-				}
+		});
+		var isClingingToUpperClingBox = false;
+		var isClingingToLowerClingBox = false;
+		tiles.forEachNearby(this._boundingBox, function(tile) {
+			if(self._upperClingBox.isIntersecting(tile.box)) {
+				isClingingToUpperClingBox = true;
 			}
-			else if(self._wallClinging) {
-				if(self._facing === -1 && GeometryUtils.areRectsColliding(self._leftClingBox, tile.box)) {
-					keepWallClinging = true;
-				}
-				if(self._facing === 1 &&GeometryUtils.areRectsColliding(self._rightClingBox, tile.box)) {
-					keepWallClinging = true;
-				}
+			if(self._lowerClingBox.isIntersecting(tile.box)) {
+				isClingingToLowerClingBox = true;
 			}
 		});
-		if(this._wallClinging && !keepWallClinging) {
+		if(isClingingToUpperClingBox && isClingingToLowerClingBox) {
+			if(!this._wallClinging && this.vel.y > -300 && this._isAirborne) {
+				self._wallClinging = true;
+				self._framesSpentWallClinging = 0;
+				self._beganWallClingSliding = self._moveDir.y === 1 || (self.vel.y >= WALLCLING_OVERRIDE_SPEED);
+			}
+		}
+		else if(this._wallClinging) {
 			this._wallClinging = false;
 			this._facing *= -1;
 		}
@@ -569,6 +543,13 @@ define([
 			}
 		}
 		this._sprite.render(ctx, camera, this.pos.x + this._spriteOffset.x, this.pos.y + this._spriteOffset.y, frame, flip);
+		/*this._boundingBox.render(ctx, camera);
+		this._topBox.render(ctx, camera);
+		this._bottomBox.render(ctx, camera);
+		this._leftBox.render(ctx, camera);
+		this._rightBox.render(ctx, camera);
+		this._upperClingBox.render(ctx, camera);
+		this._lowerClingBox.render(ctx, camera);*/
 	};
 	return Player;
 });
