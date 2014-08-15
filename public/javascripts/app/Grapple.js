@@ -18,16 +18,24 @@ define([
 		this._latchDist = null;
 		this._recalculateMovementVectors();
 	}
-	Grapple.prototype.tick = function(ms) {
-		this.move(ms);
+	Grapple.prototype.tick = function(tiles) {
+		var self = this;
+		this.move();
+		if(!this.isLatched) {
+			tiles.forEach(function(tile) {
+				var intersection = tile.box.isIntersectingLine(self._lineOfMovement);
+				if(intersection) {
+					self.latchTo(intersection.x, intersection.y);
+				}
+			});
+		}
 	};
-	Grapple.prototype.move = function(ms) {
-		var t = ms / 1000;
+	Grapple.prototype.move = function() {
 		if(!this.isLatched) {
 			this.pos.prev.x = this.pos.x;
 			this.pos.prev.y = this.pos.y;
-			this.pos.x += this.vel.x * t;
-			this.pos.y += this.vel.y * t;
+			this.pos.x += this.vel.x / 60;
+			this.pos.y += this.vel.y / 60;
 			this._recalculateMovementVectors();
 		}
 	};
@@ -42,7 +50,9 @@ define([
 		this._latchDist = Math.sqrt(dx * dx + dy * dy);
 		this._recalculateMovementVectors();
 	};
-	Grapple.prototype._recalculateMovementVectors = function() {};
+	Grapple.prototype._recalculateMovementVectors = function() {
+		this._lineOfMovement = GeometryUtils.toLine(this.pos.prev, this.pos);
+	};
 	Grapple.prototype.applyForceToPlayer = function() {
 		var dx = this.pos.x - this._player.pos.x;
 		var dy = this.pos.y - this._player.pos.y;

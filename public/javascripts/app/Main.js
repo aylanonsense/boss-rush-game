@@ -86,7 +86,7 @@ define([
 
 			//move grapples
 			for(var i = 0; i < grapples.length; i++) {
-				grapples[i].tick(ms);
+				grapples[i].tick(tiles);
 			}
 		}
 

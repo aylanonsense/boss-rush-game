@@ -253,6 +253,8 @@ define(function() {
 				//is between line 2's min and max y
 				((line2.start.y <= line2.end.y && line2.start.y - c <= intersection.y && intersection.y <= line2.end.y + c) ||
 				(line2.end.y < line2.start.y && line2.end.y - c <= intersection.y && intersection.y <= line2.start.y + c));
+			intersection.squareDistFromLine1Start = (intersection.x - line1.start.x) * (intersection.x - line1.start.x)+
+				(intersection.y - line1.start.y) * (intersection.y - line1.start.y);
 		}
 		return intersection;
 	}
