@@ -59,7 +59,8 @@ define([
 				}
 				if(evt.which === SUPER_BOOST_KEY) {
 					if(player._moveDir.x !== 0 || player._moveDir.y !== 0) {
-						player.applyInstantaneousForce(9999999, player._moveDir.x, player._moveDir.y);
+						player.vel.x = 9999999 * player._moveDir.x;
+						player.vel.y = 9999999 * player._moveDir.y;
 					}
 				}
 			}
@@ -79,12 +80,9 @@ define([
 
 		//important stuff that happens every frame
 		function tick(ms) {
-			var i, j;
-
 			//move the player
 			player.setMoveDir(keys[KEY.A] ? -1 : (keys[KEY.D] ? 1 : 0), keys[KEY.W] ? -1 : (keys[KEY.S] ? 1 : 0));
-			player.tick(ms);
-			player.checkForCollisions(tiles);
+			player.tick(tiles);
 
 			//move grapples
 			for(var i = 0; i < grapples.length; i++) {

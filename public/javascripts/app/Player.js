@@ -9,47 +9,33 @@ define([
 	Rect
 ) {
 	//variables to control how the player moves
-	var MAX_WALK_SPEED = 250;
-	var WALK_ACC = 20;
-	var WALK_ACC_INITIAL = 40;
-	var WALK_DEC = 10;
-	var WALK_DEC_ENHANCED = 20;
-	var SKID_DEC = 2; //must be less than MAX_WALK_SPEED
-	var SKID_DEC_SUPPRESSED = 0;
-	var SKID_DEC_ENHANCED = 4;
-	//same variables for air
-	var MAX_AIR_SPEED = 500;
-	var AIR_ACC = 2.5;
-	var AIR_ACC_INITIAL = 50;
-	var AIR_DEC = 0.5;
-	var AIR_DEC_ENHANCED = 2;
-	var DRAG_DEC = 1;
-	var DRAG_DEC_SUPPRESSED = 0;
-	var DRAG_DEC_ENHANCED = 2;
-	//some extra for jumping/falling
+	var GROUND_MOVEMENT = {
+		TOP_SPEED: 250,
+		MAX_SPEED: 1500,
+		ACC: { INITIAL: 40, LESS: -20, NORMAL: -10, MORE: 20 },
+		ACC_ABOVE_TOP_SPEED: { LESS: -4, NORMAL: -2, MORE: 0 }
+	};
+	var AIR_MOVEMENT = {
+		TOP_SPEED: 500,
+		MAX_SPEED: 1500,
+		ACC: { INITIAL: 40, LESS: -2.5, NORMAL: -1, MORE: 2.5 },
+		ACC_ABOVE_TOP_SPEED: { LESS: -2.5, NORMAL: -1, MORE: 0 }
+	};
+	//vertical movement variables
 	var FALL_ACC = 20;
+	var MAX_FALL_SPEED = 1500;
+	var MAX_RISE_SPEED = 1500;
 	var JUMP_SPEED = 600;
 	var JUMP_STOP_SPEED = 200;
-	var MAX_FALL_SPEED = 1000;
-	var MAX_RISE_SPEED = 1000;
-	//some absolutes
-	var MAX_HORIZONTAL_SPEED = 2000;
-	var MAX_VERTICAL_SPEED = 2000;
 	//and wallcling jumping
-	var WALLCLING_JUMP_SPEED = { x: 300, y: 475 };
-	var WALLCLING_JUMP_SPEED_SUPPRESSED = { x: 75, y: 500 };
-	var WALLCLING_JUMP_SPEED_ENHANCED = { x: 350, y: 300 };
+	var WALLCLING_JUMP_SPEED = { LESS: { x: 75, y: 500 }, NORMAL: { x: 300, y: 475 }, MORE: { x: 350, y: 300 } };
 	var WALLCLING_DROP_SPEED = { x: 50, y: 0 };
-	var WALLCLING_DURATION = 18;
-	var WALLCLING_SLIDE_ACC = 2;
-	var WALLCLING_SLIDE_ACC_SUPRESSED = 2;
-	var WALLCLING_SLIDE_ACC_ENHANCED = 20;
+	var WALLCLING_STICKY_DURATION = 18;
+	var WALLCLING_SLIDE_ACC = { LESS: 2, NORMAL: 2, MORE: 20 };
 	var WALLCLING_SLIDE_DEC = 50;
-	var WALLCLING_SLIDE_SPEED = 200;
-	var WALLCLING_SLIDE_SPEED_SUPRESSED = 125;
-	var WALLCLING_SLIDE_SPEED_ENHANCED = 1000;
+	var WALLCLING_SLIDE_SPEED = { LESS: 125, NORMAL: 200, MORE: 1000 };
 	var WALLCLING_OVERRIDE_SPEED = 1000;
-	//collision box curiousities
+	//collision box curiosities
 	var HORIZONTAL_BOX_INSET_FROM_TOP = 9;
 	var HORIZONTAL_BOX_INSET_FROM_BOTTOM = 9;
 	var VERTICAL_BOX_INSET = 7;
@@ -57,25 +43,27 @@ define([
 	var CLING_BOX_INSET_FROM_TOP = 9;
 	var CLING_BOX_INSET_FROM_BOTTOM = 9;
 	var CLING_BOX_WIDTHS = 3;
+	var EDGE_HANG_BOX_HEIGHT = 1;
 	//calculate max move amounts (for splitting frames)
-
+	var MAX_HORIZONTAL_MOVEMENT_PER_FRAME = VERTICAL_BOX_INSET - 0.5;
+	var MAX_UPWARD_MOVEMENT_PER_FRAME = HORIZONTAL_BOX_INSET_FROM_TOP - 0.5;
+	var MAX_DOWNWARD_MOVEMENT_PER_FRAME = Math.max(CLING_BOX_INSET_FROM_TOP - EDGE_HANG_BOX_HEIGHT, HORIZONTAL_BOX_INSET_FROM_BOTTOM) - 0.5;
 	function Player(x, y) {
 		this.width = 33;
 		this.height = 54;
 		this.pos = { x: x, y: y }; //the upper left point of the player
 		this.pos.prev = { x: x, y: y };
 		this.vel = { x: 0, y: 0 };
-		this._forceThisFrame = { x: 0, y: 0 };
-		this._forceThisFrame.instant = { x: 0, y: 0 };
 		this._recalculateCollisionBoxes();
 		this._isTryingToJump = false;
 		this._isAirborne = true;
-		this._spriteOffset = { x: -21, y: -15 };
+		this._spriteOffset = { x: -19.5, y: -15 };
 		this._sprite = new SpriteSheet('/image/mailman-spritesheet.gif', 3, 24, 24);
 		this._facing = 1;
-		this._wallClinging = false;
-		this._beganWallClingSliding = false;
-		this._framesSpentWallClinging = 0;
+		this._isWallClinging = false;
+		this._isWallClingSliding = false;
+		this._isEdgeHanging = false;
+		this._framesSpentStickingToWall = 0;
 		this.grappleOffset = { x: 16.5, y: 28 };
 		this._currAnimation = null;
 		this._currAnimationTime = 0;
@@ -89,6 +77,7 @@ define([
 		var e = CLING_BOX_INSET_FROM_TOP;
 		var f = CLING_BOX_INSET_FROM_BOTTOM;
 		var g = CLING_BOX_WIDTHS;
+		var i = EDGE_HANG_BOX_HEIGHT;
 		var q = 24; //how inset the horizontal cling detectors are
 		this._boundingBox = new Rect(x - d, y - d, w + 2 * d, h + 2 * d, "rgba(0, 0, 0, 0.9)");
 		this._topBox = new Rect(x + a, y, w - 2 * a, h / 2, "rgba(0, 255, 255, 0.9)");
@@ -98,30 +87,37 @@ define([
 		if(this._facing === 1) {
 			this._upperClingBox = new Rect(x + w / 2, y + e, w / 2 + d, g, "rgba(150, 0, 255, 1.0)");
 			this._lowerClingBox = new Rect(x + w / 2, y + h - f - g, w / 2 + d, g, "rgba(150, 0, 255, 1.0)");
+			this._edgeHangBox = new Rect(x + w / 2, y, w / 2 + d, i, "rgba(255, 255, 0, 1.0)");
 		}
 		else {
 			this._upperClingBox = new Rect(x - d, y + e, w / 2 + d, g, "rgba(150, 0, 255, 1.0)");
 			this._lowerClingBox = new Rect(x - d, y + h - f - g, w / 2 + d, g, "rgba(150, 0, 255, 1.0)");
+			this._edgeHangBox = new Rect(x - d, y, w / 2 + d, i, "rgba(255, 255, 0, 1.0)");
 		}
 	};
-	Player.prototype.checkForCollisions = function(tiles) {
+	Player.prototype._checkForCollisions = function(tiles) {
 		var self = this;
+		if(this._isEdgeHanging) {
+			return;
+		}
 		tiles.forEachNearby(this._boundingBox, function(tile) {
 			if(self._topBox.isIntersecting(tile.box)) {
 				self.vel.y = 0;
 				self.pos.y = tile.box.y + tile.box.height;
-				if(self._wallClinging) {
+				self._finalPos.y = self.pos.y;
+				if(self._isWallClinging) {
 					self._facing *= -1;
-					self._wallClinging = false;
+					self._isWallClinging = false;
 				}
 				self._recalculateCollisionBoxes();
 			}
 			if(self._bottomBox.isIntersecting(tile.box)) {
 				self.vel.y = 0;
 				self.pos.y = tile.box.y - self.height;
-				if(self._wallClinging) {
+				self._finalPos.y = self.pos.y;
+				if(self._isWallClinging) {
 					self._facing *= -1;
-					self._wallClinging = false;
+					self._isWallClinging = false;
 				}
 				self._recalculateCollisionBoxes();
 				self._isAirborne = false;
@@ -135,285 +131,202 @@ define([
 			if(self._leftBox.isIntersecting(tile.box)) {
 				self.vel.x = 0;
 				self.pos.x = tile.box.x + tile.box.width;
+				self._finalPos.x = self.pos.x;
 				self._recalculateCollisionBoxes();
 			}
 			if(self._rightBox.isIntersecting(tile.box)) {
 				self.vel.x = 0;
 				self.pos.x = tile.box.x - self.width;
+				self._finalPos.x = self.pos.x;
 				self._recalculateCollisionBoxes();
 			}
 		});
 		var isClingingToUpperClingBox = false;
 		var isClingingToLowerClingBox = false;
+		var edgeHangBoxCollision = false;
+		var upperClingTile = null;
 		tiles.forEachNearby(this._boundingBox, function(tile) {
 			if(self._upperClingBox.isIntersecting(tile.box)) {
 				isClingingToUpperClingBox = true;
+				upperClingTile = tile;
 			}
 			if(self._lowerClingBox.isIntersecting(tile.box)) {
 				isClingingToLowerClingBox = true;
 			}
+			if(self._edgeHangBox.isIntersecting(tile.box)) {
+				edgeHangBoxCollision = true;
+			}
 		});
 		if(isClingingToUpperClingBox && isClingingToLowerClingBox) {
-			if(!this._wallClinging && this.vel.y > -300 && this._isAirborne) {
-				self._wallClinging = true;
-				self._framesSpentWallClinging = 0;
-				self._beganWallClingSliding = self._moveDir.y === 1 || (self.vel.y >= WALLCLING_OVERRIDE_SPEED);
+			if(!this._isEdgeHanging && !this._isWallClinging && this.vel.y > -300 && this._isAirborne) {
+				if(!edgeHangBoxCollision) {
+					self._isEdgeHanging = true;
+					self.pos.y = upperClingTile.box.y - EDGE_HANG_BOX_HEIGHT;
+					self._finalPos.y = self.pos.y;
+					self._recalculateCollisionBoxes();
+				}
+				else {
+					self._isWallClinging = true;
+					self._framesSpentStickingToWall = 0;
+					self._isWallClingSliding = self._moveDir.y === 1 || (self.vel.y >= WALLCLING_OVERRIDE_SPEED);
+				}
 			}
 		}
-		else if(this._wallClinging) {
-			this._wallClinging = false;
+		else if(this._isWallClinging) {
+			this._isWallClinging = false;
 			this._facing *= -1;
+			self._recalculateCollisionBoxes();
 		}
 		this._isTryingToJump = false;
 	};
-	Player.prototype.tick = function(ms) {
-		this.move(ms);
+	Player.prototype.tick = function(tiles) {
+		this._recalculateStateAndVelocity();
+		this._finalPos = { x: this.pos.x + this.vel.x / 60, y: this.pos.y + this.vel.y / 60 };
 		this._isAirborne = true;
+		for(var i = 0; i < 100 && (this.pos.x !== this._finalPos.x || this.pos.y !== this._finalPos.y); i++) {
+			var dx = this._finalPos.x - this.pos.x;
+			var dy = this._finalPos.y - this.pos.y;
+			var percentOfMaxHorizontalMovement = Math.abs(dx) / MAX_HORIZONTAL_MOVEMENT_PER_FRAME;
+			var percentOfMaxVerticalMovement = Math.abs(dy) / (dy > 0 ? MAX_DOWNWARD_MOVEMENT_PER_FRAME : MAX_UPWARD_MOVEMENT_PER_FRAME);
+			var percentOfMaxMovement = Math.max(percentOfMaxHorizontalMovement, percentOfMaxVerticalMovement);
+			if(percentOfMaxMovement > 1.0) {
+				this.pos.x += dx / percentOfMaxMovement;
+				this.pos.y += dy / percentOfMaxMovement;
+				this._recalculateCollisionBoxes();
+				this._checkForCollisions(tiles);
+			}
+			else {
+				this.pos.x = this._finalPos.x;
+				this.pos.y = this._finalPos.y;
+				this._recalculateCollisionBoxes();
+				this._checkForCollisions(tiles);
+			}
+		}
+		if(i === 100) {
+			debugger;
+		}
 	};
-	Player.prototype.move = function(ms) {
-		var u = 1 / 60; //constant time t
-		var t = u; //ms / 1000;
-
-		if(this._wallClinging) {
+	Player.prototype._recalculateStateAndVelocity = function() {
+		var dir, speed, acc, dec, movement, isMovingAboveTopSpeed, maxSpeed;
+		//while edge hanging we just do not move
+		if(this._isEdgeHanging) {
+			this.vel.x = 0;
+			this.vel.y = 0;
 			if(this._isTryingToJump) {
 				this._facing *= -1;
+				this._isTryingToJump = false;
+				this._isEdgeHanging = false;
+				//if you're holding down when you jump, you drop
 				if(this._moveDir.y === 1) {
-					//drop
 					this.vel.x = this._facing * WALLCLING_DROP_SPEED.x;
 					this.vel.y = WALLCLING_DROP_SPEED.y;
 				}
-				else if(this._moveDir.y === -1 || (this._moveDir.x !== 0 && this._moveDir.x !== this._facing)) {
-					this.vel.x = this._facing * WALLCLING_JUMP_SPEED_SUPPRESSED.x;
-					this.vel.y = -WALLCLING_JUMP_SPEED_SUPPRESSED.y;
-				}
-				else if(this._moveDir.x === 0) {
-					this.vel.x = this._facing * WALLCLING_JUMP_SPEED.x;
-					this.vel.y = -WALLCLING_JUMP_SPEED.y;
-				}
+				//otherwise you jump in an arc determined by the direction you were holding
 				else {
-					this.vel.x = this._facing * WALLCLING_JUMP_SPEED_ENHANCED.x;
-					this.vel.y = -WALLCLING_JUMP_SPEED_ENHANCED.y;
+					dir = (this._moveDir.y === -1 ? -1 : this._facing * this._moveDir.x);
+					this.vel.x = this._facing * choose(dir, WALLCLING_JUMP_SPEED).x;
+					this.vel.y = -choose(dir, WALLCLING_JUMP_SPEED).y;
 				}
-				this._isTryingToJump = false;
-				this._wallClinging = false;
 			}
-			//after a while of clinging
-			else if(this._framesSpentWallClinging >= WALLCLING_DURATION || this._beganWallClingSliding || this._moveDir.y === 1) {
-				//if we aren't sliding down fast enough, accelerate
-				var speed = (this._moveDir.y === -1 ? WALLCLING_SLIDE_SPEED_SUPRESSED : (this._moveDir.y === 1 ? WALLCLING_SLIDE_SPEED_ENHANCED : WALLCLING_SLIDE_SPEED));
-				var acc = (this._moveDir.y === -1 ? WALLCLING_SLIDE_ACC_SUPRESSED : (this._moveDir.y === 1 ? WALLCLING_SLIDE_ACC_ENHANCED : WALLCLING_SLIDE_ACC));
-				var dec = WALLCLING_SLIDE_DEC;
+		}
+		//when wallclinging, you stick to a wall for a bit and then slowly slide down it
+		else if(this._isWallClinging) {
+			this.vel.x = 0; //this shouldn't be necessary but we do it anways
+			//you can walljump
+			if(this._isTryingToJump) {
+				this._facing *= -1;
+				this._isTryingToJump = false;
+				this._isWallClinging = false;
+				//if you're holding down when you jump, you drop
+				if(this._moveDir.y === 1) {
+					this.vel.x = this._facing * WALLCLING_DROP_SPEED.x;
+					this.vel.y = WALLCLING_DROP_SPEED.y;
+				}
+				//otherwise you jump in an arc determined by the direction you were holding
+				else {
+					dir = (this._moveDir.y === -1 ? -1 : this._facing * this._moveDir.x);
+					this.vel.x = this._facing * choose(dir, WALLCLING_JUMP_SPEED).x;
+					this.vel.y = -choose(dir, WALLCLING_JUMP_SPEED).y;
+				}
+			}
+			//if you're just clinging to the wall
+			else {
+				//after a while of clinging, you start sliding
+				if(this._framesSpentStickingToWall >= WALLCLING_STICKY_DURATION || this._moveDir.y === 1) {
+					this._isWallClingSliding = true;
+				}
+				//when sliding you accelerate downwards slowly, while sticking you decelerate to 0
+				speed = this._isWallClingSliding ? choose(this._moveDir.y, WALLCLING_SLIDE_SPEED) : 0;
+				acc = this._isWallClingSliding ? choose(this._moveDir.y, WALLCLING_SLIDE_ACC) : WALLCLING_SLIDE_DEC;
+				dec = WALLCLING_SLIDE_DEC;
+				//if you're not sliding fast enough, accelerate to reach the target speed
 				if(this.vel.y < speed) {
 					this.vel.y += acc;
 					if(this.vel.y > speed) {
 						this.vel.y = speed;
 					}
 				}
-				//if we're sliding down too fast, decelerate
+				//if you're sliding too fast, decelerate to reach the target speed
 				else if(this.vel.y > speed) {
 					this.vel.y -= dec;
 					if(this.vel.y < speed) {
 						this.vel.y = speed;
 					}
 				}
-			}
-			//for the first split second after clinging
-			else {
-				//slow down to a stop
-				this.vel.y -= WALLCLING_SLIDE_DEC;
-				if(this.vel.y < 0) {
-					this.vel.y = 0;
-				}
+				//it only counts as "sticking" if you're fully stopped while clinging to the wall
 				if(this.vel.y === 0) {
-					this._framesSpentWallClinging++;
+					this._framesSpentStickingToWall++;
 				}
 			}
 		}
 		else {
+			//you are always falling
 			this.vel.y += FALL_ACC;
-			if(this.vel.y > MAX_FALL_SPEED) {
-				this.vel.y = MAX_FALL_SPEED;
-			}
-			if(this.vel.y < -MAX_RISE_SPEED) {
-				this.vel.y = -MAX_RISE_SPEED;
-			}
 
-			if(this._isAirborne) {
-				//just starting to move
-				if(this.vel.x === 0) {
-					//you start moving with a certain velocity
-					if(this._moveDir.x !== 0) {
-						this.vel.x = this._moveDir.x * AIR_ACC_INITIAL;
-						this._facing = this._moveDir.x;
-					}
-				}
-				//already moving and not pressing anything
-				else if(this._moveDir.x === 0) {
-					//if you're moving really fast, you skid, which doesn't slow you down very quickly
-					if(Math.abs(this.vel.x) > MAX_AIR_SPEED) {
-						this.vel.x -= (this.vel.x > 0 ? 1 : -1) * DRAG_DEC;
-					}
-					//if you're moving slow enough you just stop
-					else if(Math.abs(this.vel.x) < AIR_DEC) {
-						this.vel.x = 0;
-					}
-					//otherwise you slow down
-					else {
-						this.vel.x -= (this.vel.x > 0 ? 1 : -1) * AIR_DEC;
-					}
-				}
-				//already moving and pressing in opposite direction of movement
-				else if((this.vel.x >= 0) !== (this._moveDir.x >= 0)) {
-					//if you're moving really fast, you skid, which doesn't slow you down very quickly
-					if(Math.abs(this.vel.x) > MAX_AIR_SPEED) {
-						this.vel.x -= (this.vel.x > 0 ? 1 : -1) * DRAG_DEC_ENHANCED;
-					}
-					//if you're moving slow enough you switch directions
-					else if(Math.abs(this.vel.x) < AIR_DEC_ENHANCED) {
-						this.vel.x = this._moveDir.x * AIR_ACC_INITIAL;
-						this._facing = this._moveDir.x;
-					}
-					//otherwise you slow down
-					else {
-						this.vel.x -= (this.vel.x > 0 ? 1 : -1) * AIR_DEC_ENHANCED;
-					}
-				}
-				//already moving and pressing in direction of movement
-				else {
-					//if you're moving really fast, you lose very little velocity
-					if(Math.abs(this.vel.x) > MAX_AIR_SPEED) {
-						this.vel.x -= (this.vel.x > 0 ? 1 : -1) * DRAG_DEC_SUPPRESSED;
-					}
-					//if you're close enough then you reach the max movespeed
-					else if(this.vel.x > 0 && this.vel.x + AIR_ACC >= MAX_AIR_SPEED) {
-						this.vel.x = MAX_AIR_SPEED;
-					}
-					else if(this.vel.x < 0 && this.vel.x - AIR_ACC <= -MAX_AIR_SPEED) {
-						this.vel.x = -MAX_AIR_SPEED;
-					}
-					//otherwise you speed up
-					else {
-						this.vel.x += (this.vel.x > 0 ? 1 : -1) * AIR_ACC;
-					}
+			//get movement variables
+			movement = (this._isAirborne ? AIR_MOVEMENT : GROUND_MOVEMENT);
+			dir = this._facing * this._moveDir.x;
+			isMovingAboveTopSpeed = (this.vel.x > movement.TOP_SPEED || this.vel.x < -movement.TOP_SPEED);
+			acc = (isMovingAboveTopSpeed ? movement.ACC_ABOVE_TOP_SPEED : movement.ACC);
+			maxSpeed = (isMovingAboveTopSpeed ? movement.MAX_SPEED : movement.TOP_SPEED);
+			//if you're just starting to move
+			if(this.vel.x === 0) {
+				//you face the direction of movement and start moving with a certain velocity
+				if(this._moveDir.x !== 0) {
+					this._facing = this._moveDir.x;
+					this.vel.x = this._facing * movement.ACC.INITIAL;
 				}
 			}
+			//if you're already moving, you continue to accelerate
 			else {
-				//just starting to move
-				if(this.vel.x === 0) {
-					//you start moving with a certain velocity
+				this.vel.x += this._facing * choose(dir, acc);
+				//if that acceleration would cause you to switch directions... well then you switch directions
+				if(this.vel.x === 0 || (this.vel.x > 0) !== (this._facing > 0)) {
 					if(this._moveDir.x !== 0) {
-						this.vel.x = this._moveDir.x * WALK_ACC_INITIAL;
 						this._facing = this._moveDir.x;
+						if(Math.abs(this.vel.x) < movement.ACC.INITIAL) {
+							this.vel.x = this._facing * movement.ACC.INITIAL;
+						}
 					}
-				}
-				//already moving and not pressing anything
-				else if(this._moveDir.x === 0) {
-					//if you're moving really fast, you skid, which doesn't slow you down very quickly
-					if(Math.abs(this.vel.x) > MAX_WALK_SPEED) {
-						this.vel.x -= (this.vel.x > 0 ? 1 : -1) * SKID_DEC;
-					}
-					//if you're moving slow enough you just stop
-					else if(Math.abs(this.vel.x) < WALK_DEC) {
+					//if you aren't holding a direction you just stand still
+					else {
 						this.vel.x = 0;
 					}
-					//otherwise you slow down
-					else {
-						this.vel.x -= (this.vel.x > 0 ? 1 : -1) * WALK_DEC;
-					}
 				}
-				//already moving and pressing in opposite direction of movement
-				else if((this.vel.x >= 0) !== (this._moveDir.x >= 0)) {
-					//if you're moving really fast, you skid, which doesn't slow you down very quickly
-					if(Math.abs(this.vel.x) > MAX_WALK_SPEED) {
-						this.vel.x -= (this.vel.x > 0 ? 1 : -1) * SKID_DEC_ENHANCED;
-					}
-					//if you're moving slow enough you switch directions
-					else if(Math.abs(this.vel.x) < WALK_DEC_ENHANCED) {
-						this.vel.x = this._moveDir.x * WALK_ACC_INITIAL;
-						this._facing = this._moveDir.x;
-					}
-					//otherwise you slow down
-					else {
-						this.vel.x -= (this.vel.x > 0 ? 1 : -1) * WALK_DEC_ENHANCED;
-					}
+				//limt the player's speed
+				if(this.vel.x > maxSpeed) {
+					this.vel.x = maxSpeed;
 				}
-				//already moving and pressing in direction of movement
-				else {
-					//if you're moving really fast, you lose very little velocity
-					if(Math.abs(this.vel.x) > MAX_WALK_SPEED) {
-						this.vel.x -= (this.vel.x > 0 ? 1 : -1) * SKID_DEC_SUPPRESSED;
-					}
-					//if you're close enough then you reach the max movespeed
-					else if(this.vel.x > 0 && this.vel.x + WALK_ACC >= MAX_WALK_SPEED) {
-						this.vel.x = MAX_WALK_SPEED;
-					}
-					else if(this.vel.x < 0 && this.vel.x - WALK_ACC <= -MAX_WALK_SPEED) {
-						this.vel.x = -MAX_WALK_SPEED;
-					}
-					//otherwise you speed up
-					else {
-						this.vel.x += (this.vel.x > 0 ? 1 : -1) * WALK_ACC;
-					}
+				else if(this.vel.x < -maxSpeed) {
+					this.vel.x = -maxSpeed;
 				}
 			}
 		}
-
-		//increase velocity
-		this.vel.x += this._forceThisFrame.x * t + this._forceThisFrame.instant.x * u;
-		this.vel.y += this._forceThisFrame.y * t + this._forceThisFrame.instant.y * u;
-
-		//apply limits to velocity
-		if(this.vel.x > 0 && this.vel.x > MAX_HORIZONTAL_SPEED) {
-			this.vel.x = MAX_HORIZONTAL_SPEED;
+		if(this.vel.y > MAX_FALL_SPEED) {
+			this.vel.y = MAX_FALL_SPEED;
 		}
-		else if(this.vel.x < 0 && this.vel.x < -MAX_HORIZONTAL_SPEED) {
-			this.vel.x = -MAX_HORIZONTAL_SPEED;
-		}
-		if(this.vel.y > 0 && this.vel.y > MAX_VERTICAL_SPEED) {
-			this.vel.y = MAX_VERTICAL_SPEED;
-		}
-		else if(this.vel.y < 0 && this.vel.y < -MAX_VERTICAL_SPEED) {
-			this.vel.y = -MAX_VERTICAL_SPEED;
-		}
-
-		//apply velocity to position
-		this.pos.prev.x = this.pos.x;
-		this.pos.prev.y = this.pos.y;
-		this.pos.x += this.vel.x * t;
-		this.pos.y += this.vel.y * t;
-
-		//reset forces
-		this._forceThisFrame = { x: 0, y: 0 };
-		this._forceThisFrame.instant = { x: 0, y: 0 };
-
-		this._recalculateCollisionBoxes();
-	};
-	Player.prototype.applyForce = function(forceX, forceY) { //or (force, dirX, dirY)
-		if(arguments.length === 3) {
-			var force = arguments[0];
-			var dirX = arguments[1];
-			var dirY = arguments[2];
-			var totalDir = Math.sqrt(dirX * dirX + dirY * dirY);
-			this._forceThisFrame.x += force * dirX / totalDir;
-			this._forceThisFrame.y += force * dirY / totalDir;
-		}
-		else {
-			this._forceThisFrame.x += forceX;
-			this._forceThisFrame.y += forceY;
-		}
-	};
-	Player.prototype.applyInstantaneousForce = function(forceX, forceY) { //or (force, dirX, dirY)
-		if(arguments.length === 3) {
-			var force = arguments[0];
-			var dirX = arguments[1];
-			var dirY = arguments[2];
-			var totalDir = Math.sqrt(dirX * dirX + dirY * dirY);
-			this._forceThisFrame.instant.x += force * dirX / totalDir;
-			this._forceThisFrame.instant.y += force * dirY / totalDir;
-		}
-		else {
-			this._forceThisFrame.instant.x += forceX;
-			this._forceThisFrame.instant.y += forceY;
+		if(this.vel.y < -MAX_RISE_SPEED) {
+			this.vel.y = -MAX_RISE_SPEED;
 		}
 	};
 	Player.prototype.shootGrapple = function(x, y) {
@@ -442,8 +355,14 @@ define([
 		var frame, flip = this._facing < 0;
 		var speed = this.vel.x < 0 ? -this.vel.x : this.vel.x;
 
+		//edgehanging only has one animation
+		if(this._isEdgeHanging) {
+			this._setAnimation('hanging');
+			frame = 91;
+		}
+
 		//wallclinging only has one animation
-		if(this._wallClinging) {
+		else if(this._isWallClinging) {
 			this._setAnimation('clinging');
 			frame = 82; //clinging to the wall
 		}
@@ -482,7 +401,7 @@ define([
 			}
 
 			//if moving faster than the max walk speed
-			else if(speed > MAX_WALK_SPEED) {
+			else if(speed > GROUND_MOVEMENT.TOP_SPEED) {
 				//normal skid animation when not pressing a direction
 				if(this._moveDir.x === 0) {
 					this._setAnimation('skidding');
@@ -549,7 +468,23 @@ define([
 		this._leftBox.render(ctx, camera);
 		this._rightBox.render(ctx, camera);
 		this._upperClingBox.render(ctx, camera);
-		this._lowerClingBox.render(ctx, camera);*/
+		this._lowerClingBox.render(ctx, camera);
+		this._edgeHangBox.render(ctx, camera);
+		ctx.fillStyle = '#000';
+		ctx.font = '12px Georgia';
+		ctx.fillText(Math.round(this.vel.x), this.pos.x - camera.x + 5, this.pos.y - camera.y - 15);
+		ctx.fillText(Math.round(this.pos.x), this.pos.x - camera.x + 5, this.pos.y - camera.y - 30);*/
 	};
+	function choose(dir, option1, option2, option3) {
+		if(dir < 0) {
+			return arguments.length === 2 ? option1.LESS : option1;
+		}
+		else if(dir > 0) {
+			return arguments.length === 2 ? option1.MORE : option3;
+		}
+		else {
+			return arguments.length === 2 ? option1.NORMAL : option2;
+		}
+	}
 	return Player;
 });

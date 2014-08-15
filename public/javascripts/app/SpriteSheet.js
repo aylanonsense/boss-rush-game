@@ -32,7 +32,7 @@ define(function() {
 					tempCtx2.fillStyle = 'rgba(' + [r, g, b, a].join(',') + ')';
 					tempCtx2.fillRect(x * scale, y * scale, scale, scale);
 					//fill the flipped pixel too
-					tempCtx2.fillRect(self._scaledImageCanvas.width - x * scale,
+					tempCtx2.fillRect(self._scaledImageCanvas.width - (x + 1) * scale,
 						self._scaledImageCanvas.height / 2 + y * scale, scale, scale);
 				}
 			}
