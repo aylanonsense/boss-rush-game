@@ -36,9 +36,9 @@ define([
 	var WALLCLING_SLIDE_SPEED = { LESS: 125, NORMAL: 200, MORE: 1000 };
 	var WALLCLING_OVERRIDE_SPEED = 1000;
 	//collision box curiosities
-	var HORIZONTAL_BOX_INSET_FROM_TOP = 9;
-	var HORIZONTAL_BOX_INSET_FROM_BOTTOM = 9;
-	var VERTICAL_BOX_INSET = 7;
+	var HORIZONTAL_BOX_INSET_FROM_TOP = 5;
+	var HORIZONTAL_BOX_INSET_FROM_BOTTOM = 5;
+	var VERTICAL_BOX_INSET = 5;
 	var ADDITIONAL_CLING_WIDTH = 1;
 	var CLING_BOX_INSET_FROM_TOP = 9;
 	var CLING_BOX_INSET_FROM_BOTTOM = 9;
@@ -49,22 +49,22 @@ define([
 	var MAX_UPWARD_MOVEMENT_PER_FRAME = HORIZONTAL_BOX_INSET_FROM_TOP - 0.5;
 	var MAX_DOWNWARD_MOVEMENT_PER_FRAME = Math.max(CLING_BOX_INSET_FROM_TOP - EDGE_HANG_BOX_HEIGHT, HORIZONTAL_BOX_INSET_FROM_BOTTOM) - 0.5;
 	function Player(x, y) {
-		this.width = 33;
-		this.height = 54;
+		this.width = 22;
+		this.height = 36;
 		this.pos = { x: x, y: y }; //the upper left point of the player
 		this.pos.prev = { x: x, y: y };
 		this.vel = { x: 0, y: 0 };
 		this._recalculateCollisionBoxes();
 		this._isTryingToJump = false;
 		this._isAirborne = true;
-		this._spriteOffset = { x: -19.5, y: -15 };
-		this._sprite = new SpriteSheet('/image/mailman-spritesheet.gif', 3, 24, 24);
+		this._spriteOffset = { x: -13, y: -10 };
+		this._sprite = new SpriteSheet('/image/mailman-spritesheet.gif', 2, 24, 24);
 		this._facing = 1;
 		this._isWallClinging = false;
 		this._isWallClingSliding = false;
 		this._isEdgeHanging = false;
 		this._framesSpentStickingToWall = 0;
-		this.grappleOffset = { x: 16.5, y: 28 };
+		this.grappleOffset = { x: 11, y: 18 };
 		this._currAnimation = null;
 		this._currAnimationTime = 0;
 	}
@@ -461,7 +461,11 @@ define([
 				}
 			}
 		}
+
+		//render the sprite
 		this._sprite.render(ctx, camera, this.pos.x + this._spriteOffset.x, this.pos.y + this._spriteOffset.y, frame, flip);
+
+		//debug rendering (hitboxes, velocity, etc)
 		/*this._boundingBox.render(ctx, camera);
 		this._topBox.render(ctx, camera);
 		this._bottomBox.render(ctx, camera);
@@ -470,10 +474,18 @@ define([
 		this._upperClingBox.render(ctx, camera);
 		this._lowerClingBox.render(ctx, camera);
 		this._edgeHangBox.render(ctx, camera);
+		ctx.strokeStyle = '#00f';
+		ctx.lineWidth = 1;
+		ctx.beginPath();
+		ctx.moveTo(this.pos.x + this.width / 2 - camera.x,
+			this.pos.y + this.height / 2 - camera.y);
+		ctx.lineTo(this.pos.x + this.width / 2 - camera.x + this.vel.x / 5,
+			this.pos.y + this.height / 2 - camera.y + this.vel.y / 5);
+		ctx.stroke();
 		ctx.fillStyle = '#000';
-		ctx.font = '12px Georgia';
-		ctx.fillText(Math.round(this.vel.x), this.pos.x - camera.x + 5, this.pos.y - camera.y - 15);
-		ctx.fillText(Math.round(this.pos.x), this.pos.x - camera.x + 5, this.pos.y - camera.y - 30);*/
+		ctx.font = '10px Georgia';
+		ctx.fillText("vel.x=" + Math.round(this.vel.x), this.pos.x - camera.x, this.pos.y - camera.y - 15);
+		ctx.fillText("vel.y=" + Math.round(this.vel.y), this.pos.x - camera.x, this.pos.y - camera.y - 5);*/
 	};
 	function choose(dir, option1, option2, option3) {
 		if(dir < 0) {

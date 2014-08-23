@@ -17,7 +17,7 @@ define([
 		var ctx = canvas[0].getContext('2d');
 
 		//create stuff
-		var player = new Player(-1500, 0);
+		var player = new Player(-700, 0);
 		var grapples = [];
 		var camera = { x: player.pos.x, y: player.pos.y };
 		var tiles = new TileGrid();
@@ -40,6 +40,9 @@ define([
 		tiles.add(new SquareTile(tiles, 2, -5));
 		tiles.add(new SquareTile(tiles, 2, -6));
 		tiles.add(new SquareTile(tiles, 2, -7));
+		for(i = -35; i <= -20; i++) {
+			tiles.add(new SquareTile(tiles, i, -8));
+		}
 
 		//add input bindings
 		var keys = { pressed: {} };
