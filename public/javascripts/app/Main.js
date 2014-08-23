@@ -116,7 +116,7 @@ define([
 			if(!isPaused) {
 				tick(ms);
 				camera.x = player.pos.x - WIDTH / 2;
-				camera.y = player.pos.y - HEIGHT / 2;
+				camera.y = player.pos.y - HEIGHT / 2 - 0.12 * HEIGHT;
 			}
 			render();
 		}
