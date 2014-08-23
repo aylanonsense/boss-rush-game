@@ -40,8 +40,11 @@ define([
 		tiles.add(new SquareTile(tiles, 2, -5));
 		tiles.add(new SquareTile(tiles, 2, -6));
 		tiles.add(new SquareTile(tiles, 2, -7));
-		for(i = -35; i <= -20; i++) {
-			tiles.add(new SquareTile(tiles, i, -8));
+		for(i = -35; i <= -31; i++) {
+			tiles.add(new SquareTile(tiles, i, -12));
+		}
+		for(i = -20; i <= -16; i++) {
+			tiles.add(new SquareTile(tiles, i, -12));
 		}
 
 		//add input bindings
