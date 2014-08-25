@@ -13,7 +13,8 @@ define([
 	return function() {
 		//canvas
 		var WIDTH = 800, HEIGHT = 600, isPaused = false;
-		var canvas = $('<canvas width="' + WIDTH + 'px" height = "' + HEIGHT + 'px" />').appendTo(document.body);
+		var canvas = $('<canvas width="' + WIDTH + 'px" height = "' + HEIGHT + 'px" ' +
+			'style="display:block;margin: 15Px auto;" />').appendTo(document.body);
 		var ctx = canvas[0].getContext('2d');
 
 		//create stuff
