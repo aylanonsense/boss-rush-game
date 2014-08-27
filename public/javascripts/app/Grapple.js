@@ -29,6 +29,9 @@ define([
 				}
 			});
 		}
+		else {
+			this._applyForceToPlayer();
+		}
 	};
 	Grapple.prototype.move = function() {
 		if(!this.isLatched) {
@@ -40,26 +43,36 @@ define([
 		}
 	};
 	Grapple.prototype.latchTo = function(x, y) {
-		this.pos.x = x;
-		this.pos.y = y;
-		this.pos.prev.x = x;
-		this.pos.prev.y = y;
-		this.isLatched = true;
-		var dx = x - this._player.pos.x;
-		var dy = y - this._player.pos.y;
-		this._latchDist = Math.sqrt(dx * dx + dy * dy);
-		this._recalculateMovementVectors();
+		if(!this.isLatched) {
+			this.pos.x = x;
+			this.pos.y = y;
+			this.pos.prev.x = x;
+			this.pos.prev.y = y;
+			this.isLatched = true;
+			var dx = x - this._player.pos.x;
+			var dy = y - this._player.pos.y;
+			this._latchDist = Math.sqrt(dx * dx + dy * dy);
+			this._recalculateMovementVectors();
+		}
 	};
 	Grapple.prototype._recalculateMovementVectors = function() {
 		this._lineOfMovement = GeometryUtils.toLine(this.pos.prev, this.pos);
 	};
-	Grapple.prototype.applyForceToPlayer = function() {
-		var dx = this.pos.x - this._player.pos.x;
-		var dy = this.pos.y - this._player.pos.y;
+	Grapple.prototype._applyForceToPlayer = function() {
+		var dx = this._player.pos.x - this.pos.x;
+		var dy = this._player.pos.y - this.pos.y;
 		var dist = Math.sqrt(dx * dx + dy * dy);
-		var excessDist = dist - this._latchDist;
-		if(excessDist > 0) {
-			this._player.applyForce(K * excessDist / this._latchDist, dx, dy);
+		if(dist > this._latchDist) {
+			var posX = this.pos.x + this._latchDist * dx / dist;
+			var posY = this.pos.y + this._latchDist * dy / dist;
+			var angle = Math.atan2(dy, dx);
+			var cos = Math.cos(angle);
+			var sin = Math.sin(angle);
+			var velParallel = cos * this._player.vel.x + sin * this._player.vel.y;
+			var velPerpendicular = -sin * this._player.vel.x + cos * this._player.vel.y;
+			var velX = -sin * velPerpendicular;
+			var velY = cos * velPerpendicular;
+			this._player.restrictViaGrapplesTo(posX, posY, velX, velY);
 		}
 	};
 	Grapple.prototype.render = function(ctx, camera) {

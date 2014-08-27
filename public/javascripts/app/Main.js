@@ -54,6 +54,7 @@ define([
 		var JUMP_KEY = KEY.SPACE;
 		var PAUSE_KEY = KEY.P;
 		var SUPER_BOOST_KEY = KEY.SHIFT;
+		var BREAK_GRAPPLE_KEY = KEY.R;
 		$(document).on('keydown', function(evt) {
 			if(!keys[evt.which]) {
 				keys[evt.which] = true;
@@ -69,6 +70,9 @@ define([
 						player.vel.x = 9999999 * player._moveDir.x;
 						player.vel.y = 9999999 * player._moveDir.y;
 					}
+				}
+				if(evt.which === BREAK_GRAPPLE_KEY) {
+					grapples = [];
 				}
 			}
 		});

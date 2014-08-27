@@ -63,6 +63,7 @@ define([
 		this._isWallClinging = false;
 		this._isWallClingSliding = false;
 		this._isEdgeHanging = false;
+		this._isSwingingOnGrapple = false;
 		this._framesSpentStickingToWall = 0;
 		this.grappleOffset = { x: 11, y: 18 };
 		this._currAnimation = null;
@@ -205,11 +206,15 @@ define([
 		if(i === 100) {
 			debugger;
 		}
+		this._isSwingingOnGrapple = false;
 	};
 	Player.prototype._recalculateStateAndVelocity = function() {
 		var dir, speed, acc, dec, movement, isMovingAboveTopSpeed, maxSpeed;
 		//while edge hanging we just do not move
-		if(this._isEdgeHanging) {
+		if(this._isSwingingOnGrapple) {
+			this.vel.y += FALL_ACC;
+		}
+		else if(this._isEdgeHanging) {
 			this.vel.x = 0;
 			this.vel.y = 0;
 			if(this._isTryingToJump) {
@@ -350,6 +355,16 @@ define([
 			this._currAnimation = anim;
 			this._currAnimationTime	= 0;
 		}
+	};
+	Player.prototype.restrictViaGrapplesTo = function(x, y, velX, velY) {
+		this.pos.x = x;
+		this.pos.y = y;
+		this.pos.prev.x = x;
+		this.pos.prev.y = y;
+		this.vel.x = velX;
+		this.vel.y = velY;
+		this._isSwingingOnGrapple = true;
+		this._recalculateCollisionBoxes();
 	};
 	Player.prototype.render = function(ctx, camera) {
 		var frame, flip = this._facing < 0;
