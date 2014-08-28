@@ -50,10 +50,10 @@ define([
 
 		//add input bindings
 		var keys = { pressed: {} };
-		var KEY = { W: 87, A: 65, S: 83, D: 68, R: 82, P: 80, G: 71, SHIFT: 16, SPACE: 32 };
+		var KEY = { W: 87, A: 65, S: 83, D: 68, R: 82, P: 80, G: 71, I: 73, J: 74, K: 75, L: 76, SHIFT: 16, SPACE: 32 };
 		var JUMP_KEY = KEY.SPACE;
 		var PAUSE_KEY = KEY.P;
-		var SUPER_BOOST_KEY = KEY.SHIFT;
+		var SUPER_BOOST_KEYS = { UP: KEY.I, LEFT: KEY.J, DOWN: KEY.K, RIGHT: KEY.L };
 		var BREAK_GRAPPLE_KEY = KEY.R;
 		$(document).on('keydown', function(evt) {
 			if(!keys[evt.which]) {
@@ -65,11 +65,17 @@ define([
 				if(evt.which === JUMP_KEY) {
 					player.jump();
 				}
-				if(evt.which === SUPER_BOOST_KEY) {
-					if(player._moveDir.x !== 0 || player._moveDir.y !== 0) {
-						player.vel.x = 9999999 * player._moveDir.x;
-						player.vel.y = 9999999 * player._moveDir.y;
-					}
+				if(evt.which === SUPER_BOOST_KEYS.UP) {
+					player.vel.y = -999999;
+				}
+				if(evt.which === SUPER_BOOST_KEYS.DOWN) {
+					player.vel.y = 999999;
+				}
+				if(evt.which === SUPER_BOOST_KEYS.LEFT) {
+					player.vel.x = -999999;
+				}
+				if(evt.which === SUPER_BOOST_KEYS.RIGHT) {
+					player.vel.x = 999999;
 				}
 				if(evt.which === BREAK_GRAPPLE_KEY) {
 					grapples = [];
