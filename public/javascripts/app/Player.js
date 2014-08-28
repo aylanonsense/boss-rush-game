@@ -288,43 +288,39 @@ define([
 			//you are always falling
 			this.vel.y += FALL_ACC;
 
-			//get movement variables
+			//collect movement vars
 			movement = (this._isAirborne ? AIR_MOVEMENT : GROUND_MOVEMENT);
-			dir = this._facing * this._moveDir.x;
 			isMovingAboveTopSpeed = (this.vel.x > movement.TOP_SPEED || this.vel.x < -movement.TOP_SPEED);
 			acc = (isMovingAboveTopSpeed ? movement.ACC_ABOVE_TOP_SPEED : movement.ACC);
 			maxSpeed = (isMovingAboveTopSpeed ? movement.MAX_SPEED : movement.TOP_SPEED);
-			//if you're just starting to move
+
+			//it's easy when you start moving
 			if(this.vel.x === 0) {
-				//you face the direction of movement and start moving with a certain velocity
 				if(this._moveDir.x !== 0) {
 					this._facing = this._moveDir.x;
-					this.vel.x = this._facing * movement.ACC.INITIAL;
+					this.vel.x = this._moveDir.x * movement.ACC.INITIAL;
 				}
 			}
-			//if you're already moving, you continue to accelerate
+
+			//when you're already moving, you accelerate according to the direction held
 			else {
-				this.vel.x += this._facing * choose(dir, acc);
-				//if that acceleration would cause you to switch directions... well then you switch directions
-				if(this.vel.x === 0 || (this.vel.x > 0) !== (this._facing > 0)) {
+				var dirOfVel = this.vel.x > 0 ? 1 : -1;
+				var oldVelX = this.vel.x;
+				this.vel.x += choose(dirOfVel * this._moveDir.x, acc) * dirOfVel;
+				//if you switched directions and are holding a direction, you change facing
+				if(this.vel.x !== 0 && (oldVelX > 0) !== (this.vel.x > 0)) {
 					if(this._moveDir.x !== 0) {
 						this._facing = this._moveDir.x;
-						if(Math.abs(this.vel.x) < movement.ACC.INITIAL) {
-							this.vel.x = this._facing * movement.ACC.INITIAL;
-						}
-					}
-					//if you aren't holding a direction you just stand still
-					else {
-						this.vel.x = 0;
 					}
 				}
-				//limt the player's speed
-				if(this.vel.x > maxSpeed) {
-					this.vel.x = maxSpeed;
-				}
-				else if(this.vel.x < -maxSpeed) {
-					this.vel.x = -maxSpeed;
-				}
+			}
+
+			//limt the player's speed
+			if(this.vel.x > maxSpeed) {
+				this.vel.x = maxSpeed;
+			}
+			else if(this.vel.x < -maxSpeed) {
+				this.vel.x = -maxSpeed;
 			}
 		}
 		if(this.vel.y > MAX_FALL_SPEED) {
