@@ -308,10 +308,19 @@ define([
 				var oldVelX = this.vel.x;
 				this.vel.x += choose(dirOfVel * this._moveDir.x, acc) * dirOfVel;
 				//if you switched directions and are holding a direction, you change facing
-				if(this.vel.x !== 0 && (oldVelX > 0) !== (this.vel.x > 0)) {
-					if(this._moveDir.x !== 0) {
+				if(this.vel.x !== 0 && this._moveDir.x !== 0) {
+					if((oldVelX > 0) !== (this.vel.x > 0)) {
 						this._facing = this._moveDir.x;
 					}
+					else if((this._moveDir.x > 0) === (this.vel.x > 0)) {
+						this._facing = this._moveDir.x;
+					}
+				}
+			}
+
+			if(this._isAirborne) {
+				if(this._moveDir.x !== 0) {
+					this._facing = this._moveDir.x;
 				}
 			}
 
@@ -416,7 +425,12 @@ define([
 				//normal skid animation when not pressing a direction
 				if(this._moveDir.x === 0) {
 					this._setAnimation('skidding');
-					frame = 50; //skidding
+					if((this._facing > 0) === (this.vel.x > 0)) {
+						frame =  50; //skidding
+					}
+					else {
+						frame =  64; //surfing
+					}
 				}
 
 				//if pressing in the direction of movement, a multi-frame run animation is played
@@ -441,7 +455,12 @@ define([
 				else {
 					this._setAnimation('super skidding');
 					this._currAnimationTime = (this._currAnimationTime + 1) % 16;
-					frame = this._currAnimationTime > 8 ? 52 : 53; //super-skid 1 / super-skid 2
+					if((this._facing > 0) === (this.vel.x > 0)) {
+						frame = this._currAnimationTime > 8 ? 52 : 53; //super-skid 1 / super-skid 2
+					}
+					else {
+						frame = 55; //super-surf
+					}
 				}
 			}
 
