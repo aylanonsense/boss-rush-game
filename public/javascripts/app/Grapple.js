@@ -16,6 +16,7 @@ define([
 		this.vel = { x: GRAPPLE_SPEED * dirX / dir, y: GRAPPLE_SPEED * dirY / dir };
 		this.isLatched = false;
 		this._latchDist = null;
+		this._isRetracting = false;
 		this._recalculateMovementVectors();
 	}
 	Grapple.prototype.tick = function(tiles) {
@@ -83,6 +84,12 @@ define([
 			this._player.pos.y + this._player.grappleOffset.y - camera.y);
 		ctx.lineTo(this.pos.x - camera.x, this.pos.y - camera.y);
 		ctx.stroke();
+	};
+	Grapple.prototype.startRetracting = function() {
+		this._isRetracting = true;
+	};
+	Grapple.prototype.stopRetracting = function() {
+		this._isRetracting = false;
 	};
 	return Grapple;
 });

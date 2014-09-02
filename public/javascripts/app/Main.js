@@ -55,6 +55,7 @@ define([
 		var PAUSE_KEY = KEY.P;
 		var SUPER_BOOST_KEYS = { UP: KEY.I, LEFT: KEY.J, DOWN: KEY.K, RIGHT: KEY.L };
 		var BREAK_GRAPPLE_KEY = KEY.R;
+		var PULL_GRAPPLE_KEY = KEY.SHIFT;
 		$(document).on('keydown', function(evt) {
 			if(!keys[evt.which]) {
 				keys[evt.which] = true;
@@ -80,6 +81,11 @@ define([
 				if(evt.which === BREAK_GRAPPLE_KEY) {
 					grapples = [];
 				}
+				if(evt.which === PULL_GRAPPLE_KEY) {
+					for(var i = 0; i < grapples.length; i++) {
+						grapples[i].startRetracting();
+					}
+				}
 			}
 		});
 		$(document).on('keyup', function(evt) {
@@ -88,6 +94,11 @@ define([
 				keys.pressed[evt.which] = false;
 				if(evt.which === JUMP_KEY) {
 					player.stopJumping();
+				}
+				if(evt.which === PULL_GRAPPLE_KEY) {
+					for(var i = 0; i < grapples.length; i++) {
+						grapples[i].stopRetracting();
+					}
 				}
 			}
 		});
