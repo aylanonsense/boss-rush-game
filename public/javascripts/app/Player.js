@@ -96,119 +96,8 @@ define([
 			this._edgeHangBox = new Rect(x - d, y, w / 2 + d, i, "rgba(255, 255, 0, 1.0)");
 		}
 	};
-	Player.prototype._checkForCollisions = function(tiles) {
-		var self = this;
-		if(this._isEdgeHanging) {
-			return;
-		}
-		tiles.forEachNearby(this._boundingBox, function(tile) {
-			if(self._topBox.isIntersecting(tile.box)) {
-				self.vel.y = 0;
-				self.pos.y = tile.box.y + tile.box.height;
-				self._finalPos.y = self.pos.y;
-				if(self._isWallClinging) {
-					self._facing *= -1;
-					self._isWallClinging = false;
-				}
-				self._recalculateCollisionBoxes();
-			}
-			if(self._bottomBox.isIntersecting(tile.box)) {
-				self.vel.y = 0;
-				self.pos.y = tile.box.y - self.height;
-				self._finalPos.y = self.pos.y;
-				if(self._isWallClinging) {
-					self._facing *= -1;
-					self._isWallClinging = false;
-				}
-				self._recalculateCollisionBoxes();
-				self._isAirborne = false;
-				if(self._isTryingToJump) {
-					self._isTryingToJump = false;
-					self.vel.y = -JUMP_SPEED;
-				}
-			}
-		});
-		tiles.forEachNearby(this._boundingBox, function(tile) {
-			if(self._leftBox.isIntersecting(tile.box)) {
-				self.vel.x = 0;
-				self.pos.x = tile.box.x + tile.box.width;
-				self._finalPos.x = self.pos.x;
-				self._recalculateCollisionBoxes();
-			}
-			if(self._rightBox.isIntersecting(tile.box)) {
-				self.vel.x = 0;
-				self.pos.x = tile.box.x - self.width;
-				self._finalPos.x = self.pos.x;
-				self._recalculateCollisionBoxes();
-			}
-		});
-		var isClingingToUpperClingBox = false;
-		var isClingingToLowerClingBox = false;
-		var edgeHangBoxCollision = false;
-		var upperClingTile = null;
-		tiles.forEachNearby(this._boundingBox, function(tile) {
-			if(self._upperClingBox.isIntersecting(tile.box)) {
-				isClingingToUpperClingBox = true;
-				upperClingTile = tile;
-			}
-			if(self._lowerClingBox.isIntersecting(tile.box)) {
-				isClingingToLowerClingBox = true;
-			}
-			if(self._edgeHangBox.isIntersecting(tile.box)) {
-				edgeHangBoxCollision = true;
-			}
-		});
-		if(isClingingToUpperClingBox && isClingingToLowerClingBox) {
-			if(!this._isEdgeHanging && !this._isWallClinging && this.vel.y > -300 && this._isAirborne) {
-				if(!edgeHangBoxCollision) {
-					self._isEdgeHanging = true;
-					self.pos.y = upperClingTile.box.y - EDGE_HANG_BOX_HEIGHT;
-					self._finalPos.y = self.pos.y;
-					self._recalculateCollisionBoxes();
-				}
-				else {
-					self._isWallClinging = true;
-					self._framesSpentStickingToWall = 0;
-					self._isWallClingSliding = self._moveDir.y === 1 || (self.vel.y >= WALLCLING_OVERRIDE_SPEED);
-				}
-			}
-		}
-		else if(this._isWallClinging) {
-			this._isWallClinging = false;
-			this._facing *= -1;
-			self._recalculateCollisionBoxes();
-		}
-		this._isTryingToJump = false;
-	};
-	Player.prototype.tick = function(tiles) {
-		this._recalculateStateAndVelocity();
-		this._finalPos = { x: this.pos.x + this.vel.x / 60, y: this.pos.y + this.vel.y / 60 };
-		this._isAirborne = true;
-		for(var i = 0; i < 100 && (this.pos.x !== this._finalPos.x || this.pos.y !== this._finalPos.y); i++) {
-			var dx = this._finalPos.x - this.pos.x;
-			var dy = this._finalPos.y - this.pos.y;
-			var percentOfMaxHorizontalMovement = Math.abs(dx) / MAX_HORIZONTAL_MOVEMENT_PER_FRAME;
-			var percentOfMaxVerticalMovement = Math.abs(dy) / (dy > 0 ? MAX_DOWNWARD_MOVEMENT_PER_FRAME : MAX_UPWARD_MOVEMENT_PER_FRAME);
-			var percentOfMaxMovement = Math.max(percentOfMaxHorizontalMovement, percentOfMaxVerticalMovement);
-			if(percentOfMaxMovement > 1.0) {
-				this.pos.x += dx / percentOfMaxMovement;
-				this.pos.y += dy / percentOfMaxMovement;
-				this._recalculateCollisionBoxes();
-				this._checkForCollisions(tiles);
-			}
-			else {
-				this.pos.x = this._finalPos.x;
-				this.pos.y = this._finalPos.y;
-				this._recalculateCollisionBoxes();
-				this._checkForCollisions(tiles);
-			}
-		}
-		if(i === 100) {
-			debugger;
-		}
-		this._isSwingingOnGrapple = false;
-	};
-	Player.prototype._recalculateStateAndVelocity = function() {
+	Player.prototype.planMovement = function(dirX, dirY) {
+		this._moveDir = { x: dirX, y: dirY };
 		var dir, speed, acc, dec, movement, isMovingAboveTopSpeed, maxSpeed;
 		//while edge hanging we just do not move
 		if(this._isSwingingOnGrapple) {
@@ -338,6 +227,121 @@ define([
 		if(this.vel.y < -MAX_RISE_SPEED) {
 			this.vel.y = -MAX_RISE_SPEED;
 		}
+
+		//set the player's final move position for this timestep (may be altered by external forces)
+		this._finalPos = { x: this.pos.x + this.vel.x / 60, y: this.pos.y + this.vel.y / 60 };
+		this._isAirborne = true;
+		this._isSwingingOnGrapple = false;
+		this._remainingMoveIncrements = 100;
+	};
+	Player.prototype.hasMovementRemaining = function() {
+		return this._remainingMoveIncrements > 0 && (this.pos.x !== this._finalPos.x || this.pos.y !== this._finalPos.y);
+	};
+	Player.prototype.move = function() {
+		this._remainingMoveIncrements--;
+		var dx = this._finalPos.x - this.pos.x;
+		var dy = this._finalPos.y - this.pos.y;
+		var percentOfMaxHorizontalMovement = Math.abs(dx) / MAX_HORIZONTAL_MOVEMENT_PER_FRAME;
+		var percentOfMaxVerticalMovement = Math.abs(dy) / (dy > 0 ? MAX_DOWNWARD_MOVEMENT_PER_FRAME : MAX_UPWARD_MOVEMENT_PER_FRAME);
+		var percentOfMaxMovement = Math.max(percentOfMaxHorizontalMovement, percentOfMaxVerticalMovement);
+		if(percentOfMaxMovement > 1.0) {
+			this.pos.x += dx / percentOfMaxMovement;
+			this.pos.y += dy / percentOfMaxMovement;
+		}
+		else {
+			this.pos.x = this._finalPos.x;
+			this.pos.y = this._finalPos.y;
+		}
+		this._recalculateCollisionBoxes();
+	};
+	Player.prototype.checkForMaxTetherRange = function(grapples) {
+		for(var i = 0; i < grapples.length; i++) {
+			grapples[i].applyForceToPlayer();
+		}
+	};
+	Player.prototype.checkForCollisions = function(tiles) {
+		var self = this;
+		if(this._isEdgeHanging) {
+			return;
+		}
+		tiles.forEachNearby(this._boundingBox, function(tile) {
+			if(self._topBox.isIntersecting(tile.box)) {
+				self.vel.y = 0;
+				self.pos.y = tile.box.y + tile.box.height;
+				self._finalPos.y = self.pos.y;
+				if(self._isWallClinging) {
+					self._facing *= -1;
+					self._isWallClinging = false;
+				}
+				self._recalculateCollisionBoxes();
+			}
+			if(self._bottomBox.isIntersecting(tile.box)) {
+				self.vel.y = 0;
+				self.pos.y = tile.box.y - self.height;
+				self._finalPos.y = self.pos.y;
+				if(self._isWallClinging) {
+					self._facing *= -1;
+					self._isWallClinging = false;
+				}
+				self._recalculateCollisionBoxes();
+				self._isAirborne = false;
+				if(self._isTryingToJump) {
+					self._isTryingToJump = false;
+					self.vel.y = -JUMP_SPEED;
+				}
+			}
+		});
+		tiles.forEachNearby(this._boundingBox, function(tile) {
+			if(self._leftBox.isIntersecting(tile.box)) {
+				self.vel.x = 0;
+				self.pos.x = tile.box.x + tile.box.width;
+				self._finalPos.x = self.pos.x;
+				self._recalculateCollisionBoxes();
+			}
+			if(self._rightBox.isIntersecting(tile.box)) {
+				self.vel.x = 0;
+				self.pos.x = tile.box.x - self.width;
+				self._finalPos.x = self.pos.x;
+				self._recalculateCollisionBoxes();
+			}
+		});
+		var isClingingToUpperClingBox = false;
+		var isClingingToLowerClingBox = false;
+		var edgeHangBoxCollision = false;
+		var upperClingTile = null;
+		tiles.forEachNearby(this._boundingBox, function(tile) {
+			if(self._upperClingBox.isIntersecting(tile.box)) {
+				isClingingToUpperClingBox = true;
+				upperClingTile = tile;
+			}
+			if(self._lowerClingBox.isIntersecting(tile.box)) {
+				isClingingToLowerClingBox = true;
+			}
+			if(self._edgeHangBox.isIntersecting(tile.box)) {
+				edgeHangBoxCollision = true;
+			}
+		});
+		if(isClingingToUpperClingBox && isClingingToLowerClingBox) {
+			if(!this._isEdgeHanging && !this._isWallClinging && this.vel.y > -300 && this._isAirborne) {
+				if(!edgeHangBoxCollision) {
+					self._isEdgeHanging = true;
+					self.pos.y = upperClingTile.box.y - EDGE_HANG_BOX_HEIGHT;
+					self._finalPos.y = self.pos.y;
+					self._recalculateCollisionBoxes();
+				}
+				else {
+					self._isWallClinging = true;
+					self._framesSpentStickingToWall = 0;
+					self._isWallClingSliding = self._moveDir.y === 1 || (self.vel.y >= WALLCLING_OVERRIDE_SPEED);
+				}
+			}
+		}
+		else if(this._isWallClinging) {
+			this._isWallClinging = false;
+			this._facing *= -1;
+			self._recalculateCollisionBoxes();
+		}
+		this._isTryingToJump = false;
 	};
 	Player.prototype.shootGrapple = function(x, y) {
 		var dirX = x - this.pos.x - this.grappleOffset.x;
@@ -351,9 +355,6 @@ define([
 		if(this.vel.y < -JUMP_STOP_SPEED) {
 			this.vel.y = -JUMP_STOP_SPEED;
 		}
-	};
-	Player.prototype.setMoveDir = function(dirX, dirY) {
-		this._moveDir = { x: dirX, y: dirY };
 	};
 	Player.prototype._setAnimation = function(anim) {
 		if(this._currAnimation !== anim) {

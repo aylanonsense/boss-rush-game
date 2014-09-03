@@ -19,19 +19,15 @@ define([
 		this._isRetracting = false;
 		this._recalculateMovementVectors();
 	}
-	Grapple.prototype.tick = function(tiles) {
+	Grapple.prototype.checkForCollisions = function(tiles) {
 		var self = this;
-		this.move();
 		if(!this.isLatched) {
 			tiles.forEach(function(tile) {
 				var intersection = tile.box.isIntersectingLine(self._lineOfMovement);
 				if(intersection) {
-					self.latchTo(intersection.x, intersection.y);
+					self._latchTo(intersection.x, intersection.y);
 				}
 			});
-		}
-		else {
-			this._applyForceToPlayer();
 		}
 	};
 	Grapple.prototype.move = function() {
@@ -43,7 +39,7 @@ define([
 			this._recalculateMovementVectors();
 		}
 	};
-	Grapple.prototype.latchTo = function(x, y) {
+	Grapple.prototype._latchTo = function(x, y) {
 		if(!this.isLatched) {
 			this.pos.x = x;
 			this.pos.y = y;
@@ -59,21 +55,23 @@ define([
 	Grapple.prototype._recalculateMovementVectors = function() {
 		this._lineOfMovement = GeometryUtils.toLine(this.pos.prev, this.pos);
 	};
-	Grapple.prototype._applyForceToPlayer = function() {
-		var dx = this._player.pos.x - this.pos.x;
-		var dy = this._player.pos.y - this.pos.y;
-		var dist = Math.sqrt(dx * dx + dy * dy);
-		if(dist > this._latchDist) {
-			var posX = this.pos.x + this._latchDist * dx / dist;
-			var posY = this.pos.y + this._latchDist * dy / dist;
-			var angle = Math.atan2(dy, dx);
-			var cos = Math.cos(angle);
-			var sin = Math.sin(angle);
-			var velParallel = cos * this._player.vel.x + sin * this._player.vel.y;
-			var velPerpendicular = -sin * this._player.vel.x + cos * this._player.vel.y;
-			var velX = -sin * velPerpendicular;
-			var velY = cos * velPerpendicular;
-			this._player.restrictViaGrapplesTo(posX, posY, velX, velY);
+	Grapple.prototype.applyForceToPlayer = function() {
+		if(this.isLatched) {
+			var dx = this._player.pos.x - this.pos.x;
+			var dy = this._player.pos.y - this.pos.y;
+			var dist = Math.sqrt(dx * dx + dy * dy);
+			if(dist > this._latchDist) {
+				var posX = this.pos.x + this._latchDist * dx / dist;
+				var posY = this.pos.y + this._latchDist * dy / dist;
+				var angle = Math.atan2(dy, dx);
+				var cos = Math.cos(angle);
+				var sin = Math.sin(angle);
+				var velParallel = cos * this._player.vel.x + sin * this._player.vel.y;
+				var velPerpendicular = -sin * this._player.vel.x + cos * this._player.vel.y;
+				var velX = -sin * velPerpendicular;
+				var velY = cos * velPerpendicular;
+				this._player.restrictViaGrapplesTo(posX, posY, velX, velY);
+			}
 		}
 	};
 	Grapple.prototype.render = function(ctx, camera) {

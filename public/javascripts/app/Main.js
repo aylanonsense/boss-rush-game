@@ -12,116 +12,62 @@ define([
 ) {
 	return function() {
 		//canvas
-		var WIDTH = 800, HEIGHT = 600, isPaused = false;
+		var WIDTH = 800, HEIGHT = 600;
 		var canvas = $('<canvas width="' + WIDTH + 'px" height = "' + HEIGHT + 'px" ' +
 			'style="display:block;margin: 15Px auto;" />').appendTo(document.body);
 		var ctx = canvas[0].getContext('2d');
 
-		//create stuff
+		//init stuff
+		var isPaused = false;
 		var player = new Player(-700, 0);
 		var grapples = [];
 		var camera = { x: player.pos.x, y: player.pos.y };
 		var tiles = new TileGrid();
-		for(var i = -5; i <= 30; i++) {
-			tiles.add(new SquareTile(tiles, -44, i));
-		}
-		tiles.add(new SquareTile(tiles, -41, -2));
-		tiles.add(new SquareTile(tiles, -41, -1));
-		tiles.add(new SquareTile(tiles, -41, 0));
-		for(i = -40; i <= 1; i++) {
-			tiles.add(new SquareTile(tiles, i, 1));
-		}
-		tiles.add(new SquareTile(tiles, 2, 0));
-		tiles.add(new SquareTile(tiles, 3, 0));
-		tiles.add(new SquareTile(tiles, 4, 0));
-		tiles.add(new SquareTile(tiles, 5, -1));
-		tiles.add(new SquareTile(tiles, 5, -3));
-		tiles.add(new SquareTile(tiles, 5, -4));
-		tiles.add(new SquareTile(tiles, 2, -4));
-		tiles.add(new SquareTile(tiles, 2, -5));
-		tiles.add(new SquareTile(tiles, 2, -6));
-		tiles.add(new SquareTile(tiles, 2, -7));
-		for(i = -35; i <= -31; i++) {
-			tiles.add(new SquareTile(tiles, i, -12));
-		}
-		for(i = -20; i <= -16; i++) {
-			tiles.add(new SquareTile(tiles, i, -12));
-		}
 
-		//add input bindings
-		var keys = { pressed: {} };
-		var KEY = { W: 87, A: 65, S: 83, D: 68, R: 82, P: 80, G: 71, I: 73, J: 74, K: 75, L: 76, SHIFT: 16, SPACE: 32 };
-		var JUMP_KEY = KEY.SPACE;
-		var PAUSE_KEY = KEY.P;
-		var SUPER_BOOST_KEYS = { UP: KEY.I, LEFT: KEY.J, DOWN: KEY.K, RIGHT: KEY.L };
-		var BREAK_GRAPPLE_KEY = KEY.R;
-		var PULL_GRAPPLE_KEY = KEY.SHIFT;
-		$(document).on('keydown', function(evt) {
-			if(!keys[evt.which]) {
-				keys[evt.which] = true;
-				keys.pressed[evt.which] = true;
-				if(evt.which === PAUSE_KEY) {
-					isPaused = !isPaused;
-				}
-				if(evt.which === JUMP_KEY) {
-					player.jump();
-				}
-				if(evt.which === SUPER_BOOST_KEYS.UP) {
-					player.vel.y = -999999;
-				}
-				if(evt.which === SUPER_BOOST_KEYS.DOWN) {
-					player.vel.y = 999999;
-				}
-				if(evt.which === SUPER_BOOST_KEYS.LEFT) {
-					player.vel.x = -999999;
-				}
-				if(evt.which === SUPER_BOOST_KEYS.RIGHT) {
-					player.vel.x = 999999;
-				}
-				if(evt.which === BREAK_GRAPPLE_KEY) {
-					grapples = [];
-				}
-				if(evt.which === PULL_GRAPPLE_KEY) {
-					for(var i = 0; i < grapples.length; i++) {
-						grapples[i].startRetracting();
-					}
+		//create tiles
+		var tileCoords = [];
+		tileCoords.push({ xMin: -40, xMax: 1, yMin: 1, yMax: 1 });
+		tileCoords.push({ xMin: 2, xMax: 4, yMin: 0, yMax: 0 });
+		tileCoords.push({ xMin: -35, xMax: -31, yMin: -12, yMax: -12 });
+		tileCoords.push({ xMin: -20, xMax: -16, yMin: -12, yMax: -12 });
+		tileCoords.push({ xMin: -44, xMax: -44, yMin: -5, yMax: 30 });
+		tileCoords.push({ xMin: -41, xMax: -41, yMin: -2, yMax: 0 });
+		tileCoords.push({ xMin: 2, xMax: 2, yMin: -7, yMax: -4 });
+		tileCoords.push({ xMin: 5, xMax: 5, yMin: -1, yMax: -1 });
+		tileCoords.push({ xMin: 5, xMax: 5, yMin: -4, yMax: -3 });
+		for(var i = 0; i < tileCoords.length; i++) {
+			for(var x = tileCoords[i].xMin; x <= tileCoords[i].xMax; x++) {
+				for(var y = tileCoords[i].yMin; y <= tileCoords[i].yMax; y++) {
+					tiles.add(new SquareTile(tiles, x, y));
 				}
 			}
-		});
-		$(document).on('keyup', function(evt) {
-			if(keys[evt.which]) {
-				keys[evt.which] = false;
-				keys.pressed[evt.which] = false;
-				if(evt.which === JUMP_KEY) {
-					player.stopJumping();
-				}
-				if(evt.which === PULL_GRAPPLE_KEY) {
-					for(var i = 0; i < grapples.length; i++) {
-						grapples[i].stopRetracting();
-					}
-				}
-			}
-		});
-		$(document).on('click', function(evt) {
-			grapples.push(player.shootGrapple(evt.offsetX + camera.x, evt.offsetY + camera.y));
-		});
+		}
 
-		//important stuff that happens every frame
-		function tick(ms) {
-			//move the player
-			player.setMoveDir(keys[KEY.A] ? -1 : (keys[KEY.D] ? 1 : 0), keys[KEY.W] ? -1 : (keys[KEY.S] ? 1 : 0));
-			player.tick(tiles);
-
-			//move grapples
+		//the main game loop
+		function tick() {
+			//everything moves before the player
 			for(var i = 0; i < grapples.length; i++) {
-				grapples[i].tick(tiles);
+				grapples[i].move();
+				grapples[i].checkForCollisions(tiles);
 			}
-		}
 
-		function findInterruption(prohibitedInterruptionKey) {
-			var interruptions = [];
+			//then the player moves
+			var moveDirX = keys[MOVE_KEYS.LEFT] ? -1 : (keys[MOVE_KEYS.RIGHT] ? 1 : 0);
+			var moveDirY = keys[MOVE_KEYS.UP] ? -1 : (keys[MOVE_KEYS.DOWN] ? 1 : 0);
+			player.planMovement(moveDirX, moveDirY);
+			while(player.hasMovementRemaining()) {
+				//move the player forward a bit
+				player.move();
+				player.checkForCollisions(tiles);
+			}
 
-			return interruptions[0] || null;
+			//then the grapples may affect the player -- outside the loop above for simplicity
+			player.checkForMaxTetherRange(grapples);
+			player.checkForCollisions(tiles);
+
+			//the camera adjusts to follow the player
+			camera.x = player.pos.x - WIDTH / 2;
+			camera.y = player.pos.y - HEIGHT / 2 - 0.12 * HEIGHT;
 		}
 
 		function render() {
@@ -134,26 +80,66 @@ define([
 			player.render(ctx, camera);
 		}
 
-		function everyFrame(ms) {
-			if(!isPaused) {
-				tick(ms);
-				camera.x = player.pos.x - WIDTH / 2;
-				camera.y = player.pos.y - HEIGHT / 2 - 0.12 * HEIGHT;
+		//add input bindings
+		var keys = { pressed: {} };
+		var MOVE_KEYS = {
+			UP: 87, //W
+			LEFT: 65, //A
+			DOWN: 83, //S
+			RIGHT: 68 //D
+		};
+		var SUPER_BOOST_KEYS = {
+			UP: 73, //I
+			LEFT: 74, //J
+			DOWN: 75, //K
+			RIGHT: 76 //L
+		};
+		var JUMP_KEY = 32; //SPACE
+		var BREAK_GRAPPLE_KEY = 82; //L
+		var PULL_GRAPPLE_KEY = 16; //SHIFT
+		var PAUSE_KEY = 80; //P
+		$(document).on('keydown', function(evt) {
+			if(!keys[evt.which]) {
+				keys[evt.which] = true;
+				keys.pressed[evt.which] = true;
+				if(evt.which === PAUSE_KEY) { isPaused = !isPaused; }
+				if(evt.which === JUMP_KEY) { player.jump(); }
+				if(evt.which === SUPER_BOOST_KEYS.UP) { player.vel.y = -999999; }
+				if(evt.which === SUPER_BOOST_KEYS.DOWN) { player.vel.y = 999999; }
+				if(evt.which === SUPER_BOOST_KEYS.LEFT) { player.vel.x = -999999; }
+				if(evt.which === SUPER_BOOST_KEYS.RIGHT) { player.vel.x = 999999; }
+				if(evt.which === BREAK_GRAPPLE_KEY) { grapples = []; }
+				if(evt.which === PULL_GRAPPLE_KEY) {
+					for(var i = 0; i < grapples.length; i++) {
+						grapples[i].startRetracting();
+					}
+				}
 			}
-			render();
-		}
+		});
+		$(document).on('keyup', function(evt) {
+			if(keys[evt.which]) {
+				keys[evt.which] = false;
+				keys.pressed[evt.which] = false;
+				if(evt.which === JUMP_KEY) { player.stopJumping(); }
+				if(evt.which === PULL_GRAPPLE_KEY) {
+					for(var i = 0; i < grapples.length; i++) {
+						grapples[i].stopRetracting();
+					}
+				}
+			}
+		});
+		$(document).on('click', function(evt) {
+			grapples.push(player.shootGrapple(evt.offsetX + camera.x, evt.offsetY + camera.y));
+		});
 
 		//set up animation frame functionality
-		var prevTime;
-		requestAnimationFrame(function(time) {
-			prevTime = time;
-			loop(time);
-		});
-		function loop(time) {
-			var ms = time - prevTime;
-			prevTime = time;
-			everyFrame(ms, time);
+		function loop() {
+			if(!isPaused) {
+				tick();
+			}
+			render();
 			requestAnimationFrame(loop);
 		}
+		requestAnimationFrame(loop);
 	};
 });
