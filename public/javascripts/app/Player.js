@@ -196,8 +196,12 @@ define([
 				var dirOfVel = this.vel.x > 0 ? 1 : -1;
 				var oldVelX = this.vel.x;
 				this.vel.x += choose(dirOfVel * this._moveDir.x, acc) * dirOfVel;
+				//if you decelerated so much that you stopped, stop
+				if((oldVelX > 0) !== (this.vel.x > 0) && this._moveDir.x === 0) {
+					this.vel.x = 0;
+				}
 				//if you switched directions and are holding a direction, you change facing
-				if(this.vel.x !== 0 && this._moveDir.x !== 0) {
+				else if(this.vel.x !== 0 && this._moveDir.x !== 0) {
 					if((oldVelX > 0) !== (this.vel.x > 0)) {
 						this._facing = this._moveDir.x;
 					}
