@@ -4,7 +4,8 @@ define([
 ], function(
 	GeometryUtils
 ) {
-	var GRAPPLE_SPEED = 1200;
+	var GRAPPLE_SPEED = 3000;
+	var BOOST_SPEED = 3000;
 	var K = 2000;
 	function Grapple(player, dirX, dirY) {
 		var dir = Math.sqrt(dirX * dirX + dirY * dirY);
@@ -14,6 +15,8 @@ define([
 		this.pos = { x: x, y: y };
 		this.pos.prev = { x: x, y: y };
 		this.vel = { x: GRAPPLE_SPEED * dirX / dir, y: GRAPPLE_SPEED * dirY / dir };
+		this.vel.x += player.vel.x * 0.5;
+		this.vel.y += player.vel.y * 0.5; //grapples get some of the player's momentum
 		this.isLatched = false;
 		this._latchDist = null;
 		this._isRetracting = false;
@@ -60,6 +63,8 @@ define([
 			var dx = this._player.pos.x - this.pos.x;
 			var dy = this._player.pos.y - this.pos.y;
 			var dist = Math.sqrt(dx * dx + dy * dy);
+			var boostX = (this._isRetracting ? BOOST_SPEED * -dx / dist : 0) / 60;
+			var boostY = (this._isRetracting ? BOOST_SPEED * -dy / dist : 0) / 60;
 			if(dist > this._latchDist) {
 				var posX = this.pos.x + this._latchDist * dx / dist;
 				var posY = this.pos.y + this._latchDist * dy / dist;
@@ -68,9 +73,13 @@ define([
 				var sin = Math.sin(angle);
 				var velParallel = cos * this._player.vel.x + sin * this._player.vel.y;
 				var velPerpendicular = -sin * this._player.vel.x + cos * this._player.vel.y;
-				var velX = -sin * velPerpendicular;
-				var velY = cos * velPerpendicular;
+				var velX = -sin * velPerpendicular + boostX;
+				var velY = cos * velPerpendicular + boostY;
 				this._player.restrictViaGrapplesTo(posX, posY, velX, velY);
+			}
+			else {
+				this._player.vel.x += boostX;
+				this._player.vel.y += boostY;
 			}
 		}
 	};

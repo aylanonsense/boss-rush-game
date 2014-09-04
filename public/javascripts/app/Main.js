@@ -121,11 +121,8 @@ define([
 				keys[evt.which] = false;
 				keys.pressed[evt.which] = false;
 				if(evt.which === JUMP_KEY) { player.stopJumping(); }
-				if(evt.which === PULL_GRAPPLE_KEY) {
-					for(var i = 0; i < grapples.length; i++) {
-						grapples[i].stopRetracting();
-					}
-				}
+				if(evt.which === BREAK_GRAPPLE_KEY) { grapples = []; }
+				if(evt.which === PULL_GRAPPLE_KEY) { grapples = []; }
 			}
 		});
 		$(document).on('click', function(evt) {
