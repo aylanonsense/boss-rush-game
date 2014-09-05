@@ -10,23 +10,23 @@ define([
 ) {
 	//variables to control how the player moves
 	var GROUND_MOVEMENT = {
-		TOP_SPEED: 250,
-		MAX_SPEED: 1500,
+		TOP_SPEED: 300,
+		MAX_SPEED: 1350,
 		ACC: { INITIAL: 40, LESS: -20, NORMAL: -10, MORE: 20 },
-		ACC_ABOVE_TOP_SPEED: { LESS: -4, NORMAL: -2, MORE: 0 }
+		ACC_ABOVE_TOP_SPEED: { LESS: -6, NORMAL: -2, MORE: 0 }
 	};
 	var AIR_MOVEMENT = {
 		TOP_SPEED: 500,
-		MAX_SPEED: 1500,
-		ACC: { INITIAL: 40, LESS: -2.5, NORMAL: -1, MORE: 2.5 },
-		ACC_ABOVE_TOP_SPEED: { LESS: -2.5, NORMAL: -1, MORE: 0 }
+		MAX_SPEED: 1350,
+		ACC: { INITIAL: 40, LESS: -8, NORMAL: -2, MORE: 5 },
+		ACC_ABOVE_TOP_SPEED: { LESS: -8, NORMAL: -2, MORE: 0 },
 	};
 	//vertical movement variables
-	var FALL_ACC = 20;
+	var FALL_ACC = 16;
 	var MAX_FALL_SPEED = 1500;
 	var MAX_RISE_SPEED = 1500;
-	var JUMP_SPEED = 600;
-	var JUMP_STOP_SPEED = 200;
+	var JUMP_SPEED = 500;
+	var JUMP_STOP_SPEED = 150;
 	//and wallcling jumping
 	var WALLCLING_JUMP_SPEED = { LESS: { x: 75, y: 500 }, NORMAL: { x: 300, y: 475 }, MORE: { x: 350, y: 300 } };
 	var WALLCLING_DROP_SPEED = { x: 50, y: 0 };
