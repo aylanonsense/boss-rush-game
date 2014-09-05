@@ -383,29 +383,29 @@ define([
 		//edgehanging only has one animation
 		if(this._isEdgeHanging) {
 			this._setAnimation('hanging');
-			frame = 91;
+			frame = 61;
 		}
 
 		//wallclinging only has one animation
 		else if(this._isWallClinging) {
 			this._setAnimation('clinging');
-			frame = 82; //clinging to the wall
+			frame = 60; //clinging to the wall
 		}
 
 		//while airborne, frame is just determined by vertical velocity
 		else if(this._isAirborne) {
 			this._setAnimation('jumping');
 			if(this.vel.y > 600) {
-				frame = 73; //moving downward really fast
+				frame = 28; //moving downward really fast
 			}
 			else if(this.vel.y > 100) {
-				frame = 72; //moving downward
+				frame = 17; //moving downward
 			}
 			else if(this.vel.y > -300) {
-				frame = 71; //moving upward
+				frame = 18; //moving upward
 			}
 			else {
-				frame = 70; //moving upward really fast
+				frame = 8; //moving upward really fast
 			}
 		}
 
@@ -415,13 +415,13 @@ define([
 			if(speed === 0) {
 				this._setAnimation('standing');
 				if(this._moveDir.y === 1) {
-					frame = 80; //crouching
+					frame = 2; //crouching
 				}
 				else if(this._moveDir.y === -1) {
-					frame = 83; //looking up
+					frame = 1; //looking up
 				}
 				else {
-					frame = 40; //just standing
+					frame = 0; //just standing
 				}
 			}
 
@@ -431,10 +431,10 @@ define([
 				if(this._moveDir.x === 0) {
 					this._setAnimation('skidding');
 					if((this._facing > 0) === (this.vel.x > 0)) {
-						frame =  50; //skidding
+						frame =  40; //skidding
 					}
 					else {
-						frame =  64; //surfing
+						frame =  43; //surfing
 					}
 				}
 
@@ -443,16 +443,16 @@ define([
 					this._setAnimation('running');
 					this._currAnimationTime = (this._currAnimationTime + speed / 600) % 20;
 					if(this._currAnimationTime < 5) {
-						frame = 60; //run 1
+						frame = 20; //run 1
 					}
 					else if(this._currAnimationTime < 10) {
-						frame = 61; //run 2
+						frame = 21; //run 2
 					}
 					else if(this._currAnimationTime < 15) {
-						frame = 62; //run 3
+						frame = 22; //run 3
 					}
 					else {
-						frame = 63; //run 4
+						frame = 23; //run 4
 					}
 				}
 
@@ -461,10 +461,10 @@ define([
 					this._setAnimation('super skidding');
 					this._currAnimationTime = (this._currAnimationTime + 1) % 16;
 					if((this._facing > 0) === (this.vel.x > 0)) {
-						frame = this._currAnimationTime > 8 ? 52 : 53; //super-skid 1 / super-skid 2
+						frame = this._currAnimationTime > 8 ? 41 : 42; //super-skid 1 / super-skid 2
 					}
 					else {
-						frame = 55; //super-surf
+						frame = 44; //super-surf
 					}
 				}
 			}
@@ -482,16 +482,16 @@ define([
 					this._setAnimation('walking');
 					this._currAnimationTime = (this._currAnimationTime + speed / 600) % 20;
 					if(this._currAnimationTime < 6) {
-						frame = 41; //walk 1
+						frame = 10; //walk 1
 					}
 					else if(this._currAnimationTime < 10) {
-						frame = 42; //walk 2
+						frame = 11; //walk 2
 					}
 					else if(this._currAnimationTime < 16) {
-						frame = 43; //walk 3
+						frame = 12; //walk 3
 					}
 					else {
-						frame = 42; //walk 2 (repeated)
+						frame = 11; //walk 2 (repeated)
 					}
 				}
 			}
