@@ -35,6 +35,7 @@ define([
 		tileCoords.push({ xMin: 2, xMax: 2, yMin: -7, yMax: -4 });
 		tileCoords.push({ xMin: 5, xMax: 5, yMin: -1, yMax: -1 });
 		tileCoords.push({ xMin: 5, xMax: 5, yMin: -4, yMax: -3 });
+		tileCoords.push({ xMin: -28, xMax: -25, yMin: -3, yMax: -3 });
 		tileCoords.push({ xMin: -3, xMax: -3, yMin: -8, yMax: -8 });
 		tileCoords.push({ xMin: -6, xMax: -6, yMin: -12, yMax: -12 });
 		tileCoords.push({ xMin: -6, xMax: -6, yMin: -9, yMax: -9 });
@@ -67,6 +68,7 @@ define([
 			//then the grapples may affect the player -- outside the loop above for simplicity
 			player.checkForMaxTetherRange(grapples);
 			player.checkForCollisions(tiles);
+			player.tick();
 
 			//the camera adjusts to follow the player
 			camera.x = player.pos.x - WIDTH / 2;

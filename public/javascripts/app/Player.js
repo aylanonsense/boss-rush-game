@@ -44,6 +44,15 @@ define([
 	var CLING_BOX_INSET_FROM_BOTTOM = 9;
 	var CLING_BOX_WIDTHS = 3;
 	var EDGE_HANG_BOX_HEIGHT = 1;
+	//jumping variables
+	var JUMP_ANIMATION = {
+		//x dir: { y dir: frame }
+		FRAMES: { '-1': { '-1': 6, '0': 16, '1': 26 }, '0': { '-1': 7, '0': 17, '1': 27 }, '1': { '-1': 8, '0': 18, '1': 28 } },
+		NEUTRAL_HORIZONTAL_VEL_LEEWAY: 200,
+		NEUTRAL_VERTICAL_VEL_LEEWAY: 125,
+		CUTOFF: Math.cos(Math.PI * 3 / 8)
+	};
+	var LANDING_VEL_TO_NEUTRALIZE = 80;
 	//calculate max move amounts (for splitting frames)
 	var MAX_HORIZONTAL_MOVEMENT_PER_FRAME = VERTICAL_BOX_INSET - 0.5;
 	var MAX_UPWARD_MOVEMENT_PER_FRAME = HORIZONTAL_BOX_INSET_FROM_TOP - 0.5;
@@ -54,9 +63,9 @@ define([
 		this.pos = { x: x, y: y }; //the upper left point of the player
 		this.pos.prev = { x: x, y: y };
 		this.vel = { x: 0, y: 0 };
-		this._recalculateCollisionBoxes();
 		this._isTryingToJump = false;
 		this._isAirborne = true;
+		this._isLegitAirborne = false;
 		this._spriteOffset = { x: -13, y: -10 };
 		this._sprite = new SpriteSheet('/image/mailman-spritesheet.gif', 2, 24, 24);
 		this._facing = 1;
@@ -68,7 +77,24 @@ define([
 		this.grappleOffset = { x: 11, y: 18 };
 		this._currAnimation = null;
 		this._currAnimationTime = 0;
+		this._framesOfLandingAnimation = 0;
+		this._recalculateCollisionBoxes();
 	}
+	Player.prototype.tick = function() {
+		if(this._isAirborne) {
+			this._isLegitAirborne = true;
+			this._framesOfLandingAnimation = Math.floor(this.vel.y / 25) - 5;
+			if(this._framesOfLandingAnimation > 25) {
+				this._framesOfLandingAnimation = 25;
+			}
+			else if(this._framesOfLandingAnimation < 6) {
+				this._framesOfLandingAnimation = 0;
+			}
+		}
+		else {
+			this._framesOfLandingAnimation--;
+		}
+	};
 	Player.prototype._recalculateCollisionBoxes = function() {
 		var x = this.pos.x, y = this.pos.y, w = this.width, h = this.height;
 		var a = VERTICAL_BOX_INSET;
@@ -280,6 +306,10 @@ define([
 				self._recalculateCollisionBoxes();
 			}
 			if(self._bottomBox.isIntersecting(tile.box)) {
+				if(self._isLegitAirborne && LANDING_VEL_TO_NEUTRALIZE >= self.vel.x && self.vel.x >= -LANDING_VEL_TO_NEUTRALIZE) {
+					self.vel.x = 0;
+					self._finalPos.x = self.pos.x;
+				}
 				self.vel.y = 0;
 				self.pos.y = tile.box.y - self.height;
 				self._finalPos.y = self.pos.y;
@@ -289,6 +319,7 @@ define([
 				}
 				self._recalculateCollisionBoxes();
 				self._isAirborne = false;
+				self._isLegitAirborne = false;
 				if(self._isTryingToJump) {
 					self._isTryingToJump = false;
 					self.vel.y = -JUMP_SPEED;
@@ -378,6 +409,10 @@ define([
 	};
 	Player.prototype.render = function(ctx, camera) {
 		var frame, flip = this._facing < 0;
+		var framesOfLandingAnimation = this._framesOfLandingAnimation;
+		if(!this._isAirborne) {
+			this._framesOfLandingAnimation = 0;
+		}
 		var speed = this.vel.x < 0 ? -this.vel.x : this.vel.x;
 
 		//edgehanging only has one animation
@@ -395,18 +430,24 @@ define([
 		//while airborne, frame is just determined by vertical velocity
 		else if(this._isAirborne) {
 			this._setAnimation('jumping');
-			if(this.vel.y > 600) {
-				frame = 28; //moving downward really fast
+			var totalSpeed = Math.sqrt(this.vel.x * this.vel.x + this.vel.y * this.vel.y);
+			var xAmt = this.vel.x / totalSpeed;
+			var horizontalDir = 0;
+			if(this.vel.x / totalSpeed > JUMP_ANIMATION.CUTOFF && this.vel.x > JUMP_ANIMATION.NEUTRAL_HORIZONTAL_VEL_LEEWAY) {
+				horizontalDir = 1;
 			}
-			else if(this.vel.y > 100) {
-				frame = 17; //moving downward
+			else if(this.vel.x / totalSpeed < -JUMP_ANIMATION.CUTOFF && this.vel.x < -JUMP_ANIMATION.NEUTRAL_HORIZONTAL_VEL_LEEWAY) {
+				horizontalDir = -1;
 			}
-			else if(this.vel.y > -300) {
-				frame = 18; //moving upward
+			var verticalDir = 0;
+			if(this.vel.y / totalSpeed > JUMP_ANIMATION.CUTOFF && this.vel.y > JUMP_ANIMATION.NEUTRAL_VERTICAL_VEL_LEEWAY) {
+				verticalDir = 1;
 			}
-			else {
-				frame = 8; //moving upward really fast
+			else if(this.vel.y / totalSpeed < -JUMP_ANIMATION.CUTOFF && this.vel.y < -JUMP_ANIMATION.NEUTRAL_VERTICAL_VEL_LEEWAY) {
+				verticalDir = -1;
 			}
+			horizontalDir *= this._facing;
+			frame = JUMP_ANIMATION.FRAMES[horizontalDir][verticalDir];
 		}
 
 		//there's a lot of different stuff that could be happening on the ground
@@ -414,7 +455,11 @@ define([
 			//if standing still
 			if(speed === 0) {
 				this._setAnimation('standing');
-				if(this._moveDir.y === 1) {
+				if(framesOfLandingAnimation > 0) {
+					this._framesOfLandingAnimation = framesOfLandingAnimation;
+					frame = 62;
+				}
+				else if(this._moveDir.y === 1) {
 					frame = 2; //crouching
 				}
 				else if(this._moveDir.y === -1) {
@@ -474,7 +519,7 @@ define([
 				//if pressing in the direction opposite movement, display a turning animation
 				if((this._moveDir.x > 0 && this.vel.x < 0) || (this._moveDir.x < 0 && this.vel.x > 0)) {
 					this._setAnimation('turning');
-					frame = 51; //turning
+					frame = ((this._facing > 0) === (this.vel.x > 0)) ? 51 : 52; //turning
 				}
 
 				//otherwise display a multi-frame walking animation
