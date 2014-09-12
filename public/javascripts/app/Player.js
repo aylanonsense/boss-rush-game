@@ -284,11 +284,6 @@ define([
 		}
 		this._recalculateCollisionBoxes();
 	};
-	Player.prototype.checkForMaxTetherRange = function(grapples) {
-		for(var i = 0; i < grapples.length; i++) {
-			grapples[i].applyForceToPlayer();
-		}
-	};
 	Player.prototype.checkForCollisions = function(tiles) {
 		var self = this;
 		if(this._isEdgeHanging) {

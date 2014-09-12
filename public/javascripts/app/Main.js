@@ -19,7 +19,7 @@ define([
 
 		//init stuff
 		var player = new Player(-700, 0);
-		var grapples = [];
+		var grapple = null;
 		var camera = { x: player.pos.x, y: player.pos.y };
 		var tiles = new TileGrid();
 
@@ -49,9 +49,9 @@ define([
 		//the main game loop
 		function tick() {
 			//everything moves before the player
-			for(var i = 0; i < grapples.length; i++) {
-				grapples[i].move();
-				grapples[i].checkForCollisions(tiles);
+			if(grapple) {
+				grapple.move();
+				grapple.checkForCollisions(tiles);
 			}
 
 			//then the player moves
@@ -64,8 +64,10 @@ define([
 				player.checkForCollisions(tiles);
 			}
 
-			//then the grapples may affect the player -- outside the loop above for simplicity
-			player.checkForMaxTetherRange(grapples);
+			//then the grapple may affect the player -- outside the loop above for simplicity
+			if(grapple) {
+				grapple.applyForceToPlayer();
+			}
 			player.checkForCollisions(tiles);
 			player.tick();
 
@@ -78,8 +80,8 @@ define([
 			ctx.fillStyle = '#fff';
 			ctx.fillRect(0, 0, WIDTH, HEIGHT);
 			tiles.render(ctx, camera);
-			for(var i = 0; i < grapples.length; i++) {
-				grapples[i].render(ctx, camera);
+			if(grapple) {
+				grapple.render(ctx, camera);
 			}
 			player.render(ctx, camera);
 		}
@@ -101,7 +103,6 @@ define([
 		var JUMP_KEY = 32; //SPACE
 		var BREAK_GRAPPLE_KEY = 82; //L
 		var PULL_GRAPPLE_KEY = 16; //SHIFT
-		var PAUSE_KEY = 80; //P
 		$(document).on('keydown', function(evt) {
 			if(!keys[evt.which]) {
 				keys[evt.which] = true;
@@ -111,10 +112,10 @@ define([
 				if(evt.which === SUPER_BOOST_KEYS.DOWN) { player.vel.y = 999999; }
 				if(evt.which === SUPER_BOOST_KEYS.LEFT) { player.vel.x = -999999; }
 				if(evt.which === SUPER_BOOST_KEYS.RIGHT) { player.vel.x = 999999; }
-				if(evt.which === BREAK_GRAPPLE_KEY) { grapples = []; }
+				if(evt.which === BREAK_GRAPPLE_KEY) { grapple = null; }
 				if(evt.which === PULL_GRAPPLE_KEY) {
-					for(var i = 0; i < grapples.length; i++) {
-						grapples[i].startRetracting();
+					if(grapple) {
+						grapple.startRetracting();
 					}
 				}
 			}
@@ -124,12 +125,12 @@ define([
 				keys[evt.which] = false;
 				keys.pressed[evt.which] = false;
 				if(evt.which === JUMP_KEY) { player.stopJumping(); }
-				if(evt.which === BREAK_GRAPPLE_KEY) { grapples = []; }
-				if(evt.which === PULL_GRAPPLE_KEY) { grapples = []; }
+				if(evt.which === BREAK_GRAPPLE_KEY) { grapple = null; }
+				if(evt.which === PULL_GRAPPLE_KEY) { grapple = null; }
 			}
 		});
 		$(document).on('click', function(evt) {
-			grapples.push(player.shootGrapple(evt.offsetX + camera.x, evt.offsetY + camera.y));
+			grapple = player.shootGrapple(evt.offsetX + camera.x, evt.offsetY + camera.y);
 		});
 
 		//set up animation frame functionality
