@@ -18,7 +18,6 @@ define([
 		var ctx = canvas[0].getContext('2d');
 
 		//init stuff
-		var isPaused = false;
 		var player = new Player(-700, 0);
 		var grapples = [];
 		var camera = { x: player.pos.x, y: player.pos.y };
@@ -107,7 +106,6 @@ define([
 			if(!keys[evt.which]) {
 				keys[evt.which] = true;
 				keys.pressed[evt.which] = true;
-				if(evt.which === PAUSE_KEY) { isPaused = !isPaused; }
 				if(evt.which === JUMP_KEY) { player.jump(); }
 				if(evt.which === SUPER_BOOST_KEYS.UP) { player.vel.y = -999999; }
 				if(evt.which === SUPER_BOOST_KEYS.DOWN) { player.vel.y = 999999; }
@@ -136,9 +134,7 @@ define([
 
 		//set up animation frame functionality
 		function loop() {
-			if(!isPaused) {
-				tick();
-			}
+			tick();
 			render();
 			requestAnimationFrame(loop);
 		}
