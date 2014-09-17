@@ -126,10 +126,7 @@ define([
 		this._moveDir = { x: dirX, y: dirY };
 		var dir, speed, acc, dec, movement, isMovingAboveTopSpeed, maxSpeed;
 		//while edge hanging we just do not move
-		if(this._isSwingingOnGrapple) {
-			this.vel.y += FALL_ACC;
-		}
-		else if(this._isEdgeHanging) {
+		if(this._isEdgeHanging) {
 			this.vel.x = 0;
 			this.vel.y = 0;
 			if(this._isTryingToJump) {
@@ -291,9 +288,11 @@ define([
 		}
 		tiles.forEachNearby(this._boundingBox, function(tile) {
 			if(self._topBox.isIntersecting(tile.box)) {
-				self.vel.y = 0;
 				self.pos.y = tile.box.y + tile.box.height;
-				self._finalPos.y = self.pos.y;
+				if(self.vel.y < 0) {
+					self.vel.y = 0;
+					self._finalPos.y = self.pos.y;
+				}
 				if(self._isWallClinging) {
 					self._facing *= -1;
 					self._isWallClinging = false;
@@ -301,20 +300,22 @@ define([
 				self._recalculateCollisionBoxes();
 			}
 			if(self._bottomBox.isIntersecting(tile.box)) {
-				if(self._isLegitAirborne && LANDING_VEL_TO_NEUTRALIZE >= self.vel.x && self.vel.x >= -LANDING_VEL_TO_NEUTRALIZE) {
-					self.vel.x = 0;
-					self._finalPos.x = self.pos.x;
-				}
-				self.vel.y = 0;
 				self.pos.y = tile.box.y - self.height;
-				self._finalPos.y = self.pos.y;
+				if(self.vel.y > 0) {
+					if(self._isLegitAirborne && LANDING_VEL_TO_NEUTRALIZE >= self.vel.x && self.vel.x >= -LANDING_VEL_TO_NEUTRALIZE) {
+						self.vel.x = 0;
+						self._finalPos.x = self.pos.x;
+					}
+					self.vel.y = 0;
+					self._finalPos.y = self.pos.y;
+					self._isAirborne = false;
+					self._isLegitAirborne = false;
+				}
 				if(self._isWallClinging) {
 					self._facing *= -1;
 					self._isWallClinging = false;
 				}
 				self._recalculateCollisionBoxes();
-				self._isAirborne = false;
-				self._isLegitAirborne = false;
 				if(self._isTryingToJump) {
 					self._isTryingToJump = false;
 					self.vel.y = -JUMP_SPEED;
@@ -323,15 +324,19 @@ define([
 		});
 		tiles.forEachNearby(this._boundingBox, function(tile) {
 			if(self._leftBox.isIntersecting(tile.box)) {
-				self.vel.x = 0;
 				self.pos.x = tile.box.x + tile.box.width;
-				self._finalPos.x = self.pos.x;
+				if(self.vel.x < 0) {
+					self.vel.x = 0;
+					self._finalPos.x = self.pos.x;
+				}
 				self._recalculateCollisionBoxes();
 			}
 			if(self._rightBox.isIntersecting(tile.box)) {
-				self.vel.x = 0;
 				self.pos.x = tile.box.x - self.width;
-				self._finalPos.x = self.pos.x;
+				if(self.vel.x > 0) {
+					self.vel.x = 0;
+					self._finalPos.x = self.pos.x;
+				}
 				self._recalculateCollisionBoxes();
 			}
 		});

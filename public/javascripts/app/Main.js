@@ -49,7 +49,7 @@ define([
 		//the main game loop
 		function tick() {
 			//everything moves before the player
-			if(grapple) {
+			if(grapple && !grapple.isDead) {
 				grapple.move();
 				grapple.checkForCollisions(tiles);
 			}
@@ -65,7 +65,7 @@ define([
 			}
 
 			//then the grapple may affect the player -- outside the loop above for simplicity
-			if(grapple) {
+			if(grapple && !grapple.isDead) {
 				grapple.applyForceToPlayer();
 			}
 			player.checkForCollisions(tiles);
@@ -80,7 +80,7 @@ define([
 			ctx.fillStyle = '#fff';
 			ctx.fillRect(0, 0, WIDTH, HEIGHT);
 			tiles.render(ctx, camera);
-			if(grapple) {
+			if(grapple && !grapple.isDead) {
 				grapple.render(ctx, camera);
 			}
 			player.render(ctx, camera);
@@ -112,9 +112,13 @@ define([
 				if(evt.which === SUPER_BOOST_KEYS.DOWN) { player.vel.y = 999999; }
 				if(evt.which === SUPER_BOOST_KEYS.LEFT) { player.vel.x = -999999; }
 				if(evt.which === SUPER_BOOST_KEYS.RIGHT) { player.vel.x = 999999; }
-				if(evt.which === BREAK_GRAPPLE_KEY) { grapple = null; }
+				if(evt.which === BREAK_GRAPPLE_KEY) {
+					if(!grapple || grapple.isDead || grapple.isLatched) {
+						grapple = null;
+					}
+				}
 				if(evt.which === PULL_GRAPPLE_KEY) {
-					if(grapple) {
+					if(grapple && !grapple.isDead) {
 						grapple.startRetracting();
 					}
 				}
@@ -125,12 +129,20 @@ define([
 				keys[evt.which] = false;
 				keys.pressed[evt.which] = false;
 				if(evt.which === JUMP_KEY) { player.stopJumping(); }
-				if(evt.which === BREAK_GRAPPLE_KEY) { grapple = null; }
-				if(evt.which === PULL_GRAPPLE_KEY) { grapple = null; }
+				if(evt.which === PULL_GRAPPLE_KEY) {
+					if(grapple && grapple.isLatched) {
+						grapple = null;
+					}
+				}
 			}
 		});
-		$(document).on('click', function(evt) {
-			grapple = player.shootGrapple(evt.offsetX + camera.x, evt.offsetY + camera.y);
+		$(document).on('mousedown', function(evt) {
+			if(!grapple || grapple.isLatched || grapple.isDead) {
+				grapple = player.shootGrapple(evt.offsetX + camera.x, evt.offsetY + camera.y);
+				if(keys[PULL_GRAPPLE_KEY]) {
+					grapple.startRetracting();
+				}
+			}
 		});
 
 		//set up animation frame functionality
