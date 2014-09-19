@@ -543,7 +543,7 @@ define([
 		}
 
 		//render the sprite
-		this._sprite.render(ctx, camera, this.pos.x + this._spriteOffset.x, this.pos.y + this._spriteOffset.y, frame, flip);
+		this._sprite.render(ctx, camera, Math.round(this.pos.x + this._spriteOffset.x), Math.round(this.pos.y + this._spriteOffset.y), frame, flip);
 
 		//debug rendering (hitboxes, velocity, etc)
 		/*this._boundingBox.render(ctx, camera);
