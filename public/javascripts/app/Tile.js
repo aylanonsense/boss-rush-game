@@ -4,8 +4,8 @@ define([
 ], function(
 	Constants
 ) {
-	function Tile(tileWorld, col, row) {
-		this._tileWorld = tileWorld;
+	function Tile(tiles, col, row) {
+		this._tiles = tiles;
 		this.row = row;
 		this.col = col;
 		this.box = null;

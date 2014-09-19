@@ -20,21 +20,26 @@ define([
 		//init stuff
 		var player = new Player(-700, 0);
 		var grapple = null;
-		var camera = { x: player.pos.x, y: player.pos.y };
+		var camera = { x: 0, y: 0 };
 		var tiles = new TileGrid();
 
 		//create tiles
 		var tileCoords = [];
-		tileCoords.push({ xMin: -40, xMax: 1, yMin: 1, yMax: 1 });
-		tileCoords.push({ xMin: 2, xMax: 4, yMin: 0, yMax: 0 });
+		//horizontal
+		tileCoords.push({ xMin: -41, xMax: 2, yMin: 1, yMax: 1 });
+		tileCoords.push({ xMin: -32, xMax: -5, yMin: 2, yMax: 2 });
+		tileCoords.push({ xMin: -30, xMax: -26, yMin: 3, yMax: 3 });
+		tileCoords.push({ xMin: 2, xMax: 6, yMin: 0, yMax: 0 });
 		tileCoords.push({ xMin: -35, xMax: -31, yMin: -12, yMax: -12 });
 		tileCoords.push({ xMin: -20, xMax: -16, yMin: -12, yMax: -12 });
+		tileCoords.push({ xMin: -28, xMax: -25, yMin: -3, yMax: -3 });
+		//vertical
 		tileCoords.push({ xMin: -44, xMax: -44, yMin: -5, yMax: 30 });
 		tileCoords.push({ xMin: -41, xMax: -41, yMin: -2, yMax: 0 });
 		tileCoords.push({ xMin: 2, xMax: 2, yMin: -7, yMax: -4 });
 		tileCoords.push({ xMin: 5, xMax: 5, yMin: -1, yMax: -1 });
 		tileCoords.push({ xMin: 5, xMax: 5, yMin: -4, yMax: -3 });
-		tileCoords.push({ xMin: -28, xMax: -25, yMin: -3, yMax: -3 });
+		//individual
 		tileCoords.push({ xMin: -3, xMax: -3, yMin: -8, yMax: -8 });
 		tileCoords.push({ xMin: -6, xMax: -6, yMin: -12, yMax: -12 });
 		tileCoords.push({ xMin: -6, xMax: -6, yMin: -9, yMax: -9 });
@@ -72,8 +77,8 @@ define([
 			player.tick();
 
 			//the camera adjusts to follow the player
-			camera.x = player.pos.x - WIDTH / 2;
-			camera.y = player.pos.y - HEIGHT / 2 - 0.12 * HEIGHT;
+			camera.x = Math.round(player.pos.x - WIDTH / 2);
+			camera.y = Math.round(player.pos.y - HEIGHT / 2 - 0.12 * HEIGHT);
 		}
 
 		function render() {

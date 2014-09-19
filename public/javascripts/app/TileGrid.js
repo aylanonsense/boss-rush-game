@@ -9,6 +9,9 @@ define([
 		this._tiles.minRow = null;
 		this._tiles.maxRow = null;
 	}
+	TileGrid.prototype.get = function(row, col) {
+		return (this._tiles[row] && this._tiles[row][col]) || null;
+	};
 	TileGrid.prototype.add = function(tile) {
 		if(this._tiles.minRow === null || tile.row < this._tiles.minRow) {
 			this._tiles.minRow = tile.row;
