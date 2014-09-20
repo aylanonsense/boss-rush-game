@@ -12,6 +12,12 @@ define([
 	TileGrid.prototype.get = function(row, col) {
 		return (this._tiles[row] && this._tiles[row][col]) || null;
 	};
+	TileGrid.prototype.remove = function(row, col) {
+		if(this._tiles[row] && this._tiles[row][col]) {
+			//TODO clean up after delete (might not have to)
+			delete this._tiles[row][col];
+		}
+	};
 	TileGrid.prototype.add = function(tile) {
 		if(this._tiles.minRow === null || tile.row < this._tiles.minRow) {
 			this._tiles.minRow = tile.row;
@@ -34,6 +40,7 @@ define([
 			}
 		}
 		this._tiles[tile.row][tile.col] = tile;
+		return tile;
 	};
 	TileGrid.prototype.forEach = function(callback) {
 		if(this._tiles.minRow !== null) {

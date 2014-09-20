@@ -2,20 +2,25 @@ if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'jquery',
 	'app/Player',
+	'app/Constants',
 	'app/TileGrid',
 	'app/tile/SquareTile'
 ], function(
 	$,
 	Player,
+	Constants,
 	TileGrid,
 	SquareTile
 ) {
 	return function() {
 		//canvas
 		var WIDTH = 800, HEIGHT = 600;
+		var IS_EDITING_MAP = true;
 		var canvas = $('<canvas width="' + WIDTH + 'px" height = "' + HEIGHT + 'px" ' +
 			'style="display:block;margin: 15Px auto;" />').appendTo(document.body);
 		var ctx = canvas[0].getContext('2d');
+		var mapEditLastDraggedOver = null;
+		var startOfDrag = null;
 
 		//init stuff
 		var player = new Player(-700, 0);
@@ -142,13 +147,81 @@ define([
 			}
 		});
 		$(document).on('mousedown', function(evt) {
-			if(!grapple || grapple.isLatched || grapple.isDead) {
+			if(IS_EDITING_MAP) {
+				var x = evt.offsetX + camera.x;
+				var y = evt.offsetY + camera.y;
+				var row = Math.floor(y / Constants.TILE_SIZE);
+				var col = Math.floor(x / Constants.TILE_SIZE);
+				if(evt.altKey) {
+					removeBlock(row, col);
+				}
+				else if(evt.shiftKey) {
+					startOfDrag = { row: row, col: col };
+				}
+				else {
+					addBlock(row, col);
+				}
+				mapEditLastDraggedOver = { row: row, col: col };
+			}
+			else if(!grapple || grapple.isLatched || grapple.isDead) {
 				grapple = player.shootGrapple(evt.offsetX + camera.x, evt.offsetY + camera.y);
 				if(keys[PULL_GRAPPLE_KEY]) {
 					grapple.startRetracting();
 				}
 			}
 		});
+		$(document).on('mouseup', function(evt) {
+			if(IS_EDITING_MAP) {
+				mapEditLastDraggedOver = null;
+				if(startOfDrag) {
+					var x = evt.offsetX + camera.x;
+					var y = evt.offsetY + camera.y;
+					var row = Math.floor(y / Constants.TILE_SIZE);
+					var col = Math.floor(x / Constants.TILE_SIZE);
+					var rowMin = Math.min(row, startOfDrag.row);
+					var rowMax = Math.max(row, startOfDrag.row);
+					var colMin = Math.min(col, startOfDrag.col);
+					var colMax = Math.max(col, startOfDrag.col);
+					for(var r = rowMin; r <= rowMax; r++) {
+						for(var c = colMin; c <= colMax; c++) {
+							var frame = 10;
+							if(r === rowMin && r === rowMax) { frame -= 8; }
+							else if(r === rowMin) { frame -= 4; }
+							else if(r === rowMax) { frame += 4; }
+							if(c === colMin && c === colMax) { frame -= 2; }
+							else if(c === colMin) { frame -= 1; }
+							else if(c === colMax) { frame += 1; }
+							addBlock(r, c, frame);
+						}
+					}
+					startOfDrag = null;
+				}
+			}
+		});
+		$(document).on('mousemove', function(evt) {
+			if(IS_EDITING_MAP && mapEditLastDraggedOver) {
+				var x = evt.offsetX + camera.x;
+				var y = evt.offsetY + camera.y;
+				var row = Math.floor(y / Constants.TILE_SIZE);
+				var col = Math.floor(x / Constants.TILE_SIZE);
+				if(mapEditLastDraggedOver.row !== row || mapEditLastDraggedOver.col !== col) {
+					if(evt.altKey) {
+						removeBlock(row, col);
+					}
+					else if(!startOfDrag) {
+						addBlock(row, col);
+					}
+					mapEditLastDraggedOver = { row: row, col: col };
+				}
+			}
+		});
+
+		function addBlock(row, col, frame) {
+			return tiles.add(new SquareTile(tiles, col, row, frame));
+		}
+		function removeBlock(row, col) {
+			tiles.remove(row, col);
+		}
 
 		//set up animation frame functionality
 		function loop() {
