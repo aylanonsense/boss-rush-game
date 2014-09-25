@@ -1,9 +1,9 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'app/Tile',
-	'app/Constants',
-	'app/SpriteSheet',
-	'app/Rect'
+	'game/Tile',
+	'game/Constants',
+	'game/SpriteSheet',
+	'game/Rect'
 ], function(
 	Tile,
 	Constants,

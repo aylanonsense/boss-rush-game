@@ -1,8 +1,8 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'app/Grapple',
-	'app/SpriteSheet',
-	'app/Rect'
+	'game/Grapple',
+	'game/SpriteSheet',
+	'game/Rect'
 ], function(
 	Grapple,
 	SpriteSheet,

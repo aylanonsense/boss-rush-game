@@ -2,10 +2,10 @@ requirejs.config({
 	baseUrl: 'javascripts',
 	paths: {
 		lib: '/javascripts/lib',
-		app: '/javascripts/app',
+		game: '/javascripts/game',
 		jquery: '/javascripts/lib/jquery'
 	}
 });
-requirejs([ 'app/Main' ], function(Main, MapBuilder) {
+requirejs([ 'game/Main' ], function(Main, MapBuilder) {
 	Main();
 });
