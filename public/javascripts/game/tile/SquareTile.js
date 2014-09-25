@@ -1,6 +1,6 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'game/Tile',
+	'game/tile/Tile',
 	'game/Constants',
 	'game/SpriteSheet',
 	'game/Rect'

@@ -3,7 +3,7 @@ define([
 	'jquery',
 	'game/Player',
 	'game/Constants',
-	'game/TileGrid',
+	'game/tile/TileGrid',
 	'game/tile/SquareTile',
 	'game/Map'
 ], function(
