@@ -4,18 +4,20 @@ define([
 	'app/Player',
 	'app/Constants',
 	'app/TileGrid',
-	'app/tile/SquareTile'
+	'app/tile/SquareTile',
+	'app/Map'
 ], function(
 	$,
 	Player,
 	Constants,
 	TileGrid,
-	SquareTile
+	SquareTile,
+	Map
 ) {
 	return function() {
 		//canvas
 		var WIDTH = 800, HEIGHT = 600;
-		var IS_EDITING_MAP = true;
+		var IS_EDITING_MAP = false;
 		var canvas = $('<canvas width="' + WIDTH + 'px" height = "' + HEIGHT + 'px" ' +
 			'style="display:block;margin: 15Px auto;" />').appendTo(document.body);
 		var ctx = canvas[0].getContext('2d');
@@ -23,13 +25,13 @@ define([
 		var startOfDrag = null;
 
 		//init stuff
-		var player = new Player(-700, 0);
+		var player = new Player(0, 0);
 		var grapple = null;
 		var camera = { x: 0, y: 0 };
 		var tiles = new TileGrid();
 
 		//create tiles
-		var tileCoords = [];
+		/*var tileCoords = [];
 		//horizontal
 		tileCoords.push({ xMin: -41, xMax: 2, yMin: 1, yMax: 1 });
 		tileCoords.push({ xMin: -32, xMax: -5, yMin: 2, yMax: 2 });
@@ -53,6 +55,24 @@ define([
 				for(var y = tileCoords[i].yMin; y <= tileCoords[i].yMax; y++) {
 					tiles.add(new SquareTile(tiles, x, y));
 				}
+			}
+		}*/
+		var row = 0, col = 0;
+		for(var i = 0; i < Map.tiles.length; i++) {
+			var c = Map.tiles[i];
+			if(c === '\n') {
+				row++;
+				col = 0;
+			}
+			else {
+				col++;
+			}
+			if(c === Map.TILE_SYMBOL) {
+				tiles.add(new SquareTile(tiles, col, row, Map.getFrame(i)));
+			}
+			else if (c === Map.PLAYER_SYMBOL) {
+				player.pos.x = col * Constants.TILE_SIZE;
+				player.pos.y = row * Constants.TILE_SIZE;
 			}
 		}
 
@@ -113,10 +133,14 @@ define([
 		var JUMP_KEY = 32; //SPACE
 		var BREAK_GRAPPLE_KEY = 82; //L
 		var PULL_GRAPPLE_KEY = 16; //SHIFT
+		var MAP_EDIT_KEY = 85; //U
+		var SAVE_MAP_KEY = 72; //H
 		$(document).on('keydown', function(evt) {
 			if(!keys[evt.which]) {
 				keys[evt.which] = true;
 				keys.pressed[evt.which] = true;
+				if(evt.which === MAP_EDIT_KEY) { IS_EDITING_MAP = !IS_EDITING_MAP; }
+				if(evt.which === SAVE_MAP_KEY) { Map.encodeGrid(tiles, player); }
 				if(evt.which === JUMP_KEY) { player.jump(); }
 				if(evt.which === SUPER_BOOST_KEYS.UP) { player.vel.y = -999999; }
 				if(evt.which === SUPER_BOOST_KEYS.DOWN) { player.vel.y = 999999; }
