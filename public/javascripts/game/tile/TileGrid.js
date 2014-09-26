@@ -14,7 +14,7 @@ define([
 	};
 	TileGrid.prototype.remove = function(row, col) {
 		if(this._tiles[row] && this._tiles[row][col]) {
-			//TODO clean up after delete (might not have to)
+			//we don't clean up the min/max row/col, but that's perfectly fine
 			delete this._tiles[row][col];
 		}
 	};

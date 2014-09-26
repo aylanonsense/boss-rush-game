@@ -1,8 +1,8 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'game/GeometryUtils'
+	'game/geom/Line'
 ], function(
-	GeometryUtils
+	Line
 ) {
 	var GRAPPLE_SPEED = 3000;
 	var BOOST_SPEED = 3000;
@@ -35,7 +35,7 @@ define([
 		var self = this;
 		if(!this.isLatched && !this.isDead) {
 			tiles.forEach(function(tile) {
-				var intersection = tile.box.isIntersectingLine(self._lineOfMovement);
+				var intersection = self._lineOfMovement.isCrossingRect(tile.box);
 				if(intersection) {
 					self._latchTo(intersection.x, intersection.y);
 				}
@@ -80,8 +80,6 @@ define([
 	Grapple.prototype._latchTo = function(x, y) {
 		this.pos.x = x;
 		this.pos.y = y;
-		this.pos.prev.x = x;
-		this.pos.prev.y = y;
 		this.isLatched = true;
 		var dx = this._player.pos.x + this._player.grappleOffset.x - x;
 		var dy = this._player.pos.y + this._player.grappleOffset.y - y;
@@ -89,7 +87,7 @@ define([
 		this._recalculateMovementVectors();
 	};
 	Grapple.prototype._recalculateMovementVectors = function() {
-		this._lineOfMovement = GeometryUtils.toLine(this.pos.prev, this.pos);
+		this._lineOfMovement = new Line(this.pos.prev, this.pos);
 	};
 	Grapple.prototype.applyForceToPlayer = function() {
 		if(this.isLatched) {

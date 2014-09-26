@@ -26,7 +26,7 @@ define([
 
 		//init stuff
 		var player = new Player(0, 0);
-		var grapple = null;
+		var grapples = [];
 		var camera = { x: 0, y: 0 };
 		var tiles = new TileGrid();
 
@@ -52,9 +52,11 @@ define([
 		//the main game loop
 		function tick() {
 			//everything moves before the player
-			if(grapple && !grapple.isDead) {
-				grapple.move();
-				grapple.checkForCollisions(tiles);
+			for(var i = 0; i < grapples.length; i++) {
+				if(!grapples[i].isDead) {
+					grapples[i].move();
+					grapples[i].checkForCollisions(tiles);
+				}
 			}
 
 			//then the player moves
@@ -67,9 +69,11 @@ define([
 				player.checkForCollisions(tiles);
 			}
 
-			//then the grapple may affect the player -- outside the loop above for simplicity
-			if(grapple && !grapple.isDead) {
-				grapple.applyForceToPlayer();
+			//then the grapples may affect the player -- outside the loop above for simplicity
+			for(i = 0; i < grapples.length; i++) {
+				if(!grapples[i].isDead) {
+					grapples[i].applyForceToPlayer();
+				}
 			}
 			player.checkForCollisions(tiles);
 			player.tick();
@@ -83,8 +87,10 @@ define([
 			ctx.fillStyle = '#fff';
 			ctx.fillRect(0, 0, WIDTH, HEIGHT);
 			tiles.render(ctx, camera);
-			if(grapple && !grapple.isDead) {
-				grapple.render(ctx, camera);
+			for(var i = 0; i < grapples.length; i++) {
+				if(!grapples[i].isDead) {
+					grapples[i].render(ctx, camera);
+				}
 			}
 			player.render(ctx, camera);
 		}
@@ -104,7 +110,6 @@ define([
 			RIGHT: 76 //L
 		};
 		var JUMP_KEY = 32; //SPACE
-		var BREAK_GRAPPLE_KEY = 82; //L
 		var PULL_GRAPPLE_KEY = 16; //SHIFT
 		var MAP_EDIT_KEY = 85; //U
 		var SAVE_MAP_KEY = 72; //H
@@ -119,14 +124,11 @@ define([
 				if(evt.which === SUPER_BOOST_KEYS.DOWN) { player.vel.y = 999999; }
 				if(evt.which === SUPER_BOOST_KEYS.LEFT) { player.vel.x = -999999; }
 				if(evt.which === SUPER_BOOST_KEYS.RIGHT) { player.vel.x = 999999; }
-				if(evt.which === BREAK_GRAPPLE_KEY) {
-					if(!grapple || grapple.isDead || grapple.isLatched) {
-						grapple = null;
-					}
-				}
 				if(evt.which === PULL_GRAPPLE_KEY) {
-					if(grapple && !grapple.isDead) {
-						grapple.startRetracting();
+					for(var i = 0; i < grapples.length; i++) {
+						if(!grapples[i].isDead) {
+							grapples[i].startRetracting();
+						}
 					}
 				}
 			}
@@ -137,9 +139,7 @@ define([
 				keys.pressed[evt.which] = false;
 				if(evt.which === JUMP_KEY) { player.stopJumping(); }
 				if(evt.which === PULL_GRAPPLE_KEY) {
-					if(grapple && grapple.isLatched) {
-						grapple = null;
-					}
+					grapples = [];
 				}
 			}
 		});
@@ -160,10 +160,20 @@ define([
 				}
 				mapEditLastDraggedOver = { row: row, col: col };
 			}
-			else if(!grapple || grapple.isLatched || grapple.isDead) {
-				grapple = player.shootGrapple(evt.offsetX + camera.x, evt.offsetY + camera.y);
-				if(keys[PULL_GRAPPLE_KEY]) {
-					grapple.startRetracting();
+			else {
+				var numMissedGrapples = 0;
+				for(var i = 0; i < grapples.length; i++) {
+					if(!grapples[i].isDead && !grapples[i].isLatched) {
+						numMissedGrapples++;
+					}
+				}
+				if(numMissedGrapples === 0) {
+					grapples = [];
+					var grapple = player.shootGrapple(evt.offsetX + camera.x, evt.offsetY + camera.y);
+					if(keys[PULL_GRAPPLE_KEY]) {
+						grapple.startRetracting();
+					}
+					grapples.push(grapple);
 				}
 			}
 		});

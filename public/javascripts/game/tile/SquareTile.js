@@ -3,7 +3,7 @@ define([
 	'game/tile/Tile',
 	'game/Constants',
 	'game/SpriteSheet',
-	'game/Rect'
+	'game/geom/Rect'
 ], function(
 	Tile,
 	Constants,
