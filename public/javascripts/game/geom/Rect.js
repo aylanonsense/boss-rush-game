@@ -8,6 +8,7 @@ define(function() {
 		this._color = color || '#f44';
 	}
 	Rect.prototype.isIntersectingRect = function(rect) {
+		//two rects are intersecting if their horizontal and vertical "shadows" are both intersecting
 		return rect && ((rect.x <= this.x && rect.x + rect.width > this.x) ||
 			(this.x <= rect.x && this.x + this.width > rect.x)) &&
 			((rect.y <= this.y && rect.y + rect.height > this.y) ||

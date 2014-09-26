@@ -9,33 +9,36 @@ define(function() {
 		this._color = color || '#f00';
 		this._start = start;
 		this._end = end;
+		//we pre-calculate a lot of data to make it easier to detect intersections
 		var dx = end.x - start.x;
 		var dy = end.y - start.y;
-		if(dx === 0 && dy === 0) {
-			this._isSinglePoint = true;
-		}
-		else {
-			this._isSinglePoint = false;
+		//line segments with a length of zero are a special case that is easy to handle
+		this._isSinglePoint = (dx === 0 && dy === 0);
+		if(!this._isSinglePoint) {
+			//vertical lines can't be defined in terms of y=mx+b, so we we do x=my+b instead
 			if(dx === 0) {
 				this._useReciprocalSlope = true;
 				this._reciprocalSlope = 0;
-				this._xAtOrigin = start.x;
+				this._xIntercept = start.x;
 			}
+			//we choose to set the y intercept manually with horizontal lines for clarity
 			else if(dy === 0) {
 				this._useReciprocalSlope = false;
 				this._slope = 0;
-				this._yAtOrigin = start.y;
+				this._yIntercept = start.y;
 			}
 			else {
+				//for slopes between -1 and 1 (horizontal-ish lines) we use traditional y=mx+b
 				if(-dx < dy && dy < dx) {
 					this._useReciprocalSlope = false;
 					this._slope = dy / dx;
-					this._yAtOrigin = start.y - this._slope * start.x;
+					this._yIntercept = start.y - this._slope * start.x;
 				}
+				//for slopes less than -1 or greater than 1, we use x=my+b to avoid rounding problems
 				else {
 					this._useReciprocalSlope = true;
 					this._reciprocalSlope = dx / dy;
-					this._xAtOrigin = start.x - this._reciprocalSlope * start.y;
+					this._xIntercept = start.x - this._reciprocalSlope * start.y;
 				}
 			}
 		}
@@ -47,10 +50,10 @@ define(function() {
 				return this._start.y;
 			}
 			else if(this._useReciprocalSlope) {
-				return (x - this._xAtOrigin) / this._reciprocalSlope;
+				return (x - this._xIntercept) / this._reciprocalSlope;
 			}
 			else {
-				return this._slope * x + this._yAtOrigin;
+				return this._slope * x + this._yIntercept;
 			}
 		}
 		return null;
@@ -62,10 +65,10 @@ define(function() {
 				return this._start.x;
 			}
 			else if(this._useReciprocalSlope) {
-				return this._reciprocalSlope * y + this._xAtOrigin;
+				return this._reciprocalSlope * y + this._xIntercept;
 			}
 			else {
-				return (y - this._yAtOrigin) / this._slope;
+				return (y - this._yIntercept) / this._slope;
 			}
 		}
 		return null;
