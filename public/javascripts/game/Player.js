@@ -287,7 +287,7 @@ define([
 			return;
 		}
 		tiles.forEachNearby(this._boundingBox, function(tile) {
-			if(self._topBox.isIntersecting(tile.box)) {
+			if(self._topBox.isIntersectingRect(tile.box)) {
 				self.pos.y = tile.box.y + tile.box.height;
 				if(self.vel.y < 0) {
 					self.vel.y = 0;
@@ -299,7 +299,7 @@ define([
 				}
 				self._recalculateCollisionBoxes();
 			}
-			if(self._bottomBox.isIntersecting(tile.box)) {
+			if(self._bottomBox.isIntersectingRect(tile.box)) {
 				self.pos.y = tile.box.y - self.height;
 				if(self.vel.y > 0) {
 					if(self._isLegitAirborne && LANDING_VEL_TO_NEUTRALIZE >= self.vel.x && self.vel.x >= -LANDING_VEL_TO_NEUTRALIZE) {
@@ -323,7 +323,7 @@ define([
 			}
 		});
 		tiles.forEachNearby(this._boundingBox, function(tile) {
-			if(self._leftBox.isIntersecting(tile.box)) {
+			if(self._leftBox.isIntersectingRect(tile.box)) {
 				self.pos.x = tile.box.x + tile.box.width;
 				if(self.vel.x < 0) {
 					self.vel.x = 0;
@@ -331,7 +331,7 @@ define([
 				}
 				self._recalculateCollisionBoxes();
 			}
-			if(self._rightBox.isIntersecting(tile.box)) {
+			if(self._rightBox.isIntersectingRect(tile.box)) {
 				self.pos.x = tile.box.x - self.width;
 				if(self.vel.x > 0) {
 					self.vel.x = 0;
@@ -345,14 +345,14 @@ define([
 		var edgeHangBoxCollision = false;
 		var upperClingTile = null;
 		tiles.forEachNearby(this._boundingBox, function(tile) {
-			if(self._upperClingBox.isIntersecting(tile.box)) {
+			if(self._upperClingBox.isIntersectingRect(tile.box)) {
 				isClingingToUpperClingBox = true;
 				upperClingTile = tile;
 			}
-			if(self._lowerClingBox.isIntersecting(tile.box)) {
+			if(self._lowerClingBox.isIntersectingRect(tile.box)) {
 				isClingingToLowerClingBox = true;
 			}
-			if(self._edgeHangBox.isIntersecting(tile.box)) {
+			if(self._edgeHangBox.isIntersectingRect(tile.box)) {
 				edgeHangBoxCollision = true;
 			}
 		});

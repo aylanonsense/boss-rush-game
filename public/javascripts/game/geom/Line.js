@@ -1,13 +1,12 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(function() {
-	var DEBUG_LINE_COLOR = '#f00';
 	function Line(start, end, color) {
 		if(arguments.length >= 4) {
 			start = { x: arguments[0], y: arguments[1] };
 			end = { x: arguments[2], y: arguments[3] };
 			color = (arguments.length > 4 ? arguments[4] : null);
 		}
-		this._renderColor = color || DEBUG_LINE_COLOR;
+		this._color = color || '#f00';
 		this._start = start;
 		this._end = end;
 		var dx = end.x - start.x;
@@ -103,7 +102,7 @@ define(function() {
 		return earliestIntersection;
 	};
 	Line.prototype.render = function(ctx, camera) {
-		ctx.strokeStyle = this._renderColor;
+		ctx.strokeStyle = this._color;
 		ctx.lineWidth = 1;
 		ctx.moveTo(this._start.x - camera.x, this._start.y - camera.y);
 		ctx.lineTo(this._end.x - camera.x, this._end.y - camera.y);
