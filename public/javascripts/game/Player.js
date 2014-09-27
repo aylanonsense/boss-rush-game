@@ -1,11 +1,11 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'game/Grapple',
-	'game/SpriteSheet',
+	'game/display/SpriteLoader',
 	'game/geom/Rect'
 ], function(
 	Grapple,
-	SpriteSheet,
+	SpriteLoader,
 	Rect
 ) {
 	//variables to control how the player moves
@@ -67,7 +67,7 @@ define([
 		this._isAirborne = true;
 		this._isLegitAirborne = false;
 		this._spriteOffset = { x: -13, y: -10 };
-		this._sprite = new SpriteSheet('/image/mailman-spritesheet.gif', 2, 24, 24);
+		this._sprite = SpriteLoader.loadSpriteSheet('PLAYER');
 		this._facing = 1;
 		this._isWallClinging = false;
 		this._isWallClingSliding = false;
@@ -543,7 +543,7 @@ define([
 		}
 
 		//render the sprite
-		this._sprite.render(ctx, camera, Math.round(this.pos.x + this._spriteOffset.x), Math.round(this.pos.y + this._spriteOffset.y), frame, flip);
+		this._sprite.render(ctx, Math.round(this.pos.x + this._spriteOffset.x) - camera.x, Math.round(this.pos.y + this._spriteOffset.y) - camera.y, frame, flip);
 
 		//debug rendering (hitboxes, velocity, etc)
 		/*this._boundingBox.render(ctx, camera);

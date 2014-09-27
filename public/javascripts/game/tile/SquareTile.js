@@ -2,16 +2,16 @@ if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'game/tile/Tile',
 	'game/Constants',
-	'game/SpriteSheet',
+	'game/display/SpriteLoader',
 	'game/geom/Rect'
 ], function(
 	Tile,
 	Constants,
-	SpriteSheet,
+	SpriteLoader,
 	Rect
 ) {
 	var FRAMES = [ 0, 7, 15, 11, 1, 4, 12, 8, 3, 6, 14, 10, 2, 5, 13, 9 ];
-	var SPRITE = new SpriteSheet('/image/tile-spritesheet.gif', 2, 18, 18);
+	var SPRITE = SpriteLoader.loadSpriteSheet('DIRT-TILE');
 	function SquareTile(tiles, col, row, frame) {
 		Tile.apply(this, arguments);
 		this.box = new Rect(this.col * Constants.TILE_SIZE, this.row * Constants.TILE_SIZE,
@@ -30,7 +30,7 @@ define([
 	}
 	SquareTile.prototype = Object.create(Tile.prototype);
 	SquareTile.prototype.render = function(ctx, camera) {
-		SPRITE.render(ctx, camera, this.col * Constants.TILE_SIZE - 6, this.row * Constants.TILE_SIZE - 6, this._renderFrame);
+		SPRITE.render(ctx, this.col * Constants.TILE_SIZE - 6 - camera.x, this.row * Constants.TILE_SIZE - 6 - camera.y, this._renderFrame);
 	};
 	return SquareTile;
 });
