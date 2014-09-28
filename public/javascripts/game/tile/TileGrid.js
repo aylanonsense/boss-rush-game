@@ -1,18 +1,36 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
+	'game/tile/Tile',
+	'game/config/level-config',
 	'game/Constants'
 ], function(
+	Tile,
+	config,
 	Constants
 ) {
+	var T = Constants.TILE_SIZE;
 	function TileGrid() {
-		this._tiles = {};
-		this._tiles.minRow = null;
-		this._tiles.maxRow = null;
+		this._tiles = { minRow: null, maxRow: null };
 	}
-	TileGrid.prototype.get = function(row, col) {
+	TileGrid.prototype.loadFromMap = function(shapes, sprites, frames) {
+		for(var r = 0; r < shapes.length; r++) {
+			for(var c = 0; c < shapes[r].length; c++) {
+				var shape = config.shapeLegend[shapes[r][c]] || null;
+				var sprite = (sprites && sprites[r] && sprites[r][c] && config.spriteLegend[sprites[r][c]]) || null;
+				var frame = (frames && frames[r] && frames[r][c] && charToFrameNum(frames[r][c])) || null;
+				if(shape) {
+					this.add(new Tile(c, r, shape, sprite, frame));
+				}
+			}
+		}
+	};
+	TileGrid.prototype.saveToMap = function() {
+		//TODO
+	};
+	TileGrid.prototype.get = function(col, row) {
 		return (this._tiles[row] && this._tiles[row][col]) || null;
 	};
-	TileGrid.prototype.remove = function(row, col) {
+	TileGrid.prototype.remove = function(col, row) {
 		if(this._tiles[row] && this._tiles[row][col]) {
 			//we don't clean up the min/max row/col, but that's perfectly fine
 			delete this._tiles[row][col];
@@ -56,10 +74,10 @@ define([
 		}
 	};
 	TileGrid.prototype.forEachNearby = function(rect, callback) {
-		var rowOfRectTop = Math.floor(rect.y / Constants.TILE_SIZE);
-		var rowOfRectBottom = Math.floor((rect.y + rect.height) / Constants.TILE_SIZE);
-		var colOfRectLeft = Math.floor(rect.x / Constants.TILE_SIZE);
-		var colOfRectRight = Math.floor((rect.x + rect.width) / Constants.TILE_SIZE);
+		var rowOfRectTop = Math.floor(rect.y / T);
+		var rowOfRectBottom = Math.floor((rect.y + rect.height) / T);
+		var colOfRectLeft = Math.floor(rect.x / T);
+		var colOfRectRight = Math.floor((rect.x + rect.width) / T);
 		for(var r = rowOfRectTop; r <= rowOfRectBottom; r++) {
 			for(var c = colOfRectLeft; c <= colOfRectRight; c++) {
 				if(this._tiles[r] && this._tiles[r][c]) {
@@ -73,5 +91,15 @@ define([
 			tile.render(ctx, camera);
 		});
 	};
+
+	//helper functions
+	function charToFrameNum(c) {
+		var frame = c.charCodeAt(0);
+		return (frame > 64 ? frame - 55 : frame - 48);
+	}
+	function frameNumToChar(frame) {
+		return String.fromCharCode((frame > 9 ? frame + 55 : frame + 48));
+	}
+
 	return TileGrid;
 });

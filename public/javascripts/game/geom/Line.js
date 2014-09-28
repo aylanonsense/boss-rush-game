@@ -74,35 +74,37 @@ define(function() {
 		return null;
 	};
 	Line.prototype.isCrossingRect = function(rect) {
-		//find intersections along the top/bottom/left/right
-		var intersections = [];
-		var xAlongTop = this._getXWhenYIs(rect.y);
-		if(xAlongTop !== null && rect.x <= xAlongTop && xAlongTop <= rect.x + rect.width) {
-			intersections.push({ x: xAlongTop, y: rect.y });
-		}
-		var xAlongBottom = this._getXWhenYIs(rect.y + rect.height);
-		if(xAlongBottom !== null && rect.x <= xAlongBottom && xAlongBottom <= rect.x + rect.width) {
-			intersections.push({ x: xAlongBottom, y: rect.y + rect.height });
-		}
-		var yAlongLeft = this._getYWhenXIs(rect.x);
-		if(yAlongLeft !== null && rect.y <= yAlongLeft && yAlongLeft <= rect.y + rect.height) {
-			intersections.push({ x: rect.x, y: yAlongLeft });
-		}
-		var yAlongRight = this._getYWhenXIs(rect.x + rect.width);
-		if(yAlongRight !== null && rect.y <= yAlongRight && yAlongRight <= rect.y + rect.height) {
-			intersections.push({ x: rect.x + rect.width, y: yAlongRight });
-		}
-		//choose the earliest intersection
-		var earliestIntersection = null;
-		for(var i = 0; i < intersections.length; i++) {
-			var dx = intersections[i].x - this._start.x;
-			var dy = intersections[i].y - this._start.y;
-			intersections[i].squareDist = dx * dx + dy * dy;
-			if(earliestIntersection === null || intersections[i].squareDist < earliestIntersection.squareDist) {
-				earliestIntersection = intersections[i];
+		if(rect) {
+			//find intersections along the top/bottom/left/right
+			var intersections = [];
+			var xAlongTop = this._getXWhenYIs(rect.y);
+			if(xAlongTop !== null && rect.x <= xAlongTop && xAlongTop <= rect.x + rect.width) {
+				intersections.push({ x: xAlongTop, y: rect.y });
 			}
+			var xAlongBottom = this._getXWhenYIs(rect.y + rect.height);
+			if(xAlongBottom !== null && rect.x <= xAlongBottom && xAlongBottom <= rect.x + rect.width) {
+				intersections.push({ x: xAlongBottom, y: rect.y + rect.height });
+			}
+			var yAlongLeft = this._getYWhenXIs(rect.x);
+			if(yAlongLeft !== null && rect.y <= yAlongLeft && yAlongLeft <= rect.y + rect.height) {
+				intersections.push({ x: rect.x, y: yAlongLeft });
+			}
+			var yAlongRight = this._getYWhenXIs(rect.x + rect.width);
+			if(yAlongRight !== null && rect.y <= yAlongRight && yAlongRight <= rect.y + rect.height) {
+				intersections.push({ x: rect.x + rect.width, y: yAlongRight });
+			}
+			//choose the earliest intersection
+			var earliestIntersection = null;
+			for(var i = 0; i < intersections.length; i++) {
+				var dx = intersections[i].x - this._start.x;
+				var dy = intersections[i].y - this._start.y;
+				intersections[i].squareDist = dx * dx + dy * dy;
+				if(earliestIntersection === null || intersections[i].squareDist < earliestIntersection.squareDist) {
+					earliestIntersection = intersections[i];
+				}
+			}
+			return earliestIntersection;
 		}
-		return earliestIntersection;
 	};
 	Line.prototype.render = function(ctx, camera) {
 		ctx.strokeStyle = this._color;

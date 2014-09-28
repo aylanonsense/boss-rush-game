@@ -35,7 +35,7 @@ define([
 		var self = this;
 		if(!this.isLatched && !this.isDead) {
 			tiles.forEach(function(tile) {
-				var intersection = self._lineOfMovement.isCrossingRect(tile.box);
+				var intersection = self._lineOfMovement.isCrossingRect(tile.rect);
 				if(intersection) {
 					self._latchTo(intersection.x, intersection.y);
 				}

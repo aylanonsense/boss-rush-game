@@ -3,16 +3,12 @@ define([
 	'jquery',
 	'game/Player',
 	'game/Constants',
-	'game/tile/TileGrid',
-	'game/tile/SquareTile',
-	'game/Map'
+	'game/level/Level1'
 ], function(
 	$,
 	Player,
 	Constants,
-	TileGrid,
-	SquareTile,
-	Map
+	Level
 ) {
 	return function() {
 		//canvas
@@ -28,26 +24,7 @@ define([
 		var player = new Player(0, 0);
 		var grapples = [];
 		var camera = { x: 0, y: 0 };
-		var tiles = new TileGrid();
-
-		var row = 0, col = 0;
-		for(var i = 0; i < Map.tiles.length; i++) {
-			var c = Map.tiles[i];
-			if(c === '\n') {
-				row++;
-				col = 0;
-			}
-			else {
-				col++;
-			}
-			if(c === Map.TILE_SYMBOL) {
-				tiles.add(new SquareTile(tiles, col, row, Map.getFrame(i)));
-			}
-			else if (c === Map.PLAYER_SYMBOL) {
-				player.pos.x = col * Constants.TILE_SIZE;
-				player.pos.y = row * Constants.TILE_SIZE;
-			}
-		}
+		var level = new Level(player);
 
 		//the main game loop
 		function tick() {
@@ -55,7 +32,7 @@ define([
 			for(var i = 0; i < grapples.length; i++) {
 				if(!grapples[i].isDead) {
 					grapples[i].move();
-					grapples[i].checkForCollisions(tiles);
+					grapples[i].checkForCollisions(level.tileGrid);
 				}
 			}
 
@@ -66,7 +43,7 @@ define([
 			while(player.hasMovementRemaining()) {
 				//move the player forward a bit
 				player.move();
-				player.checkForCollisions(tiles);
+				player.checkForCollisions(level.tileGrid);
 			}
 
 			//then the grapples may affect the player -- outside the loop above for simplicity
@@ -75,7 +52,7 @@ define([
 					grapples[i].applyForceToPlayer();
 				}
 			}
-			player.checkForCollisions(tiles);
+			player.checkForCollisions(level.tileGrid);
 			player.tick();
 
 			//the camera adjusts to follow the player
@@ -86,7 +63,7 @@ define([
 		function render() {
 			ctx.fillStyle = '#fff';
 			ctx.fillRect(0, 0, WIDTH, HEIGHT);
-			tiles.render(ctx, camera);
+			level.tileGrid.render(ctx, camera);
 			for(var i = 0; i < grapples.length; i++) {
 				if(!grapples[i].isDead) {
 					grapples[i].render(ctx, camera);
@@ -118,7 +95,7 @@ define([
 				keys[evt.which] = true;
 				keys.pressed[evt.which] = true;
 				if(evt.which === MAP_EDIT_KEY) { IS_EDITING_MAP = !IS_EDITING_MAP; }
-				if(evt.which === SAVE_MAP_KEY) { Map.encodeGrid(tiles, player); }
+				if(evt.which === SAVE_MAP_KEY) { Level.tileGrid.saveToMap(); }
 				if(evt.which === JUMP_KEY) { player.jump(); }
 				if(evt.which === SUPER_BOOST_KEYS.UP) { player.vel.y = -999999; }
 				if(evt.which === SUPER_BOOST_KEYS.DOWN) { player.vel.y = 999999; }
@@ -224,10 +201,10 @@ define([
 		});
 
 		function addBlock(row, col, frame) {
-			return tiles.add(new SquareTile(tiles, col, row, frame));
+			//return Level.tileGrid.add(new SquareTile(Level.tileGrid, col, row, frame));
 		}
 		function removeBlock(row, col) {
-			tiles.remove(row, col);
+			//Level.tileGrid.remove(row, col);
 		}
 
 		//set up animation frame functionality

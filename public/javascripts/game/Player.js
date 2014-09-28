@@ -287,8 +287,8 @@ define([
 			return;
 		}
 		tiles.forEachNearby(this._boundingBox, function(tile) {
-			if(self._topBox.isIntersectingRect(tile.box)) {
-				self.pos.y = tile.box.y + tile.box.height;
+			if(self._topBox.isIntersectingRect(tile.rect)) {
+				self.pos.y = tile.rect.y + tile.rect.height;
 				if(self.vel.y < 0) {
 					self.vel.y = 0;
 					self._finalPos.y = self.pos.y;
@@ -299,8 +299,8 @@ define([
 				}
 				self._recalculateCollisionBoxes();
 			}
-			if(self._bottomBox.isIntersectingRect(tile.box)) {
-				self.pos.y = tile.box.y - self.height;
+			if(self._bottomBox.isIntersectingRect(tile.rect)) {
+				self.pos.y = tile.rect.y - self.height;
 				if(self.vel.y > 0) {
 					if(self._isLegitAirborne && LANDING_VEL_TO_NEUTRALIZE >= self.vel.x && self.vel.x >= -LANDING_VEL_TO_NEUTRALIZE) {
 						self.vel.x = 0;
@@ -323,16 +323,16 @@ define([
 			}
 		});
 		tiles.forEachNearby(this._boundingBox, function(tile) {
-			if(self._leftBox.isIntersectingRect(tile.box)) {
-				self.pos.x = tile.box.x + tile.box.width;
+			if(self._leftBox.isIntersectingRect(tile.rect)) {
+				self.pos.x = tile.rect.x + tile.rect.width;
 				if(self.vel.x < 0) {
 					self.vel.x = 0;
 					self._finalPos.x = self.pos.x;
 				}
 				self._recalculateCollisionBoxes();
 			}
-			if(self._rightBox.isIntersectingRect(tile.box)) {
-				self.pos.x = tile.box.x - self.width;
+			if(self._rightBox.isIntersectingRect(tile.rect)) {
+				self.pos.x = tile.rect.x - self.width;
 				if(self.vel.x > 0) {
 					self.vel.x = 0;
 					self._finalPos.x = self.pos.x;
@@ -345,14 +345,14 @@ define([
 		var edgeHangBoxCollision = false;
 		var upperClingTile = null;
 		tiles.forEachNearby(this._boundingBox, function(tile) {
-			if(self._upperClingBox.isIntersectingRect(tile.box)) {
+			if(self._upperClingBox.isIntersectingRect(tile.rect)) {
 				isClingingToUpperClingBox = true;
 				upperClingTile = tile;
 			}
-			if(self._lowerClingBox.isIntersectingRect(tile.box)) {
+			if(self._lowerClingBox.isIntersectingRect(tile.rect)) {
 				isClingingToLowerClingBox = true;
 			}
-			if(self._edgeHangBox.isIntersectingRect(tile.box)) {
+			if(self._edgeHangBox.isIntersectingRect(tile.rect)) {
 				edgeHangBoxCollision = true;
 			}
 		});

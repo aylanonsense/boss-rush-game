@@ -1,6 +1,6 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'game/display/sprite-config',
+	'game/config/sprite-config',
 	'game/display/SpriteSheet'
 ], function(
 	config,
