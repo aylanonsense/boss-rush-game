@@ -360,7 +360,7 @@ define([
 			if(!this._isEdgeHanging && !this._isWallClinging && this.vel.y > -300 && this._isAirborne) {
 				if(!edgeHangBoxCollision) {
 					self._isEdgeHanging = true;
-					self.pos.y = upperClingTile.box.y - EDGE_HANG_BOX_HEIGHT;
+					self.pos.y = upperClingTile.rect.y - EDGE_HANG_BOX_HEIGHT;
 					self._finalPos.y = self.pos.y;
 					self._recalculateCollisionBoxes();
 				}
