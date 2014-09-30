@@ -6,7 +6,8 @@ define({
 	shapeLegend: {
 		M: 'full',
 		T: 'upper-half',
-		L: 'lower-half'
+		L: 'lower-half',
+		V: 'triangle-lower-left'
 	},
 	spriteLegend: {
 		D: 'DIRT-TILE'
@@ -14,14 +15,38 @@ define({
 	levels: {
 		'LEVEL 1': {
 			shapes: [
-				'       ',
-				'LMMTMLM'
+				'M',
+				'M',
+				'MMMV',
+				'    V',
+				'     V',
+				'      V',
+				'       V                M',
+				'        LMMTMLMML     LMM',
+				'                MML LMM',
+				'                 MMMM'
 			], sprites: [
-				'      ',
-				'DDDDDDD'
+				'D',
+				'D',
+				'DDDD',
+				'    D',
+				'     D',
+				'      D',
+				'       D                D',
+				'        DDDDDDDDD     DDD',
+				'                DDD DDD',
+				'                 DDDD'
 			], frames: [
-				'      ',
-				'h00g0h0'
+				'0',
+				'0',
+				'000n',
+				'    n',
+				'     n',
+				'      n',
+				'       n                0',
+				'        h00g0h00h     h00',
+				'                00h h00',
+				'                 0000'
 			]
 		}
 	}

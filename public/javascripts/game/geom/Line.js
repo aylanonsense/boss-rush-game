@@ -1,6 +1,7 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(function() {
 	function Line(start, end, color) {
+		this._geomType = 'line';
 		if(arguments.length >= 4) {
 			start = { x: arguments[0], y: arguments[1] };
 			end = { x: arguments[2], y: arguments[3] };
@@ -73,7 +74,65 @@ define(function() {
 		}
 		return null;
 	};
-	Line.prototype.isCrossingRect = function(rect) {
+	Line.prototype.isCrossing = function(shape) {
+		if(shape._geomType === 'rect') {
+			return this._isCrossingRect(shape);
+		}
+		else if(shape._geomType === 'triangle') {
+			return this._isCrossingTriangle(shape);
+		}
+		else {
+			throw new Error("Unsure how to test for whether a line is crossing a '" + shape._geomType + "'");
+		}
+	};
+	Line.prototype._isCrossingLine = function(line) {
+		var x, y;
+		//we pretend single points can't cross anything (this sorta makes sense)
+		if(!this._isSinglePoint && !line._isSinglePoint) {
+			//if we have y = mx + b and y = nx + c, intersection is at x = (c - b) / (m - n)
+			if(!this._useReciprocalSlope && !line._useReciprocalSlope) {
+				//we also pretend parallel lines can't cross each other (just makes it simpler)
+				if(this._slope !== line._slope) {
+					x = (line._yIntercept - this._yIntercept) / (this._slope - line._slope);
+					y = this._getYWhenXIs(x);
+					if(y !== null && line._getYWhenXIs(x) !== null) {
+						return { x: x, y: y };
+					}
+				}
+			}
+			//if we have x = my + b and x = ny + c, intersection is at y = (c - b) / (m - n)
+			else if(this._useReciprocalSlope && line._useReciprocalSlope) {
+				if(this._reciprocalSlope !== line._reciprocalSlope) {
+					y = (line._xIntercept - this._xIntercept) / (this._reciprocalSlope - line._reciprocalSlope);
+					x = this._getXWhenYIs(y);
+					if(x !== null && line._getXWhenYIs(y) !== null) {
+						return { x: x, y: y };
+					}
+				}
+			}
+			//if we have y = mx + b and x = ny + c, intersection is at x = (nb + c) / (1 - nm)
+			else if(this._useReciprocalSlope) {
+				if(line._slope === 0 || this._reciprocalSlope !== 1 / line._slope) {
+					x = (this._reciprocalSlope * line._yIntercept + this._xIntercept) / (1 - this._reciprocalSlope * line._slope);
+					y = line._getYWhenXIs(x);
+					if(y !== null && this._getYWhenXIs(x) !== null) {
+						return { x: x, y: y};
+					}
+				}
+			}
+			else {
+				if(this._slope === 0 || line._reciprocalSlope !== 1 / this._slope) {
+					x = (line._reciprocalSlope * this._yIntercept + line._xIntercept) / (1 - line._reciprocalSlope * this._slope);
+					y = this._getYWhenXIs(x);
+					if(y !== null && line._getYWhenXIs(x) !== null) {
+						return { x: x, y: y};
+					}
+				}
+			}
+		}
+		return false;
+	};
+	Line.prototype._isCrossingRect = function(rect) {
 		if(rect) {
 			//find intersections along the top/bottom/left/right
 			var intersections = [];
@@ -106,6 +165,52 @@ define(function() {
 			return earliestIntersection;
 		}
 	};
+	Line.prototype._isCrossingTriangle = function(triangle) {
+		if(triangle) {
+			//find intersections along the top/bottom/left/right
+			var intersections = [];
+			var xAlongTop = this._getXWhenYIs(triangle._rect.y);
+			if(triangle._isUpper &&
+				xAlongTop !== null && triangle._rect.x <= xAlongTop &&
+				xAlongTop <= triangle._rect.x + triangle._rect.width) {
+				intersections.push({ x: xAlongTop, y: triangle._rect.y });
+			}
+			var xAlongBottom = this._getXWhenYIs(triangle._rect.y + triangle._rect.height);
+			if(!triangle._isUpper &&
+				xAlongBottom !== null && triangle._rect.x <= xAlongBottom &&
+				xAlongBottom <= triangle._rect.x + triangle._rect.width) {
+				intersections.push({ x: xAlongBottom, y: triangle._rect.y + triangle._rect.height });
+			}
+			var yAlongLeft = this._getYWhenXIs(triangle._rect.x);
+			if(triangle._isLeft &&
+				yAlongLeft !== null && triangle._rect.y <= yAlongLeft &&
+				yAlongLeft <= triangle._rect.y + triangle._rect.height) {
+				intersections.push({ x: triangle._rect.x, y: yAlongLeft });
+			}
+			var yAlongRight = this._getYWhenXIs(triangle._rect.x + triangle._rect.width);
+			if(!triangle._isLeft &&
+				yAlongRight !== null && triangle._rect.y <= yAlongRight &&
+				yAlongRight <= triangle._rect.y + triangle._rect.height) {
+				intersections.push({ x: triangle._rect.x + triangle._rect.width, y: yAlongRight });
+			}
+			//find intersections along the hypotenuse
+			var intersection = this._isCrossingLine(triangle._line);
+			if(intersection) {
+				intersections.push(intersection);
+			}
+			//choose the earliest intersection
+			var earliestIntersection = null;
+			for(var i = 0; i < intersections.length; i++) {
+				var dx = intersections[i].x - this._start.x;
+				var dy = intersections[i].y - this._start.y;
+				intersections[i].squareDist = dx * dx + dy * dy;
+				if(earliestIntersection === null || intersections[i].squareDist < earliestIntersection.squareDist) {
+					earliestIntersection = intersections[i];
+				}
+			}
+			return earliestIntersection;
+		}
+	};
 	Line.prototype.render = function(ctx, camera) {
 		ctx.strokeStyle = this._color;
 		ctx.lineWidth = 1;
@@ -114,4 +219,3 @@ define(function() {
 	};
 	return Line;
 });
-//SILVER star status!

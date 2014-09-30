@@ -3,11 +3,13 @@ define([
 	'jquery',
 	'game/Player',
 	'game/Constants',
+	'game/geom/Triangle',
 	'game/level/Level1'
 ], function(
 	$,
 	Player,
 	Constants,
+	Triangle,
 	Level
 ) {
 	return function() {

@@ -37,7 +37,7 @@ define([
 	var WALLCLING_OVERRIDE_SPEED = 1000;
 	//collision box curiosities
 	var HORIZONTAL_BOX_INSET_FROM_TOP = 5;
-	var HORIZONTAL_BOX_INSET_FROM_BOTTOM = 5;
+	var HORIZONTAL_BOX_INSET_FROM_BOTTOM = 12;
 	var VERTICAL_BOX_INSET = 5;
 	var ADDITIONAL_CLING_WIDTH = 1;
 	var CLING_BOX_INSET_FROM_TOP = 9;
@@ -79,6 +79,7 @@ define([
 		this._currAnimationTime = 0;
 		this._framesOfLandingAnimation = 0;
 		this._recalculateCollisionBoxes();
+		this._lastFrameWalkTile = null;
 	}
 	Player.prototype.tick = function() {
 		if(this._isAirborne) {
@@ -257,9 +258,13 @@ define([
 
 		//set the player's final move position for this timestep (may be altered by external forces)
 		this._finalPos = { x: this.pos.x + this.vel.x / 60, y: this.pos.y + this.vel.y / 60 };
+		if(this._lastFrameWalkTile) {
+			this._finalPos.y += this._lastFrameWalkTile.walkSlope * (this.pos.x - this._finalPos.x) + 0.5;
+		}
 		this._isAirborne = true;
 		this._isSwingingOnGrapple = false;
 		this._remainingMoveIncrements = 100;
+		this._lastFrameWalkTile = null;
 	};
 	Player.prototype.hasMovementRemaining = function() {
 		return this._remainingMoveIncrements > 0 && (this.pos.x !== this._finalPos.x || this.pos.y !== this._finalPos.y);
@@ -283,12 +288,14 @@ define([
 	};
 	Player.prototype.checkForCollisions = function(tiles) {
 		var self = this;
+		var intersection;
 		if(this._isEdgeHanging) {
 			return;
 		}
 		tiles.forEachNearby(this._boundingBox, function(tile) {
-			if(self._topBox.isIntersectingRect(tile.rect)) {
-				self.pos.y = tile.rect.y + tile.rect.height;
+			intersection = tile.isIntersectingRect(self._topBox);
+			if(intersection) {
+				self.pos.y = intersection.bottom;
 				if(self.vel.y < 0) {
 					self.vel.y = 0;
 					self._finalPos.y = self.pos.y;
@@ -299,17 +306,21 @@ define([
 				}
 				self._recalculateCollisionBoxes();
 			}
-			if(self._bottomBox.isIntersectingRect(tile.rect)) {
-				self.pos.y = tile.rect.y - self.height;
+			intersection = tile.isIntersectingRect(self._bottomBox);
+			if(intersection) {
+				self.pos.y = intersection.top - self.height;
 				if(self.vel.y > 0) {
 					if(self._isLegitAirborne && LANDING_VEL_TO_NEUTRALIZE >= self.vel.x && self.vel.x >= -LANDING_VEL_TO_NEUTRALIZE) {
-						self.vel.x = 0;
+						if(self._moveDir.x === 0 || (self._moveDir.x > 0) !== (self.vel.x > 0)) {
+							self.vel.x = 0;
+						}
 						self._finalPos.x = self.pos.x;
 					}
 					self.vel.y = 0;
 					self._finalPos.y = self.pos.y;
 					self._isAirborne = false;
 					self._isLegitAirborne = false;
+					self._lastFrameWalkTile = tile;
 				}
 				if(self._isWallClinging) {
 					self._facing *= -1;
@@ -323,16 +334,18 @@ define([
 			}
 		});
 		tiles.forEachNearby(this._boundingBox, function(tile) {
-			if(self._leftBox.isIntersectingRect(tile.rect)) {
-				self.pos.x = tile.rect.x + tile.rect.width;
+			intersection = tile.isIntersectingRect(self._leftBox);
+			if(intersection) {
+				self.pos.x = intersection.right;
 				if(self.vel.x < 0) {
 					self.vel.x = 0;
 					self._finalPos.x = self.pos.x;
 				}
 				self._recalculateCollisionBoxes();
 			}
-			if(self._rightBox.isIntersectingRect(tile.rect)) {
-				self.pos.x = tile.rect.x - self.width;
+			intersection = tile.isIntersectingRect(self._rightBox);
+			if(intersection) {
+				self.pos.x = intersection.left - self.width;
 				if(self.vel.x > 0) {
 					self.vel.x = 0;
 					self._finalPos.x = self.pos.x;
@@ -343,16 +356,17 @@ define([
 		var isClingingToUpperClingBox = false;
 		var isClingingToLowerClingBox = false;
 		var edgeHangBoxCollision = false;
-		var upperClingTile = null;
+		var upperClingIntersection = null;
 		tiles.forEachNearby(this._boundingBox, function(tile) {
-			if(self._upperClingBox.isIntersectingRect(tile.rect)) {
+			intersection = tile.isIntersectingRect(self._upperClingBox);
+			if(intersection) {
 				isClingingToUpperClingBox = true;
-				upperClingTile = tile;
+				upperClingIntersection = intersection;
 			}
-			if(self._lowerClingBox.isIntersectingRect(tile.rect)) {
+			if(tile.isIntersectingRect(self._lowerClingBox)) {
 				isClingingToLowerClingBox = true;
 			}
-			if(self._edgeHangBox.isIntersectingRect(tile.rect)) {
+			if(tile.isIntersectingRect(self._edgeHangBox)) {
 				edgeHangBoxCollision = true;
 			}
 		});
@@ -360,7 +374,7 @@ define([
 			if(!this._isEdgeHanging && !this._isWallClinging && this.vel.y > -300 && this._isAirborne) {
 				if(!edgeHangBoxCollision) {
 					self._isEdgeHanging = true;
-					self.pos.y = upperClingTile.rect.y - EDGE_HANG_BOX_HEIGHT;
+					self.pos.y = upperClingIntersection.top - EDGE_HANG_BOX_HEIGHT;
 					self._finalPos.y = self.pos.y;
 					self._recalculateCollisionBoxes();
 				}

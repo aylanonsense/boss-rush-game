@@ -33,9 +33,9 @@ define([
 	}
 	Grapple.prototype.checkForCollisions = function(tiles) {
 		var self = this;
-		if(!this.isLatched && !this.isDead) {
+		if(!this.isLatched && !this.isDead && this._isLatchable) {
 			tiles.forEach(function(tile) {
-				var intersection = self._lineOfMovement.isCrossingRect(tile.rect);
+				var intersection = self._lineOfMovement.isCrossing(tile._shape);
 				if(intersection) {
 					self._latchTo(intersection.x, intersection.y);
 				}
