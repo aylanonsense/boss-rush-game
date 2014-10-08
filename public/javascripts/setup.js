@@ -6,6 +6,17 @@ requirejs.config({
 		jquery: '/javascripts/lib/jquery'
 	}
 });
-requirejs([ 'game/Main' ], function(Main, MapBuilder) {
-	Main();
+requirejs([
+	'game/Main',
+	'game/level/LevelEditorMain'
+], function(
+	Main,
+	LevelEditorMain
+) {
+	if(false) {
+		Main();
+	}
+	else {
+		LevelEditorMain();
+	}
 });

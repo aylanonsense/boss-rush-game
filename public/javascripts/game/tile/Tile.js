@@ -35,11 +35,11 @@ define([
 			this._frame = frame || 0;
 		}
 	}
-	Tile.prototype.isIntersectingRect = function(rect) {
-		return this._shape.isIntersectingRect(rect);
+	Tile.prototype.isOverlapping = function(geom) {
+		return this._shape.isOverlapping(geom);
 	};
-	Tile.prototype.isCrossedByLine = function(line) {
-		return line.isCrossingRect(this._shape);
+	Tile.prototype.isCrossedBy = function(line) {
+		return line.isCrossing(this._shape);
 	};
 	Tile.prototype.render = function(ctx, camera) {
 		if(this._sprite) {

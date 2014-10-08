@@ -8,9 +8,23 @@ define(function() {
 		this.height = height;
 		this._color = color || '#f44';
 	}
-	Rect.prototype.isIntersectingRect = function(rect) {
+	Rect.prototype.isOverlapping = function(geom) {
+		if(!geom) {
+			return false;
+		}
+		else if(geom._geomType === 'rect') {
+			return this._isOverlappingRect(geom);
+		}
+		else if(geom._geomType === 'triangle') {
+			return geom.isOverlapping(this);
+		}
+		else {
+			throw new Error("Unsure how to find overlap between rect and '" + geom._geomType + "'");
+		}
+	};
+	Rect.prototype._isOverlappingRect = function(rect) {
 		//two rects are intersecting if their horizontal and vertical "shadows" are both intersecting
-		if(rect && ((rect.x <= this.x && rect.x + rect.width > this.x) ||
+		if(((rect.x <= this.x && rect.x + rect.width > this.x) ||
 			(this.x <= rect.x && this.x + this.width > rect.x)) &&
 			((rect.y <= this.y && rect.y + rect.height > this.y) ||
 			(this.y <= rect.y && this.y + this.height > rect.y))) {
@@ -21,6 +35,9 @@ define(function() {
 				bottom: this.y + this.height
 			};
 		}
+		else {
+			return false;
+		}
 	};
 	Rect.prototype.render = function(ctx, camera) {
 		ctx.fillStyle = this._color;
@@ -28,3 +45,4 @@ define(function() {
 	};
 	return Rect;
 });
+//SILVER star status!

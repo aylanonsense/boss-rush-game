@@ -74,15 +74,21 @@ define(function() {
 		}
 		return null;
 	};
-	Line.prototype.isCrossing = function(shape) {
-		if(shape._geomType === 'rect') {
-			return this._isCrossingRect(shape);
+	Line.prototype.isCrossing = function(geom) {
+		if(!geom) {
+			return false;
 		}
-		else if(shape._geomType === 'triangle') {
-			return this._isCrossingTriangle(shape);
+		else if(geom._geomType === 'line') {
+			return this._isCrossingLine(geom);
+		}
+		else if(geom._geomType === 'rect') {
+			return this._isCrossingRect(geom);
+		}
+		else if(geom._geomType === 'triangle') {
+			return this._isCrossingTriangle(geom);
 		}
 		else {
-			throw new Error("Unsure how to test for whether a line is crossing a '" + shape._geomType + "'");
+			throw new Error("Unsure how to test whether line is crossing '" + geom._geomType + "'");
 		}
 	};
 	Line.prototype._isCrossingLine = function(line) {
@@ -116,7 +122,7 @@ define(function() {
 					x = (this._reciprocalSlope * line._yIntercept + this._xIntercept) / (1 - this._reciprocalSlope * line._slope);
 					y = line._getYWhenXIs(x);
 					if(y !== null && this._getYWhenXIs(x) !== null) {
-						return { x: x, y: y};
+						return { x: x, y: y };
 					}
 				}
 			}
@@ -125,7 +131,7 @@ define(function() {
 					x = (line._reciprocalSlope * this._yIntercept + line._xIntercept) / (1 - line._reciprocalSlope * this._slope);
 					y = this._getYWhenXIs(x);
 					if(y !== null && line._getYWhenXIs(x) !== null) {
-						return { x: x, y: y};
+						return { x: x, y: y };
 					}
 				}
 			}
@@ -133,41 +139,39 @@ define(function() {
 		return false;
 	};
 	Line.prototype._isCrossingRect = function(rect) {
-		if(rect) {
-			//find intersections along the top/bottom/left/right
-			var intersections = [];
-			var xAlongTop = this._getXWhenYIs(rect.y);
-			if(xAlongTop !== null && rect.x <= xAlongTop && xAlongTop <= rect.x + rect.width) {
-				intersections.push({ x: xAlongTop, y: rect.y });
-			}
-			var xAlongBottom = this._getXWhenYIs(rect.y + rect.height);
-			if(xAlongBottom !== null && rect.x <= xAlongBottom && xAlongBottom <= rect.x + rect.width) {
-				intersections.push({ x: xAlongBottom, y: rect.y + rect.height });
-			}
-			var yAlongLeft = this._getYWhenXIs(rect.x);
-			if(yAlongLeft !== null && rect.y <= yAlongLeft && yAlongLeft <= rect.y + rect.height) {
-				intersections.push({ x: rect.x, y: yAlongLeft });
-			}
-			var yAlongRight = this._getYWhenXIs(rect.x + rect.width);
-			if(yAlongRight !== null && rect.y <= yAlongRight && yAlongRight <= rect.y + rect.height) {
-				intersections.push({ x: rect.x + rect.width, y: yAlongRight });
-			}
-			//choose the earliest intersection
-			var earliestIntersection = null;
-			for(var i = 0; i < intersections.length; i++) {
-				var dx = intersections[i].x - this._start.x;
-				var dy = intersections[i].y - this._start.y;
-				intersections[i].squareDist = dx * dx + dy * dy;
-				if(earliestIntersection === null || intersections[i].squareDist < earliestIntersection.squareDist) {
-					earliestIntersection = intersections[i];
-				}
-			}
-			return earliestIntersection;
+		//find intersections along the top/bottom/left/right
+		var intersections = [];
+		var xAlongTop = this._getXWhenYIs(rect.y);
+		if(xAlongTop !== null && rect.x <= xAlongTop && xAlongTop <= rect.x + rect.width) {
+			intersections.push({ x: xAlongTop, y: rect.y });
 		}
+		var xAlongBottom = this._getXWhenYIs(rect.y + rect.height);
+		if(xAlongBottom !== null && rect.x <= xAlongBottom && xAlongBottom <= rect.x + rect.width) {
+			intersections.push({ x: xAlongBottom, y: rect.y + rect.height });
+		}
+		var yAlongLeft = this._getYWhenXIs(rect.x);
+		if(yAlongLeft !== null && rect.y <= yAlongLeft && yAlongLeft <= rect.y + rect.height) {
+			intersections.push({ x: rect.x, y: yAlongLeft });
+		}
+		var yAlongRight = this._getYWhenXIs(rect.x + rect.width);
+		if(yAlongRight !== null && rect.y <= yAlongRight && yAlongRight <= rect.y + rect.height) {
+			intersections.push({ x: rect.x + rect.width, y: yAlongRight });
+		}
+		//choose the earliest intersection
+		var earliestIntersection = null;
+		for(var i = 0; i < intersections.length; i++) {
+			var dx = intersections[i].x - this._start.x;
+			var dy = intersections[i].y - this._start.y;
+			intersections[i].squareDist = dx * dx + dy * dy;
+			if(earliestIntersection === null || intersections[i].squareDist < earliestIntersection.squareDist) {
+				earliestIntersection = intersections[i];
+			}
+		}
+		return earliestIntersection;
 	};
 	Line.prototype._isCrossingTriangle = function(triangle) {
 		if(triangle) {
-			//find intersections along the top/bottom/left/right
+			//find intersections along the top/bottom/left/right (only 2 will apply for a given triangle)
 			var intersections = [];
 			var xAlongTop = this._getXWhenYIs(triangle._rect.y);
 			if(triangle._isUpper &&
@@ -219,3 +223,4 @@ define(function() {
 	};
 	return Line;
 });
+//SILVER star status!

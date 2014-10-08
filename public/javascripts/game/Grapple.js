@@ -18,8 +18,6 @@ define([
 		this.pos = { x: x, y: y };
 		this.pos.prev = { x: x, y: y };
 		this.vel = { x: GRAPPLE_SPEED * dirX / dir, y: GRAPPLE_SPEED * dirY / dir };
-		//this.vel.x += player.vel.x * 0.5;
-		//this.vel.y += player.vel.y * 0.5; //grapples get some of the player's momentum
 		this.isLatched = false;
 		this.isDead = false;
 		this._isLatchable = true;
@@ -35,7 +33,7 @@ define([
 		var self = this;
 		if(!this.isLatched && !this.isDead && this._isLatchable) {
 			tiles.forEach(function(tile) {
-				var intersection = self._lineOfMovement.isCrossing(tile._shape);
+				var intersection = tile.isCrossedBy(self._lineOfMovement);
 				if(intersection) {
 					self._latchTo(intersection.x, intersection.y);
 				}

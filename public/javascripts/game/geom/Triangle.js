@@ -11,27 +11,37 @@ define([
 		this._rect = new Rect(x, y, width, height);
 		if(rightAngleSide === 'upper-left') {
 			this._line = new Line(x, y + height, x + width, y);
-			this._points = [ { x: x, y: y }, { x: x + width, y: y }, { x: x, y: y + height } ];
+			this._renderPoints = [ { x: x, y: y }, { x: x + width, y: y }, { x: x, y: y + height } ];
 		}
 		else if(rightAngleSide === 'lower-right') {
 			this._line = new Line(x, y + height, x + width, y);
-			this._points = [ { x: x + width, y: y + height }, { x: x + width, y: y }, { x: x, y: y + height } ];
+			this._renderPoints = [ { x: x + width, y: y + height }, { x: x + width, y: y }, { x: x, y: y + height } ];
 		}
 		else if(rightAngleSide === 'lower-left') {
 			this._line = new Line(x, y, x + width, y + height);
-			this._points = [ { x: x, y: y + height }, { x: x + width, y: y + height }, { x: x, y: y } ];
+			this._renderPoints = [ { x: x, y: y + height }, { x: x + width, y: y + height }, { x: x, y: y } ];
 		}
 		else if(rightAngleSide === 'upper-right') {
 			this._line = new Line(x, y, x + width, y + height);
-			this._points = [ { x: x + width, y: y }, { x: x + width, y: y + height }, { x: x, y: y } ];
+			this._renderPoints = [ { x: x + width, y: y }, { x: x + width, y: y + height }, { x: x, y: y } ];
 		}
-		this._rightAngleSide = rightAngleSide;
 		this._isUpper = (rightAngleSide === 'upper-left' || rightAngleSide === 'upper-right');
 		this._isLeft = (rightAngleSide === 'upper-left' || rightAngleSide === 'lower-left');
 		this._color = color || '#f44';
 	}
-	Triangle.prototype.isIntersectingRect = function(rect) {
-		if(this._rect.isIntersectingRect(rect)) {
+	Triangle.prototype.isOverlapping = function(geom) {
+		if(!geom) {
+			return false;
+		}
+		else if(geom._geomType === 'rect') {
+			return this._isOverlappingRect(geom);
+		}
+		else {
+			throw new Error("Unsure how to find overlap between triangle and '" + geom._geomType + "'");
+		}
+	};
+	Triangle.prototype._isOverlappingRect = function(rect) {
+		if(this._rect._isOverlappingRect(rect)) {
 			var xRect = rect.x + (this._isLeft ? 0 : rect.width);
 			var yRect = rect.y + (this._isUpper ? 0 : rect.height);
 			var yLine = this._line._getYWhenXIs(xRect);
@@ -48,11 +58,12 @@ define([
 	Triangle.prototype.render = function(ctx, camera) {
 		ctx.beginPath();
 		ctx.fillStyle = this._color;
-		ctx.moveTo(this._points[2].x - camera.x, this._points[2].y - camera.y);
-		for(var i = 0; i < this._points.length; i++) {
-			ctx.lineTo(this._points[i].x - camera.x, this._points[i].y - camera.y);
+		ctx.moveTo(this._renderPoints[2].x - camera.x, this._renderPoints[2].y - camera.y);
+		for(var i = 0; i < this._renderPoints.length; i++) {
+			ctx.lineTo(this._renderPoints[i].x - camera.x, this._renderPoints[i].y - camera.y);
 		}
 		ctx.fill();
 	};
 	return Triangle;
 });
+//SILVER star status!

@@ -14,7 +14,7 @@ define([
 			throw new Error("There does not exist a spritesheet with an id of '" + key + "'");
 		}
 		if(!SPRITESHEETS[key]) {
-			SPRITESHEETS[key] = new SpriteSheet(config[key]);
+			SPRITESHEETS[key] = new SpriteSheet(config[key], key);
 		}
 		return SPRITESHEETS[key];
 	}

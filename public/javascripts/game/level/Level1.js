@@ -13,8 +13,7 @@ define([
 			config.levels['LEVEL 1'].sprites,
 			config.levels['LEVEL 1'].frames
 		);
-		player.pos.x = 50;
-		player.pos.y = -100;
+		this.playerStartPoint = { x: 50, y: -100 };
 	}
 	return Level1;
 });

@@ -1,16 +1,19 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(function() {
-	function SpriteSheet(params) {
+	function SpriteSheet(params, spriteKey) {
 		var self = this;
 		var scale = params.scale || 1;
 
 		//init private vars
 		this._canvas = null;
 		this._loaded = false;
-		this._scaledSpriteWidth = scale * params.spriteWidth;
-		this._scaledSpriteHeight = scale * params.spriteHeight;
 		this._preLoadedColor = params.loadingColor || '#000';
 		this._flipped = params.flip || false;
+
+		//init public vars
+		this.width = scale * params.spriteWidth; //width/height of one frame
+		this.height = scale * params.spriteHeight;
+		this.key = spriteKey;
 
 		//load the image
 		var img = new Image();
@@ -54,8 +57,8 @@ define(function() {
 	}
 	SpriteSheet.prototype.render = function(ctx, x, y, frame, flip) {
 		if(this._loaded) {
-			var numCols = this._canvas.width / this._scaledSpriteWidth;
-			var numRows = (this._canvas.height / this._scaledSpriteHeight) / (this._flipped ? 2 : 1);
+			var numCols = this._canvas.width / this.width;
+			var numRows = (this._canvas.height / this.height) / (this._flipped ? 2 : 1);
 			//locate the frame on the spritesheet
 			frame %= (numCols * numRows);
 			var frameX = frame % numCols;
@@ -66,15 +69,15 @@ define(function() {
 			}
 			//draw the image (camera needs to be taken care of outside of this method)
 			ctx.drawImage(this._canvas,
-				frameX * this._scaledSpriteWidth, frameY * this._scaledSpriteHeight,
-				this._scaledSpriteWidth, this._scaledSpriteHeight, x, y,
-				this._scaledSpriteWidth, this._scaledSpriteHeight
+				frameX * this.width, frameY * this.height,
+				this.width, this.height, x, y,
+				this.width, this.height
 			);
 		}
 		else {
 			//if the image hasn't loaded yet, we just show a colored rectangle
 			ctx.fillStyle = this._preLoadedColor;
-			ctx.fillRect(x, y, this._scaledSpriteWidth, this._scaledSpriteHeight);
+			ctx.fillRect(x, y, this.width, this.height);
 		}
 	};
 

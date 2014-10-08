@@ -86,7 +86,23 @@ define([
 			}
 		}
 	};
-	TileGrid.prototype.render = function(ctx, camera) {
+	TileGrid.prototype.render = function(ctx, camera, drawGridLines) {
+		if(drawGridLines) {
+			ctx.strokeStyle ='#eee';
+			ctx.lineWidth = 1;
+			for(var x = T * Math.floor(camera.x / T); x <= T * Math.floor((camera.x + Constants.WIDTH) / T); x += T) {
+				ctx.beginPath();
+				ctx.moveTo(x - camera.x, -1);
+				ctx.lineTo(x - camera.x, Constants.HEIGHT + 1);
+				ctx.stroke();
+			}
+			for(var y = T * Math.floor(camera.y / T); y <= T * Math.floor((camera.y + Constants.HEIGHT) / T); y += T) {
+				ctx.beginPath();
+				ctx.moveTo(-1, y - camera.y);
+				ctx.lineTo(Constants.WIDTH + 1, y - camera.y);
+				ctx.stroke();
+			}
+		}
 		this.forEach(function(tile) {
 			tile.render(ctx, camera);
 		});
