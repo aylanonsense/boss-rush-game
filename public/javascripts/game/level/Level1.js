@@ -7,13 +7,8 @@ define([
 	TileGrid
 ) {
 	function Level1(player) {
-		this.tileGrid = new TileGrid();
-		this.tileGrid.loadFromMap(
-			config.levels['LEVEL 1'].shapes,
-			config.levels['LEVEL 1'].sprites,
-			config.levels['LEVEL 1'].frames
-		);
-		this.playerStartPoint = { x: 50, y: -100 };
+		this.tileGrid = new TileGrid(config.LEVEL_1.tiles, config.LEVEL_1.shapes, config.LEVEL_1.variants);
+		this.playerStartPoint = { x: 300, y: -100 };
 	}
 	return Level1;
 });

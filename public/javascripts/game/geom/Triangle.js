@@ -42,9 +42,16 @@ define([
 	};
 	Triangle.prototype._isOverlappingRect = function(rect) {
 		if(this._rect._isOverlappingRect(rect)) {
+			//find the point on the rectangle closest to the triangle
 			var xRect = rect.x + (this._isLeft ? 0 : rect.width);
 			var yRect = rect.y + (this._isUpper ? 0 : rect.height);
+			//find the point on the line underneath the point on the rectangle
 			var yLine = this._line._getYWhenXIs(xRect);
+			//if the rectangle is balanced on the point of the rectangle, the line no longer matters
+			if((this._isLeft && xRect <= this._rect.x) || (!this._isLeft && xRect >= this._rect.x + this._rect.width)) {
+				yLine = (this._isUpper ? this._rect.y + this._rect.height : this._rect.y);
+			}
+			//there's only aoverlap if the point on thre rectangle is "below" the point on the line
 			if((this._isUpper && yRect <= yLine) || (!this._isUpper && yRect >= yLine)) {
 				return {
 					left: this._rect.x,

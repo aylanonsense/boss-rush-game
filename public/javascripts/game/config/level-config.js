@@ -1,53 +1,39 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define({
-	entityLegend: {
-		p: 'Player'
-	},
-	shapeLegend: {
-		M: 'full',
-		T: 'upper-half',
-		L: 'lower-half',
-		V: 'triangle-lower-left'
-	},
-	spriteLegend: {
-		D: 'DIRT-TILE'
-	},
-	levels: {
-		'LEVEL 1': {
-			shapes: [
-				'M',
-				'M',
-				'MMMV',
-				'    V',
-				'     V',
-				'      V',
-				'       V                M',
-				'        LMMTMLMML     LMM',
-				'                MML LMM',
-				'                 MMMM'
-			], sprites: [
-				'D',
-				'D',
-				'DDDD',
-				'    D',
-				'     D',
-				'      D',
-				'       D                D',
-				'        DDDDDDDDD     DDD',
-				'                DDD DDD',
-				'                 DDDD'
-			], frames: [
-				'0',
-				'0',
-				'000n',
-				'    n',
-				'     n',
-				'      n',
-				'       n                0',
-				'        h00g0h00h     h00',
-				'                00h h00',
-				'                 0000'
-			]
-		}
+	LEVEL_1: {
+		tiles: [
+			'1            11  111111',
+			'0            00',
+			'01 1                      1',
+			'    1                    1',
+			'     1                  1',
+			'      1',
+			'       1                1',
+			'        111111111     110',
+			'                011 110',
+			'                 0010'
+		], shapes: [
+			'0            IJ  KLMOPQ',
+			'0            GH',
+			'00 J                      I',
+			'    J                    I',
+			'     J                  I',
+			'      J',
+			'       J                0',
+			'        R00N0R00R     R00',
+			'                00R R00',
+			'                 0000'
+		], variants: [
+			'0            00  000000',
+			'0            00',
+			'00 0                      0',
+			'    0                    0',
+			'     0                  0',
+			'      0',
+			'       0                0',
+			'        000000000     000',
+			'                000 000',
+			'                 0000'
+		]
 	}
 });

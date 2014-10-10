@@ -1,9 +1,11 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
+	'game/Constants',
 	'game/Grapple',
 	'game/display/SpriteLoader',
 	'game/geom/Rect'
 ], function(
+	Constants,
 	Grapple,
 	SpriteLoader,
 	Rect
@@ -556,30 +558,32 @@ define([
 			}
 		}
 
-		//render the sprite
-		this._sprite.render(ctx, Math.round(this.pos.x + this._spriteOffset.x) - camera.x, Math.round(this.pos.y + this._spriteOffset.y) - camera.y, frame, flip);
-
-		//debug rendering (hitboxes, velocity, etc)
-		/*this._boundingBox.render(ctx, camera);
-		this._topBox.render(ctx, camera);
-		this._bottomBox.render(ctx, camera);
-		this._leftBox.render(ctx, camera);
-		this._rightBox.render(ctx, camera);
-		this._upperClingBox.render(ctx, camera);
-		this._lowerClingBox.render(ctx, camera);
-		this._edgeHangBox.render(ctx, camera);
-		ctx.strokeStyle = '#00f';
-		ctx.lineWidth = 1;
-		ctx.beginPath();
-		ctx.moveTo(this.pos.x + this.width / 2 - camera.x,
-			this.pos.y + this.height / 2 - camera.y);
-		ctx.lineTo(this.pos.x + this.width / 2 - camera.x + this.vel.x / 5,
-			this.pos.y + this.height / 2 - camera.y + this.vel.y / 5);
-		ctx.stroke();
-		ctx.fillStyle = '#000';
-		ctx.font = '10px Georgia';
-		ctx.fillText("vel.x=" + Math.round(this.vel.x), this.pos.x - camera.x, this.pos.y - camera.y - 15);
-		ctx.fillText("vel.y=" + Math.round(this.vel.y), this.pos.x - camera.x, this.pos.y - camera.y - 5);*/
+		//render the player
+		if(Constants.DEBUG) {
+			this._boundingBox.render(ctx, camera);
+			this._topBox.render(ctx, camera);
+			this._bottomBox.render(ctx, camera);
+			this._leftBox.render(ctx, camera);
+			this._rightBox.render(ctx, camera);
+			this._upperClingBox.render(ctx, camera);
+			this._lowerClingBox.render(ctx, camera);
+			this._edgeHangBox.render(ctx, camera);
+			ctx.strokeStyle = '#00f';
+			ctx.lineWidth = 1;
+			ctx.beginPath();
+			ctx.moveTo(this.pos.x + this.width / 2 - camera.x,
+				this.pos.y + this.height / 2 - camera.y);
+			ctx.lineTo(this.pos.x + this.width / 2 - camera.x + this.vel.x / 5,
+				this.pos.y + this.height / 2 - camera.y + this.vel.y / 5);
+			ctx.stroke();
+			ctx.fillStyle = '#000';
+			ctx.font = '10px Georgia';
+			ctx.fillText("vel.x=" + Math.round(this.vel.x), this.pos.x - camera.x, this.pos.y - camera.y - 15);
+			ctx.fillText("vel.y=" + Math.round(this.vel.y), this.pos.x - camera.x, this.pos.y - camera.y - 5);
+		}
+		else {
+			this._sprite.render(ctx, Math.round(this.pos.x + this._spriteOffset.x) - camera.x, Math.round(this.pos.y + this._spriteOffset.y) - camera.y, frame, flip);
+		}
 	};
 	function choose(dir, option1, option2, option3) {
 		if(dir < 0) {

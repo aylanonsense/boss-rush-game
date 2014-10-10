@@ -15,7 +15,7 @@ define([
 	return function() {
 		//canvas
 		var canvas = $('<canvas width="' + Constants.WIDTH + 'px" height = "' + Constants.HEIGHT + 'px" ' +
-			'style="display:block;margin: 15Px auto;" />').appendTo(document.body);
+			'style="display:block;margin: 15px auto;" />').appendTo(document.body);
 		var ctx = canvas[0].getContext('2d');
 		var lastMousedOver = null;
 		var mouseDown = false;
@@ -146,7 +146,7 @@ define([
 		}
 		function addBlock(col, row, frameOffset) {
 			var tileType = hud.getTileType();
-			return level.tileGrid.add(new Tile(col, row, tileType.shape, tileType.sprite, tileType.frame + frameOffset));
+			return level.tileGrid.add(new Tile(col, row, tileType, frameOffset));
 		}
 		function removeBlock(col, row) {
 			level.tileGrid.remove(col, row);

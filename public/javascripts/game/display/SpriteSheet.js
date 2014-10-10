@@ -11,8 +11,8 @@ define(function() {
 		this._flipped = params.flip || false;
 
 		//init public vars
-		this.width = scale * params.spriteWidth; //width/height of one frame
-		this.height = scale * params.spriteHeight;
+		this.width = scale * params.width; //width/height of one frame
+		this.height = scale * params.height;
 		this.key = spriteKey;
 
 		//load the image

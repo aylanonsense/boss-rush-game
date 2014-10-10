@@ -1,7 +1,7 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'game/tile/Tile',
-	'game/config/level-config',
+	'game/config/tile-config',
 	'game/Constants'
 ], function(
 	Tile,
@@ -9,24 +9,26 @@ define([
 	Constants
 ) {
 	var T = Constants.TILE_SIZE;
-	function TileGrid() {
-		this._tiles = { minRow: null, maxRow: null };
+	var TILE_SYMBOL_LOOKUP = {};
+	for(var key in config) {
+		TILE_SYMBOL_LOOKUP[config[key].symbol] = config[key];
 	}
-	TileGrid.prototype.loadFromMap = function(shapes, sprites, frames) {
-		for(var r = 0; r < shapes.length; r++) {
-			for(var c = 0; c < shapes[r].length; c++) {
-				var shape = config.shapeLegend[shapes[r][c]] || null;
-				var sprite = (sprites && sprites[r] && sprites[r][c] && config.spriteLegend[sprites[r][c]]) || null;
-				var frame = (frames && frames[r] && frames[r][c] && charToFrameNum(frames[r][c])) || null;
-				if(shape) {
-					this.add(new Tile(c, r, shape, sprite, frame));
+
+	function TileGrid(tileMap, frameMap, variantMap) {
+		this._tiles = { minRow: null, maxRow: null };
+		if(tileMap) {
+			for(var r = 0; r < tileMap.length; r++) {
+				for(var c = 0; c < tileMap[r].length; c++) {
+					if(tileMap[r][c] !== ' ') {
+						var tile = TILE_SYMBOL_LOOKUP[tileMap[r][c]] || null;
+						var frame = charToNum((frameMap && frameMap[r] && frameMap[r][c]) || '0');
+						var variant = charToNum((variantMap && variantMap[r] && variantMap[r][c]) || '0');
+						this.add(new Tile(c, r, tile, frame, variant));
+					}
 				}
 			}
 		}
-	};
-	TileGrid.prototype.saveToMap = function() {
-		//TODO
-	};
+	}
 	TileGrid.prototype.get = function(col, row) {
 		return (this._tiles[row] && this._tiles[row][col]) || null;
 	};
@@ -109,7 +111,7 @@ define([
 	};
 
 	//helper functions
-	function charToFrameNum(c) {
+	function charToNum(c) {
 		var frame = c.charCodeAt(0);
 		return (frame > 64 ? frame - 55 : frame - 48);
 	}

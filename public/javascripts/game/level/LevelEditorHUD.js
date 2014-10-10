@@ -1,21 +1,22 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'game/display/SpriteLoader',
+	'game/config/tile-config',
 	'game/Constants'
 ], function(
 	SpriteLoader,
+	config,
 	Constants
 ) {
 	var HUD_WIDTH = 200;
 	var HUD_PADDING = 20;
 	var HUD_SPACING = 10;
-	var DIRT_TILE_SPRITE = SpriteLoader.loadSpriteSheet('DIRT-TILE');
 	function LevelEditorHUD() {
 		this._selectedIndex = 0;
-		this._selectables = [
-			{ sprite: DIRT_TILE_SPRITE, shape: 'box', frame: 0 },
-			{ sprite: DIRT_TILE_SPRITE, shape: 'box', frame: 3 }
-		];
+		this._selectables = [];
+		for(var key in config) {
+			this._selectables.push({ tileKey: key, sprite: SpriteLoader.loadSpriteSheet(config[key].sprite) });
+		}
 		//place tile sprites in a grid
 		var x = Constants.WIDTH - HUD_WIDTH + HUD_PADDING;
 		var y = HUD_PADDING;
@@ -50,8 +51,7 @@ define([
 				ctx.fillRect(this._selectables[i].x - 1, this._selectables[i].y - 1,
 					this._selectables[i].sprite.width + 2, this._selectables[i].sprite.height + 2);
 			}
-			this._selectables[i].sprite.render(ctx, this._selectables[i].x,
-				this._selectables[i].y, this._selectables[i].frame);
+			this._selectables[i].sprite.render(ctx, this._selectables[i].x, this._selectables[i].y, 0);
 		}
 	};
 	LevelEditorHUD.prototype.handleMouseEvent = function(evt, finishDrag) {
@@ -70,11 +70,7 @@ define([
 		return false;
 	};
 	LevelEditorHUD.prototype.getTileType = function() {
-		return {
-			shape: this._selectables[this._selectedIndex].shape,
-			sprite: this._selectables[this._selectedIndex].sprite.key,
-			frame: this._selectables[this._selectedIndex].frame
-		};
+		return config[this._selectables[this._selectedIndex].tileKey];
 	};
 	return LevelEditorHUD;
 });
