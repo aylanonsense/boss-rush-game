@@ -39,7 +39,8 @@ define([
 		function render() {
 			ctx.fillStyle = '#fff';
 			ctx.fillRect(0, 0, Constants.WIDTH, Constants.HEIGHT);
-			level.tileGrid.render(ctx, camera, true);
+			level.backgroundTileGrid.render(ctx, camera, true);
+			level.tileGrid.render(ctx, camera);
 			if(startOfDrag && lastMousedOver) {
 				ctx.strokeStyle = '#f00';
 				ctx.lineWidth = 1;
@@ -146,9 +147,22 @@ define([
 		}
 		function addBlock(col, row, frameOffset) {
 			var tileType = hud.getTileType();
-			return level.tileGrid.add(new Tile(col, row, tileType, frameOffset));
+			var frame = hud.getFrame();
+			var grid = (tileType.background ? level.backgroundTileGrid : level.tileGrid);
+			if(frameOffset !== 0) {
+				frame = 0;
+			}
+			if(typeof frame !== 'number') {
+				grid.add(new Tile(col - 1, row, tileType, frame[0]));
+				grid.add(new Tile(col, row, tileType, frame[1]));
+				grid.add(new Tile(col + 1, row, tileType, frame[2]));
+			}
+			else {
+				grid.add(new Tile(col, row, tileType, frame + frameOffset));
+			}
 		}
 		function removeBlock(col, row) {
+			level.backgroundTileGrid.remove(col, row);
 			level.tileGrid.remove(col, row);
 		}
 

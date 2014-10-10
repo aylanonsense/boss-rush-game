@@ -29,6 +29,11 @@ define([
 		this._isLeft = (rightAngleSide === 'upper-left' || rightAngleSide === 'lower-left');
 		this._color = color || '#f44';
 	}
+	Triangle.prototype.containsPoint = function(x, y) {
+		var yMin = (this._isUpper ? this._rect.y : this._line._getYWhenXIs(x));
+		var yMax = (this._isUpper ? this._line._getYWhenXIs(x) : this._rect.y + this._rect.height);
+		return (this._rect.x <= x && x <= this._rect.x + this._rect.width && yMin <= y && y <= yMax);
+	};
 	Triangle.prototype.isOverlapping = function(geom) {
 		if(!geom) {
 			return false;
@@ -62,9 +67,9 @@ define([
 			}
 		}
 	};
-	Triangle.prototype.render = function(ctx, camera) {
+	Triangle.prototype.render = function(ctx, camera, color) {
 		ctx.beginPath();
-		ctx.fillStyle = this._color;
+		ctx.fillStyle = color || this._color;
 		ctx.moveTo(this._renderPoints[2].x - camera.x, this._renderPoints[2].y - camera.y);
 		for(var i = 0; i < this._renderPoints.length; i++) {
 			ctx.lineTo(this._renderPoints[i].x - camera.x, this._renderPoints[i].y - camera.y);

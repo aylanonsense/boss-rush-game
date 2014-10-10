@@ -8,6 +8,9 @@ define(function() {
 		this.height = height;
 		this._color = color || '#f44';
 	}
+	Rect.prototype.containsPoint = function(x, y) {
+		return (this.x <= x && x <= this.x + this.width && this.y <= y && y <= this.y + this.height);
+	};
 	Rect.prototype.isOverlapping = function(geom) {
 		if(!geom) {
 			return false;
@@ -39,8 +42,8 @@ define(function() {
 			return false;
 		}
 	};
-	Rect.prototype.render = function(ctx, camera) {
-		ctx.fillStyle = this._color;
+	Rect.prototype.render = function(ctx, camera, color) {
+		ctx.fillStyle = color || this._color;
 		ctx.fillRect(this.x - camera.x, this.y - camera.y, this.width, this.height);
 	};
 	return Rect;

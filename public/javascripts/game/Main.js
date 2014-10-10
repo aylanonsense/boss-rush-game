@@ -61,6 +61,7 @@ define([
 		function render() {
 			ctx.fillStyle = '#fff';
 			ctx.fillRect(0, 0, Constants.WIDTH, Constants.HEIGHT);
+			level.backgroundTileGrid.render(ctx, camera);
 			level.tileGrid.render(ctx, camera);
 			for(var i = 0; i < grapples.length; i++) {
 				if(!grapples[i].isDead) {
