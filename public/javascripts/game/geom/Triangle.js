@@ -58,9 +58,10 @@ define([
 			}
 			//there's only aoverlap if the point on thre rectangle is "below" the point on the line
 			if((this._isUpper && yRect <= yLine) || (!this._isUpper && yRect >= yLine)) {
+				var xLine = this._line._getXWhenYIs(yRect);
 				return {
-					left: this._rect.x,
-					right: this._rect.x + this._rect.width,
+					left: (!this._isLeft && xLine !== null ? xLine : this._rect.x),
+					right: (this._isLeft && xLine !== null ? xLine : this._rect.x + this._rect.width),
 					top: (this._isUpper ? this._rect.y : yLine),
 					bottom: (this._isUpper ? yLine : this._rect.y + this._rect.height)
 				};

@@ -13,8 +13,9 @@ define(function() {
 		//we pre-calculate a lot of data to make it easier to detect intersections
 		var dx = end.x - start.x;
 		var dy = end.y - start.y;
-		//line segments with a length of zero are a special case that is easy to handle
-		this._isSinglePoint = (dx === 0 && dy === 0);
+		var squareDist = dx * dx + dy * dy;
+		//line segments with a length of zero (or close to it) are a special case that is easy to handle
+		this._isSinglePoint = (dx === 0 && dy === 0) || squareDist < 0.00001;
 		if(!this._isSinglePoint) {
 			//vertical lines can't be defined in terms of y=mx+b, so we we do x=my+b instead
 			if(dx === 0) {
@@ -86,6 +87,9 @@ define(function() {
 		}
 		else if(geom._geomType === 'triangle') {
 			return this._isCrossingTriangle(geom);
+		}
+		else if(geom._geomType === 'multi') {
+			return this._isCrossingMulti(geom);
 		}
 		else {
 			throw new Error("Unsure how to test whether line is crossing '" + geom._geomType + "'");
@@ -214,6 +218,25 @@ define(function() {
 			}
 			return earliestIntersection;
 		}
+	};
+	Line.prototype._isCrossingMulti = function(multi) {
+		var intersections = [];
+		for(var i = 0; i < multi._geoms.length; i++) {
+			var intersection = this.isCrossing(multi._geoms[i]);
+			if(intersection) {
+				intersections.push(intersection);
+			}
+		}
+		var earliestIntersection = null;
+		for(i = 0; i < intersections.length; i++) {
+			var dx = intersections[i].x - this._start.x;
+			var dy = intersections[i].y - this._start.y;
+			intersections[i].squareDist = dx * dx + dy * dy;
+			if(earliestIntersection === null || intersections[i].squareDist < earliestIntersection.squareDist) {
+				earliestIntersection = intersections[i];
+			}
+		}
+		return earliestIntersection;
 	};
 	Line.prototype.render = function(ctx, camera) {
 		ctx.strokeStyle = this._color;

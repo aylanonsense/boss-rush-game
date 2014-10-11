@@ -41,7 +41,7 @@ define([
 		}
 	};
 	Grapple.prototype.move = function() {
-			if(!this.isDead) {
+		if(!this.isDead) {
 			if(!this.isLatched) {
 				if(this._isExtending) {
 					this.pos.prev.x = this.pos.x;

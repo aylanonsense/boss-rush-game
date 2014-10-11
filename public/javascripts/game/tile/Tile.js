@@ -3,11 +3,13 @@ define([
 	'game/Constants',
 	'game/geom/Rect',
 	'game/geom/Triangle',
+	'game/geom/Multi',
 	'game/display/SpriteLoader'
 ], function(
 	Constants,
 	Rect,
 	Triangle,
+	Multi,
 	SpriteLoader
 ) {
 	var T = Constants.TILE_SIZE; //for convenience
@@ -43,11 +45,17 @@ define([
 		}
 		else if(frame === 21) { //2nd part of /| ramp
 			this.walkSlope = 1 / 3;
-			this._shape = new Triangle(T * this.col, T * (this.row + 1 / 3), T, T / 3, 'lower-right', '#000');
+			this._shape = new Multi([
+				new Triangle(T * this.col, T * (this.row + 1 / 3), T, T / 3, 'lower-right', '#000'),
+				new Rect(T * this.col, T * (this.row + 2 / 3), T, T / 3, '#000')
+			]);
 		}
 		else if(frame === 22) { //3rd part of /| ramp
 			this.walkSlope = 1 / 3;
-			this._shape = new Triangle(T * this.col, T * this.row, T, T / 3, 'lower-right', '#000');
+			this._shape = new Multi([
+				new Triangle(T * this.col, T * this.row, T, T / 3, 'lower-right', '#000'),
+				new Rect(T * this.col, T * (this.row + 1 / 3), T, T * 2 / 3, 'lower-right', '#000')
+			]);
 		}
 		else if(frame === 26) { //1st part of |\ ramp
 			this.walkSlope = -1 / 3;
@@ -55,11 +63,17 @@ define([
 		}
 		else if(frame === 25) { //2nd part of |\ ramp
 			this.walkSlope = -1 / 3;
-			this._shape = new Triangle(T * this.col, T * (this.row + 1 / 3), T, T / 3, 'lower-left', '#000');
+			this._shape = new Multi([
+				new Triangle(T * this.col, T * (this.row + 1 / 3), T, T / 3, 'lower-left', '#000'),
+				new Rect(T * this.col, T * (this.row + 2 / 3), T, T / 3, '#000')
+			]);
 		}
 		else if(frame === 24) { //3rd part of |\ ramp
 			this.walkSlope = -1 / 3;
-			this._shape = new Triangle(T * this.col, T * this.row, T, T / 3, 'lower-left', '#000');
+			this._shape = new Multi([
+				new Triangle(T * this.col, T * this.row, T, T / 3, 'lower-left', '#000'),
+				new Rect(T * this.col, T * (this.row + 1 / 3), T, T * 2 / 3, 'lower-right', '#000')
+			]);
 		}
 		else { //box
 			this._shape = new Rect(T * this.col, T * this.row, T, T, '#000');
