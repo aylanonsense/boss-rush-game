@@ -151,18 +151,22 @@ define([
 		}
 		function addBlock(col, row, frameOffset) {
 			var tileType = hud.getTileType();
-			var frame = hud.getFrame();
+			var frame = (frameOffset === 0 ? hud.getFrame() : 0);
+			var variant = Math.floor(tileType.variants * Math.random());
 			var grid = (tileType.background ? level.backgroundTileGrid : level.tileGrid);
-			if(frameOffset !== 0) {
-				frame = 0;
+			var currentTile = grid.get(col, row);
+			if(currentTile) {
+				var v = (currentTile.variant || currentTile.tileType.variants === 1 ? 0 :
+					1 + Math.floor(Math.random() * (currentTile.tileType.variants - 1)));
+				grid.add(new Tile(col, row, currentTile.tileType, currentTile.frame, v));
 			}
-			if(typeof frame !== 'number') {
+			else if(typeof frame === 'number') {
+				grid.add(new Tile(col, row, tileType, frame + frameOffset));
+			}
+			else {
 				grid.add(new Tile(col - 1, row, tileType, frame[0]));
 				grid.add(new Tile(col, row, tileType, frame[1]));
 				grid.add(new Tile(col + 1, row, tileType, frame[2]));
-			}
-			else {
-				grid.add(new Tile(col, row, tileType, frame + frameOffset));
 			}
 		}
 		function removeBlock(col, row) {

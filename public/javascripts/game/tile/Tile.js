@@ -18,7 +18,7 @@ define([
 		this.row = row;
 		this.tileType = tileType;
 		this.frame = frame;
-		this.variant = variant;
+		this.variant = variant || 0;
 		this.walkSlope = 0;
 		var shapeKey = 'box';
 		//select the correct shape to represent the tile
@@ -84,7 +84,7 @@ define([
 		//intialize display vars (spritesheet)
 		if(tileType && tileType.sprite) {
 			this._sprite = SpriteLoader.loadSpriteSheet(tileType.sprite);
-			this._frame = (frame || 0) + 28 * (variant || 0);
+			this._frame = (frame || 0) + 28 * this.variant;
 		}
 	}
 	Tile.prototype.isOverlapping = function(geom) {

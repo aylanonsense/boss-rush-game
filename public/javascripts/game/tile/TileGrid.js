@@ -33,7 +33,7 @@ define([
 		var minCol = null;
 		for(var r = this._tiles.minRow; r <= this._tiles.maxRow; r++) {
 			if(this._tiles[r] && (minCol === null || this._tiles[r].minCol < minCol)) {
-				minCol = this._tiles[r].minCol
+				minCol = this._tiles[r].minCol;
 			}
 		}
 		var tileMap = [];
