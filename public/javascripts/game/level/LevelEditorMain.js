@@ -24,7 +24,7 @@ define([
 		var hudIsHandlingMouseEvent = false;
 
 		//init stuff
-		var camera = { x: 0, y: -Math.floor(Constants.HEIGHT / 4) };
+		var camera = { x: 0, y: 0 };
 		var level = new Level();
 		var hud = new LevelEditorHUD();
 
@@ -60,9 +60,13 @@ define([
 			DOWN: 83, //S
 			RIGHT: 68 //D
 		};
+		var EXPORT_KEY = 69; //E
 		$(document).on('keydown', function(evt) {
 			if(!keys[evt.which]) {
 				keys[evt.which] = true;
+				if(evt.which === EXPORT_KEY) {
+					exportMap();
+				}
 			}
 		});
 		$(document).on('keyup', function(evt) {
@@ -164,6 +168,32 @@ define([
 		function removeBlock(col, row) {
 			level.backgroundTileGrid.remove(col, row);
 			level.tileGrid.remove(col, row);
+		}
+		function exportMap() {
+			console.log("\t\tforeground: {\n" +
+				exportTileGrid(level.tileGrid) +
+				"\n\t\t}, " +
+				"\n\t\tbackground: {\n" +
+				exportTileGrid(level.backgroundTileGrid) +
+				"\n\t\t}");
+		}
+		function exportTileGrid(tileGrid) {
+			var symbols = tileGrid.toSymbolMaps();
+			var indent = "\t\t\t";
+			var s = indent + "tiles: [";
+			for(var i = 0; i < symbols.tiles.length; i++) {
+				s += (i > 0 ? "," : "") + "\n" + indent + "\t'" + symbols.tiles[i] + "'";
+			}
+			s += "\n" + indent + "], shapes: [";
+			for(i = 0; i < symbols.shapes.length; i++) {
+				s += (i > 0 ? "," : "") + "\n" + indent + "\t'" + symbols.shapes[i] + "'";
+			}
+			s += "\n" + indent + "], variants: [";
+			for(i = 0; i < symbols.variants.length; i++) {
+				s += (i > 0 ? "," : "") + "\n" + indent + "\t'" + symbols.variants[i] + "'";
+			}
+			s += "\n" + indent + "]";
+			return s;
 		}
 
 		//set up animation frame functionality

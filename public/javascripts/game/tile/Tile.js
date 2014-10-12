@@ -13,9 +13,12 @@ define([
 	SpriteLoader
 ) {
 	var T = Constants.TILE_SIZE; //for convenience
-	function Tile(col, row, tile, frame, variant) {
+	function Tile(col, row, tileType, frame, variant) {
 		this.col = col;
 		this.row = row;
+		this.tileType = tileType;
+		this.frame = frame;
+		this.variant = variant;
 		this.walkSlope = 0;
 		var shapeKey = 'box';
 		//select the correct shape to represent the tile
@@ -79,8 +82,8 @@ define([
 			this._shape = new Rect(T * this.col, T * this.row, T, T, '#000');
 		}
 		//intialize display vars (spritesheet)
-		if(tile && tile.sprite) {
-			this._sprite = SpriteLoader.loadSpriteSheet(tile.sprite);
+		if(tileType && tileType.sprite) {
+			this._sprite = SpriteLoader.loadSpriteSheet(tileType.sprite);
 			this._frame = (frame || 0) + 28 * (variant || 0);
 		}
 	}

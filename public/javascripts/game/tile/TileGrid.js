@@ -29,6 +29,40 @@ define([
 			}
 		}
 	}
+	TileGrid.prototype.toSymbolMaps = function() {
+		var minCol = null;
+		for(var r = this._tiles.minRow; r <= this._tiles.maxRow; r++) {
+			if(this._tiles[r] && (minCol === null || this._tiles[r].minCol < minCol)) {
+				minCol = this._tiles[r].minCol
+			}
+		}
+		var tileMap = [];
+		var frameMap = [];
+		var variantMap = [];
+		for(r = this._tiles.minRow; r <= this._tiles.maxRow; r++) {
+			var tileMapLine = '';
+			var frameMapLine = '';
+			var variantMapLine = '';
+			if(this._tiles[r]) {
+				for(var c = minCol; c <= this._tiles[r].maxCol; c++) {
+					if(this._tiles[r][c]) {
+						tileMapLine += this._tiles[r][c].tileType.symbol;
+						frameMapLine += numToChar(this._tiles[r][c].frame);
+						variantMapLine += numToChar(this._tiles[r][c].variant || 0);
+					}
+					else {
+						tileMapLine += ' ';
+						frameMapLine += ' ';
+						variantMapLine += ' ';
+					}
+				}
+			}
+			tileMap.push(tileMapLine);
+			frameMap.push(frameMapLine);
+			variantMap.push(variantMapLine);
+		}
+		return { tiles: tileMap, shapes: frameMap, variants: variantMap };
+	};
 	TileGrid.prototype.get = function(col, row) {
 		return (this._tiles[row] && this._tiles[row][col]) || null;
 	};
@@ -115,7 +149,7 @@ define([
 		var frame = c.charCodeAt(0);
 		return (frame > 64 ? frame - 55 : frame - 48);
 	}
-	function frameNumToChar(frame) {
+	function numToChar(frame) {
 		return String.fromCharCode((frame > 9 ? frame + 55 : frame + 48));
 	}
 
