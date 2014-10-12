@@ -176,7 +176,7 @@ define([
 		function exportMap() {
 			console.log("\t\tforeground: {\n" +
 				exportTileGrid(level.tileGrid) +
-				"\n\t\t}, " +
+				"\n\t\t}," +
 				"\n\t\tbackground: {\n" +
 				exportTileGrid(level.backgroundTileGrid) +
 				"\n\t\t}");

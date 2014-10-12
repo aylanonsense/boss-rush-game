@@ -40,7 +40,7 @@ define(function() {
 	};
 	Multi.prototype.render = function(ctx, camera, color) {
 		for(var i = 0; i < this._geoms.length; i++) {
-			this._geoms[i].render(ctx, camera,color);
+			this._geoms[i].render(ctx, camera, color);
 		}
 	};
 	return Multi;

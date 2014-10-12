@@ -238,11 +238,13 @@ define(function() {
 		}
 		return earliestIntersection;
 	};
-	Line.prototype.render = function(ctx, camera) {
-		ctx.strokeStyle = this._color;
-		ctx.lineWidth = 1;
+	Line.prototype.render = function(ctx, camera, color, lineWidth) {
+		ctx.strokeStyle = color || this._color;
+		ctx.lineWidth = lineWidth || 1;
+		ctx.beginPath();
 		ctx.moveTo(this._start.x - camera.x, this._start.y - camera.y);
 		ctx.lineTo(this._end.x - camera.x, this._end.y - camera.y);
+		ctx.stroke();
 	};
 	return Line;
 });
