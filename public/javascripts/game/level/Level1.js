@@ -17,7 +17,7 @@ define([
 			config.LEVEL_1.background.shapes,
 			config.LEVEL_1.background.variants
 		);
-		this.playerStartPoint = { x: 300, y: -100 };
+		this.playerStartPoint = { x: 100, y: 150 };
 	}
 	return Level1;
 });

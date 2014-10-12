@@ -8,7 +8,7 @@ define({
 	GREEK_LIGHT_GRASS: {
 		symbol: '1',
 		sprite: 'GREEK_LIGHT_GRASS',
-		variants: 1
+		variants: 3
 	},
 	GREEK_DARK_DIRT: {
 		symbol: '2',
@@ -19,7 +19,7 @@ define({
 	GREEK_DARK_GRASS: {
 		symbol: '3',
 		sprite: 'GREEK_DARK_GRASS',
-		variants: 1,
+		variants: 3,
 		oneWayPlatform: true
 	}
 });

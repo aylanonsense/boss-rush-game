@@ -6,8 +6,7 @@ define({
 		height: 24,
 		scale: 2,
 		flip: true,
-		loadingColor: '#1dc02c',
-		replacements: { '#0b85ff': '#ff1515', '#195899': '#770300' }
+		loadingColor: '#0b85ff'
 	},
 	GREEK_LIGHT_DIRT: {
 		imagePath: '/image/tile/greek_light_dirt.gif',
@@ -23,7 +22,7 @@ define({
 		height: 16,
 		scale: 2,
 		flip: false,
-		loadingColor: '#00b386'
+		loadingColor: '#e4bb6a'
 	},
 	GREEK_DARK_DIRT: {
 		imagePath: '/image/tile/greek_light_dirt.gif',
@@ -35,12 +34,13 @@ define({
 		replacements: { '#eacb8e': '#cc9763', '#e4bb6a': '#bd8753', '#cca666': '#b37f51' }
 	},
 	GREEK_DARK_GRASS: {
-		imagePath: '/image/tile/greek_dark_grass.gif',
+		imagePath: '/image/tile/greek_light_grass.gif',
 		width: 16,
 		height: 16,
 		scale: 2,
 		flip: false,
-		loadingColor: '#00b386'
+		loadingColor: '#bd8753',
+		replacements: { '#eacb8e': '#cc9763', '#e4bb6a': '#bd8753', '#cca666': '#b37f51' }
 	}
 });
 //SILVER star status!

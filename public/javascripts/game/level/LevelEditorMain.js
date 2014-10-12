@@ -182,7 +182,9 @@ define([
 				"\n\t\t}");
 		}
 		function exportTileGrid(tileGrid) {
-			var symbols = tileGrid.toSymbolMaps();
+			var minCol = Math.min(level.tileGrid.getMinCol(), level.backgroundTileGrid.getMinCol());
+			var minRow = Math.min(level.tileGrid.getMinRow(), level.backgroundTileGrid.getMinRow());
+			var symbols = tileGrid.toSymbolMaps(minCol, minRow);
 			var indent = "\t\t\t";
 			var s = indent + "tiles: [";
 			for(var i = 0; i < symbols.tiles.length; i++) {

@@ -29,22 +29,28 @@ define([
 			}
 		}
 	}
-	TileGrid.prototype.toSymbolMaps = function() {
+	TileGrid.prototype.getMinCol = function() {
 		var minCol = null;
 		for(var r = this._tiles.minRow; r <= this._tiles.maxRow; r++) {
 			if(this._tiles[r] && (minCol === null || this._tiles[r].minCol < minCol)) {
 				minCol = this._tiles[r].minCol;
 			}
 		}
+		return minCol;
+	};
+	TileGrid.prototype.getMinRow = function() {
+		return this._tiles.minRow;
+	};
+	TileGrid.prototype.toSymbolMaps = function(startingCol, startingRow) {
 		var tileMap = [];
 		var frameMap = [];
 		var variantMap = [];
-		for(r = this._tiles.minRow; r <= this._tiles.maxRow; r++) {
+		for(r = startingRow; r <= this._tiles.maxRow; r++) {
 			var tileMapLine = '';
 			var frameMapLine = '';
 			var variantMapLine = '';
 			if(this._tiles[r]) {
-				for(var c = minCol; c <= this._tiles[r].maxCol; c++) {
+				for(var c = startingCol; c <= this._tiles[r].maxCol; c++) {
 					if(this._tiles[r][c]) {
 						tileMapLine += this._tiles[r][c].tileType.symbol;
 						frameMapLine += numToChar(this._tiles[r][c].frame);
