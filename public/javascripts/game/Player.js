@@ -127,6 +127,8 @@ define([
 	};
 	Player.prototype.planMovement = function(dirX, dirY) {
 		this._moveDir = { x: dirX, y: dirY };
+		this.pos.prev.x = this.pos.x;
+		this.pos.prev.y = this.pos.y;
 		var dir, speed, acc, dec, movement, isMovingAboveTopSpeed, maxSpeed;
 		//while edge hanging we just do not move
 		if(this._isEdgeHanging) {
@@ -261,7 +263,11 @@ define([
 		//set the player's final move position for this timestep (may be altered by external forces)
 		this._finalPos = { x: this.pos.x + this.vel.x / 60, y: this.pos.y + this.vel.y / 60 };
 		if(this._lastFrameWalkTile) {
-			this._finalPos.y += this._lastFrameWalkTile.walkSlope * (this.pos.x - this._finalPos.x) + 0.5;
+			this._heightChangeDueToWalkSlope = this._lastFrameWalkTile.walkSlope * (this.pos.x - this._finalPos.x);
+			this._finalPos.y += this._heightChangeDueToWalkSlope + 0.5;
+		}
+		else {
+			this._heightChangeDueToWalkSlope = 0;
 		}
 		this._isAirborne = true;
 		this._isSwingingOnGrapple = false;
@@ -295,64 +301,71 @@ define([
 			return;
 		}
 		tiles.forEachNearby(this._boundingBox, function(tile) {
-			intersection = tile.isOverlapping(self._topBox);
-			if(intersection) {
-				self.pos.y = intersection.bottom;
-				if(self.vel.y < 0) {
-					self.vel.y = 0;
-					self._finalPos.y = self.pos.y;
+			if(!tile.oneWayPlatform) {
+				intersection = tile.isOverlapping(self._topBox);
+				if(intersection) {
+					self.pos.y = intersection.bottom;
+					if(self.vel.y < 0) {
+						self.vel.y = 0;
+						self._finalPos.y = self.pos.y;
+					}
+					if(self._isWallClinging) {
+						self._facing *= -1;
+						self._isWallClinging = false;
+					}
+					self._recalculateCollisionBoxes();
 				}
-				if(self._isWallClinging) {
-					self._facing *= -1;
-					self._isWallClinging = false;
-				}
-				self._recalculateCollisionBoxes();
 			}
 			intersection = tile.isOverlapping(self._bottomBox);
 			if(intersection) {
-				self.pos.y = intersection.top - self.height;
-				if(self.vel.y > 0) {
-					if(self._isLegitAirborne && LANDING_VEL_TO_NEUTRALIZE >= self.vel.x && self.vel.x >= -LANDING_VEL_TO_NEUTRALIZE) {
-						if(self._moveDir.x === 0 || (self._moveDir.x > 0) !== (self.vel.x > 0)) {
-							self.vel.x = 0;
+				if(!tile.oneWayPlatform || (self.vel.y >= 0 &&
+					self.pos.prev.y + self.height - 15.5 + (self._heightChangeDueToWalkSlope > 0 ? 0 : self._heightChangeDueToWalkSlope) <= intersection.top)) {
+					self.pos.y = intersection.top - self.height;
+					if(self.vel.y > 0) {
+						if(self._isLegitAirborne && LANDING_VEL_TO_NEUTRALIZE >= self.vel.x && self.vel.x >= -LANDING_VEL_TO_NEUTRALIZE) {
+							if(self._moveDir.x === 0 || (self._moveDir.x > 0) !== (self.vel.x > 0)) {
+								self.vel.x = 0;
+							}
+							self._finalPos.x = self.pos.x;
 						}
-						self._finalPos.x = self.pos.x;
+						self.vel.y = 0;
+						self._finalPos.y = self.pos.y;
+						self._isAirborne = false;
+						self._isLegitAirborne = false;
+						self._lastFrameWalkTile = tile;
 					}
-					self.vel.y = 0;
-					self._finalPos.y = self.pos.y;
-					self._isAirborne = false;
-					self._isLegitAirborne = false;
-					self._lastFrameWalkTile = tile;
-				}
-				if(self._isWallClinging) {
-					self._facing *= -1;
-					self._isWallClinging = false;
-				}
-				self._recalculateCollisionBoxes();
-				if(self._isTryingToJump) {
-					self._isTryingToJump = false;
-					self.vel.y = -JUMP_SPEED;
+					if(self._isWallClinging) {
+						self._facing *= -1;
+						self._isWallClinging = false;
+					}
+					self._recalculateCollisionBoxes();
+					if(self._isTryingToJump) {
+						self._isTryingToJump = false;
+						self.vel.y = -JUMP_SPEED;
+					}
 				}
 			}
 		});
 		tiles.forEachNearby(this._boundingBox, function(tile) {
-			intersection = tile.isOverlapping(self._leftBox);
-			if(intersection) {
-				self.pos.x = intersection.right;
-				if(self.vel.x < 0) {
-					self.vel.x = 0;
-					self._finalPos.x = self.pos.x;
+			if(!tile.oneWayPlatform) {
+				intersection = tile.isOverlapping(self._leftBox);
+				if(intersection) {
+					self.pos.x = intersection.right;
+					if(self.vel.x < 0) {
+						self.vel.x = 0;
+						self._finalPos.x = self.pos.x;
+					}
+					self._recalculateCollisionBoxes();
 				}
-				self._recalculateCollisionBoxes();
-			}
-			intersection = tile.isOverlapping(self._rightBox);
-			if(intersection) {
-				self.pos.x = intersection.left - self.width;
-				if(self.vel.x > 0) {
-					self.vel.x = 0;
-					self._finalPos.x = self.pos.x;
+				intersection = tile.isOverlapping(self._rightBox);
+				if(intersection) {
+					self.pos.x = intersection.left - self.width;
+					if(self.vel.x > 0) {
+						self.vel.x = 0;
+						self._finalPos.x = self.pos.x;
+					}
+					self._recalculateCollisionBoxes();
 				}
-				self._recalculateCollisionBoxes();
 			}
 		});
 		var isClingingToUpperClingBox = false;
@@ -360,16 +373,18 @@ define([
 		var edgeHangBoxCollision = false;
 		var upperClingIntersection = null;
 		tiles.forEachNearby(this._boundingBox, function(tile) {
-			intersection = tile.isOverlapping(self._upperClingBox);
-			if(intersection) {
-				isClingingToUpperClingBox = true;
-				upperClingIntersection = intersection;
-			}
-			if(tile.isOverlapping(self._lowerClingBox)) {
-				isClingingToLowerClingBox = true;
-			}
-			if(tile.isOverlapping(self._edgeHangBox)) {
-				edgeHangBoxCollision = true;
+			if(!tile.oneWayPlatform) {
+				intersection = tile.isOverlapping(self._upperClingBox);
+				if(intersection) {
+					isClingingToUpperClingBox = true;
+					upperClingIntersection = intersection;
+				}
+				if(tile.isOverlapping(self._lowerClingBox)) {
+					isClingingToLowerClingBox = true;
+				}
+				if(tile.isOverlapping(self._edgeHangBox)) {
+					edgeHangBoxCollision = true;
+				}
 			}
 		});
 		if(isClingingToUpperClingBox && isClingingToLowerClingBox) {
@@ -561,10 +576,10 @@ define([
 		//render the player
 		if(Constants.DEBUG) {
 			this._boundingBox.render(ctx, camera);
-			this._topBox.render(ctx, camera);
-			this._bottomBox.render(ctx, camera);
 			this._leftBox.render(ctx, camera);
 			this._rightBox.render(ctx, camera);
+			this._topBox.render(ctx, camera);
+			this._bottomBox.render(ctx, camera);
 			this._upperClingBox.render(ctx, camera);
 			this._lowerClingBox.render(ctx, camera);
 			this._edgeHangBox.render(ctx, camera);
