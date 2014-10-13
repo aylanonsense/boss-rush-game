@@ -63,7 +63,10 @@ define([
 			ctx.fillRect(0, 0, Constants.WIDTH, Constants.HEIGHT);
 			level.backgroundTileGrid.render(ctx, camera);
 			level.tileGrid.render(ctx, camera);
-			for(var i = 0; i < grapples.length; i++) {
+			for(var i = 0; i < level.obstacles.length; i++) {
+				level.obstacles[i].render(ctx, camera);
+			}
+			for(i = 0; i < grapples.length; i++) {
 				if(!grapples[i].isDead) {
 					grapples[i].render(ctx, camera);
 				}

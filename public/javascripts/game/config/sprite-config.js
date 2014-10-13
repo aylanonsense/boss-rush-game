@@ -41,6 +41,14 @@ define({
 		flip: false,
 		loadingColor: '#bd8753',
 		replacements: { '#eacb8e': '#cc9763', '#e4bb6a': '#bd8753', '#cca666': '#b37f51' }
+	},
+	GREEK_OBSTACLES: {
+		imagePath: '/image/greek_obstacles.gif',
+		width: 24,
+		height: 60,
+		scale: 2,
+		flip: false,
+		loadingColor: '#f1a597'
 	}
 });
 //SILVER star status!
