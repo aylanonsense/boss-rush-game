@@ -49,6 +49,14 @@ define({
 		scale: 2,
 		flip: false,
 		loadingColor: '#f1a597'
+	},
+	FROZEN_KING: {
+		imagePath: '/image/frozen_king.gif',
+		width: 32,
+		height: 32,
+		scale: 8,
+		flip: true,
+		loadingColor: '#00f'
 	}
 });
 //SILVER star status!

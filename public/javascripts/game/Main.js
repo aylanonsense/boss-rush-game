@@ -3,11 +3,13 @@ define([
 	'jquery',
 	'game/Player',
 	'game/Constants',
+	'game/actor/FrozenKing',
 	'game/level/Level1'
 ], function(
 	$,
 	Player,
 	Constants,
+	FrozenKing,
 	Level
 ) {
 	return function() {
@@ -19,7 +21,7 @@ define([
 		//init stuff
 		var player = new Player(0, 0);
 		var grapples = [];
-		var camera = { x: 0, y: 0 };
+		var camera = { x: 9, y: 59 };
 		var level = new Level();
 		player.pos.x = level.playerStartPoint.x;
 		player.pos.y = level.playerStartPoint.y;
@@ -54,12 +56,13 @@ define([
 			player.tick();
 
 			//the camera adjusts to follow the player
-			camera.x = Math.round(player.pos.x - Constants.WIDTH / 2);
-			camera.y = Math.round(player.pos.y - Constants.HEIGHT / 2 - 0.12 * Constants.HEIGHT);
+			//camera.x = Math.round(player.pos.x - Constants.WIDTH / 2);
+			//camera.y = Math.round(player.pos.y - Constants.HEIGHT / 2 - 0.12 * Constants.HEIGHT);
 		}
 
+		var king = new FrozenKing();
 		function render() {
-			ctx.fillStyle = '#fff';
+			ctx.fillStyle = '#000';
 			ctx.fillRect(0, 0, Constants.WIDTH, Constants.HEIGHT);
 			level.backgroundTileGrid.render(ctx, camera);
 			level.tileGrid.render(ctx, camera);
@@ -72,6 +75,7 @@ define([
 				}
 			}
 			player.render(ctx, camera);
+			king.render(ctx, camera);
 		}
 
 		//add input bindings
