@@ -1,60 +1,57 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(function() {
 	function SpriteSheet(params, spriteKey) {
-		var self = this;
-		var scale = params.scale || 1;
-
 		//init private vars
 		this._canvas = null;
 		this._loaded = false;
+		this._scale = params.scale || 1;
 		this._preLoadedColor = params.loadingColor || '#000';
 		this._flipped = params.flip || false;
+		this._replacements = params.replacements || null;
+		this._crop = params.crop || null;
 
 		//init public vars
-		this.width = scale * params.width; //width/height of one frame
-		this.height = scale * params.height;
+		this.width = this._scale * params.width; //width of one frame
+		this.height = this._scale * params.height; //height of one frame
 		this.key = spriteKey;
-
-		//load the image
-		var img = new Image();
-		img.onload = function() {
-			//plop the image onto a canvas
-			var tempCanvas = document.createElement('canvas');
-			tempCanvas.width = img.width;
-			tempCanvas.height = img.height;
-			var tempCtx = tempCanvas.getContext('2d');
-			tempCtx.drawImage(img, 0, 0);
-			//create another canvas, scaled as needed
-			self._canvas = document.createElement('canvas');
-			self._canvas.width = scale * img.width;
-			self._canvas.height = scale * img.height * (self._flipped ? 2 : 1);
-			var ctx = self._canvas.getContext('2d');
-			//transfer image data from the first canvas onto the scaled canvas
-			var imageData = tempCtx.getImageData(0, 0, img.width, img.height).data;
-			var i = 0;
-			for(var y = 0; y < img.height; y++) {
-				for(var x = 0; x < img.width; x++) {
-					//fill the scaled pixel
-					var r = imageData[i++], g = imageData[i++], b = imageData[i++], a = imageData[i++] / 100.0;
-					ctx.fillStyle = 'rgba(' + [r, g, b, a].join(',') + ')';
-					if(params.replacements) {
-						var hex = rgbToHex(r, g, b);
-						if(params.replacements[hex]) {
-							ctx.fillStyle = params.replacements[hex];
-						}
-					}
-					ctx.fillRect(scale * x, scale * y, scale, scale);
-					if(self._flipped) {
-						//fill the flipped pixel too
-						ctx.fillRect(self._canvas.width - scale * (x + 1),
-							self._canvas.height / 2 + scale * y, scale, scale);
+	}
+	SpriteSheet.prototype.onImageLoaded = function(imageData, imageWidth, imageHeight) {
+		//we need to adjust things if the image is cropped
+		var minX = (this._crop && this._crop.x) || 0;
+		var minY = (this._crop && this._crop.y) || 0;
+		var maxX = (this._crop && this._crop.x + this._crop.width) || imageWidth;
+		var maxY = (this._crop && this._crop.y + this._crop.height) || imageHeight;
+		var width = (this._crop && this._crop.width) || imageWidth;
+		var height = (this._crop && this._crop.height) || imageHeight;
+		//create another canvas, scaled as needed
+		this._canvas = document.createElement('canvas');
+		this._canvas.width = this._scale * width;
+		this._canvas.height = this._scale * height * (this._flipped ? 2 : 1);
+		var ctx = this._canvas.getContext('2d');
+		//transfer image data from the first canvas onto the scaled canvas
+		var i = 4 * (minY * imageWidth + minX);
+		for(var y = minY; y < maxY; y++) {
+			for(var x = minX; x < maxX; x++) {
+				//fill the scaled pixel
+				var r = imageData[i++], g = imageData[i++], b = imageData[i++], a = imageData[i++] / 100.0;
+				ctx.fillStyle = 'rgba(' + [r, g, b, a].join(',') + ')';
+				if(this._replacements) {
+					var hex = rgbToHex(r, g, b);
+					if(this._replacements[hex]) {
+						ctx.fillStyle = this._replacements[hex];
 					}
 				}
+				ctx.fillRect(this._scale * (x - minX), this._scale * (y - minY), this._scale, this._scale);
+				if(this._flipped) {
+					//fill the flipped pixel too
+					ctx.fillRect(this._canvas.width - this._scale * (x - minX + 1),
+						this._canvas.height / 2 + this._scale * (y - minY), this._scale, this._scale);
+				}
 			}
-			self._loaded = true;
-		};
-		img.src = params.imagePath;
-	}
+			i += 4 * (imageWidth - width);
+		}
+		this._loaded = true;
+	};
 	SpriteSheet.prototype.render = function(ctx, x, y, frame, flip) {
 		if(this._loaded) {
 			var numCols = this._canvas.width / this.width;

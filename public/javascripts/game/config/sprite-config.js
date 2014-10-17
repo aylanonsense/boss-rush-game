@@ -8,6 +8,15 @@ define({
 		flip: true,
 		loadingColor: '#0b85ff'
 	},
+	BEE: {
+		imagePath: '/image/flower_power.gif',
+		width: 10,
+		height: 8,
+		scale: 4,
+		flip: true,
+		crop: { x: 39, y: 6, width: 30, height: 8 },
+		loadingColor: '#fff200'
+	},
 	GREEK_LIGHT_DIRT: {
 		imagePath: '/image/tile/greek_light_dirt.gif',
 		width: 16,
