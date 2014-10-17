@@ -1,16 +1,20 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'game/actor/Bee',
+	'game/detail/Widget',
 	'game/tile/TileGrid',
 	'game/config/level-config'
 ], function(
 	Bee,
+	Widget,
 	TileGrid,
 	levelConfig
 ) {
 	function BlandLevel() {
 		this.backgroundColor = '#222';
 		this.player = new Bee(this);
+		this.player.pos.x = 300;
+		this.player.pos.y = 415;
 		this.backgroundTileGrid = new TileGrid(
 			levelConfig.LEVEL_1.background.tiles,
 			levelConfig.LEVEL_1.background.shapes,
@@ -23,7 +27,13 @@ define([
 		);
 		this.obstacles = [];
 		this.actors = [ new Bee(this) ];
-		this.widgets = [];
+		this.actors[0].pos.x = 400;
+		this.actors[0].pos.y = 100;
+		this.widgets = [
+			new Widget('FLOWER', 100, 489, 1),
+			new Widget('FLOWER', 410, 392, 1),
+			new Widget('FLOWER', 500, 489, 0)
+		];
 		this.effects = [];
 		//TODO level bounds (for camera [and actors])
 	}

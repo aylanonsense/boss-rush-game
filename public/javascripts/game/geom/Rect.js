@@ -42,9 +42,16 @@ define(function() {
 			return false;
 		}
 	};
-	Rect.prototype.render = function(ctx, camera, color) {
-		ctx.fillStyle = color || this._color;
-		ctx.fillRect(this.x - camera.x, this.y - camera.y, this.width, this.height);
+	Rect.prototype.render = function(ctx, camera, color, borderOnly) {
+		if(borderOnly) {
+			ctx.lineWidth = 2;
+			ctx.strokeStyle = color || this._color;
+			ctx.strokeRect(this.x - camera.x, this.y - camera.y, this.width, this.height);
+		}
+		else {
+			ctx.fillStyle = color || this._color;
+			ctx.fillRect(this.x - camera.x, this.y - camera.y, this.width, this.height);
+		}
 	};
 	return Rect;
 });

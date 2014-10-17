@@ -4,7 +4,7 @@ define([
 	'game/level/LevelEditorHUD',
 	'game/Constants',
 	'game/tile/Tile',
-	'game/level/Level1'
+	'game/level/BlandLevel'
 ], function(
 	$,
 	LevelEditorHUD,

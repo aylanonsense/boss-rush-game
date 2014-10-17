@@ -17,6 +17,15 @@ define({
 		crop: { x: 39, y: 6, width: 30, height: 8 },
 		loadingColor: '#fff200'
 	},
+	FLOWER: {
+		imagePath: '/image/flower_power.gif',
+		width: 11,
+		height: 10,
+		scale: 4,
+		flip: false,
+		crop: { x: 0, y: 2, width: 33, height: 10 },
+		loadingColor: '#fff200'
+	},
 	GREEK_LIGHT_DIRT: {
 		imagePath: '/image/tile/greek_light_dirt.gif',
 		width: 16,

@@ -52,7 +52,7 @@ define(function() {
 		}
 		this._loaded = true;
 	};
-	SpriteSheet.prototype.render = function(ctx, x, y, frame, flip) {
+	SpriteSheet.prototype.render = function(ctx, camera, x, y, frame, flip) {
 		if(this._loaded) {
 			var numCols = this._canvas.width / this.width;
 			var numRows = (this._canvas.height / this.height) / (this._flipped ? 2 : 1);
@@ -67,14 +67,15 @@ define(function() {
 			//draw the image (camera needs to be taken care of outside of this method)
 			ctx.drawImage(this._canvas,
 				frameX * this.width, frameY * this.height,
-				this.width, this.height, x, y,
+				this.width, this.height,
+				x - camera.x, y - camera.y,
 				this.width, this.height
 			);
 		}
 		else {
 			//if the image hasn't loaded yet, we just show a colored rectangle
 			ctx.fillStyle = this._preLoadedColor;
-			ctx.fillRect(x, y, this.width, this.height);
+			ctx.fillRect(x - camera.x, y - camera.y, this.width, this.height);
 		}
 	};
 

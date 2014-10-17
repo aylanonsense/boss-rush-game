@@ -18,7 +18,9 @@ define([
 		level.player.planMovement();
 		for(steps = 0; steps < 20 && level.player.hasMovementRemaining(); steps++) {
 			level.player.move();
-			//TODO check for collisions that would prevent movement (even with actors)
+			if(level.player.isCollidable) {
+				level.player.checkForCollisions(level.tileGrid, level.obstacles);
+			}
 		}
 		if(steps === 20) { throw new Error("Maximum move steps per frame exceeded."); }
 		for(i = 0; i < level.actors.length; i++) {
@@ -26,9 +28,17 @@ define([
 			level.actors[i].planMovement();
 			for(steps = 0; steps < 20 && level.actors[i].hasMovementRemaining(); steps++) {
 				level.actors[i].move();
-				//TODO check for collisions that would prevent movement (even with actors)
+				if(level.actors[i].isCollidable) {
+					level.actors[i].checkForCollisions(level.tileGrid, level.obstacles);
+				}
 			}
 			if(steps === 20) { throw new Error("Maximum move steps per frame exceeded."); }
+		}
+
+		//end of movement
+		level.player.finishMovement();
+		for(i = 0; i < level.actors.length; i++) {
+			level.actors[i].finishMovement();
 		}
 
 		//update widgets
@@ -62,7 +72,7 @@ define([
 		//adjust camera
 		//TODO
 		//render background
-		ctx.fillStyle = level.backgroundColor;
+		ctx.fillStyle = (Constants.DEBUG ? '#000' : level.backgroundColor);
 		ctx.fillRect(0, 0, Constants.WIDTH, Constants.HEIGHT);
 		//render tiles and obstacles
 		level.backgroundTileGrid.render(ctx, camera);

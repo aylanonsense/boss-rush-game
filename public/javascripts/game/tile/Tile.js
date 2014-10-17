@@ -116,14 +116,14 @@ define([
 	};
 	Tile.prototype.render = function(ctx, camera) {
 		if(Constants.DEBUG || !this._sprite) {
-			this._shape.render(ctx, camera, (this.tileType.background || this.oneWayPlatform ? '#88b' : '#006'));
+			this._shape.render(ctx, camera, (this.tileType.background || this.oneWayPlatform ? '#99f' : '#339'));
 			if(this.oneWayPlatform && this._topBorder) {
-				this._topBorder.render(ctx, camera, '#006', 3);
+				this._topBorder.render(ctx, camera, '#339', 3);
 			}
 		}
 		else {
-			this._sprite.render(ctx, T * this.col - Constants.TILE_DISPLAY_PADDING - camera.x,
-				T * this.row - Constants.TILE_DISPLAY_PADDING - camera.y, this._frame);
+			this._sprite.render(ctx, camera, T * this.col - Constants.TILE_DISPLAY_PADDING,
+				T * this.row - Constants.TILE_DISPLAY_PADDING, this._frame);
 		}
 	};
 	return Tile;
