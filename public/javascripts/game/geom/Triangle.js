@@ -79,4 +79,3 @@ define([
 	};
 	return Triangle;
 });
-//SILVER star status!

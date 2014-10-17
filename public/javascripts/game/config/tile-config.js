@@ -23,4 +23,3 @@ define({
 		oneWayPlatform: true
 	}
 });
-//SILVER star status!

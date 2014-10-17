@@ -45,4 +45,3 @@ define(function() {
 	};
 	return Multi;
 });
-//SILVER star status!

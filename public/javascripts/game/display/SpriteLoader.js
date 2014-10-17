@@ -64,4 +64,3 @@ define([
 		loadSpriteSheet: loadSpriteSheet
 	};
 });
-//SILVER star status!

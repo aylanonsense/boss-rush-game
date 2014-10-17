@@ -89,4 +89,3 @@ define(function() {
 
 	return SpriteSheet;
 });
-//SILVER star status!

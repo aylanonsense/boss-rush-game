@@ -68,4 +68,3 @@ define({
 		loadingColor: '#00f'
 	}
 });
-//SILVER star status!

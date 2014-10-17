@@ -48,4 +48,3 @@ define(function() {
 	};
 	return Rect;
 });
-//SILVER star status!

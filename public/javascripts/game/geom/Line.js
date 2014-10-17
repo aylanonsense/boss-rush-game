@@ -248,4 +248,3 @@ define(function() {
 	};
 	return Line;
 });
-//SILVER star status!

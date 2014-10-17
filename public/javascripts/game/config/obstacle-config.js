@@ -12,4 +12,3 @@ define({
 		}
 	}
 });
-//SILVER star status!
