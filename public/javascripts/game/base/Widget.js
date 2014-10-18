@@ -6,10 +6,10 @@ define([
 	Global,
 	SpriteLoader
 ) {
-	function Widget(spriteKey, x, y, frame, flip) {
-		this._sprite = SpriteLoader.loadSpriteSheet(spriteKey);
+	function Widget(x, y, spriteKey, frame, flip) {
 		this._x = x;
 		this._y = y;
+		this._sprite = SpriteLoader.loadSpriteSheet(spriteKey);
 		this._frame = frame || 0;
 		this._flipped = flip || false;
 	}

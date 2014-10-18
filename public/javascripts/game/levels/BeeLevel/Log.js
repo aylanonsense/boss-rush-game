@@ -15,7 +15,7 @@ define([
 		SUPERCLASS.call(this, x, y, new Multi([
 			new Triangle(x, y, 115, 30, 'lower-right'),
 			new Rect(x, y + 30, 115, 42)
-		]), 'LOG', 0);
+		]), 'LOG', 0, false);
 	}
 	Log.prototype = Object.create(SUPERCLASS.prototype);
 	return Log;

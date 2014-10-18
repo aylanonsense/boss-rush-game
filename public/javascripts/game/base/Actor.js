@@ -1,7 +1,7 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(function() {
 	function Actor(level) {
-		this._level = level;
+		this.level = level;
 		this._isAlive = true;
 		this.health = 10;
 		this.pos = { x: 0, y: 0 };

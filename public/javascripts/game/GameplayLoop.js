@@ -24,46 +24,57 @@ define([
 		}
 		if(steps === 20) { throw new Error("Maximum move steps per frame exceeded."); }
 		for(i = 0; i < level.actors.length; i++) {
-			//move each actor
-			level.actors[i].planMovement();
-			for(steps = 0; steps < 20 && level.actors[i].hasMovementRemaining(); steps++) {
-				level.actors[i].move();
-				if(level.actors[i].isCollidable) {
-					level.actors[i].checkForCollisions(level.tileGrid, level.obstacles);
+			if(level.actors[i].isAlive()) {
+				level.actors[i].planMovement();
+				for(steps = 0; steps < 20 && level.actors[i].hasMovementRemaining(); steps++) {
+					level.actors[i].move();
+					if(level.actors[i].isCollidable) {
+						level.actors[i].checkForCollisions(level.tileGrid, level.obstacles);
+					}
 				}
+				if(steps === 20) { throw new Error("Maximum move steps per frame exceeded."); }
 			}
-			if(steps === 20) { throw new Error("Maximum move steps per frame exceeded."); }
 		}
 
 		//end of movement
 		level.player.finishMovement();
 		for(i = 0; i < level.actors.length; i++) {
-			level.actors[i].finishMovement();
+			if(level.actors[i].isAlive()) {
+				level.actors[i].finishMovement();
+			}
 		}
 
 		//update widgets
 		for(i = 0; i < level.effects.length; i++) {
-			level.effects[i].update();
+			if(level.effects[i].isAlive()) {
+				level.effects[i].update();
+			}
 		}
 
 		//check for hits
 		for(i = 0; i < level.actors.length; i++) {
-			for(j = 0; j < level.actors.length; j++) {
-				if(i !== j) {
-					level.actors[i].checkForHitting(actors[j]);
+			if(level.actors[i].isAlive()) {
+				for(j = 0; j < level.actors.length; j++) {
+					if(i !== j && level.actors[j].isAlive()) {
+						level.actors[i].checkForHitting(actors[j]);
+					}
 				}
 			}
 		}
 		for(i = 0; i < level.actors.length; i++) {
-			level.player.checkForHitting(level.actors[i]);
-			level.actors[i].checkForHitting(level.player);
+			if(level.actors[i].isAlive()) {
+				level.player.checkForHitting(level.actors[i]);
+				level.actors[i].checkForHitting(level.player);
+			}
 		}
 
 		//end of frame
 		level.endOfFrame();
 		level.player.endOfFrame();
 		for(i = 0; i < level.actors.length; i++) {
-			level.actors[i].endOfFrame();
+			if(level.actors[i].isAlive()) {
+				level.actors[i].endOfFrame();
+			}
 		}
 	}
 
@@ -86,7 +97,9 @@ define([
 		}
 		//render special effects
 		for(i = 0; i < level.effects.length; i++) {
-			level.effects[i].render(ctx, camera);
+			if(level.effects[i].isAlive()) {
+				level.effects[i].render(ctx, camera);
+			}
 		}
 		//render actors
 		for(i = 0; i < level.actors.length; i++) {

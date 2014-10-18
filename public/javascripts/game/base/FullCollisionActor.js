@@ -106,6 +106,14 @@ define([
 			}
 		}
 	};
+	FullCollisionActor.prototype._recalculateCollisionBoxes = function() {
+		this._topCollisionBox = null;
+		this._bottomCollisionBox = null;
+		this._leftCollisionBox = null;
+		this._rightCollisionBox = null;
+		this._boundingCollisionBox = null;
+		SUPERCLASS.prototype._recalculateCollisionBoxes.call(this);
+	};
 	FullCollisionActor.prototype._onCollided = function(thing, dir) {};
 	FullCollisionActor.prototype.render = function(ctx, camera) {
 		if(Global.DEBUG_MODE) {

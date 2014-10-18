@@ -35,6 +35,15 @@ define({
 		crop: { x: 0, y: 2, width: 33, height: 10 },
 		loadingColor: '#fff200'
 	},
+	POLLEN: {
+		imagePath: '/image/flower_power.gif',
+		width: 6,
+		height: 9,
+		scale: 4,
+		flip: false,
+		crop: { x: 10, y: 19, width: 12, height: 18 },
+		loadingColor: '#f7941d'
+	},
 	GREEK_LIGHT_DIRT: {
 		imagePath: '/image/tile/greek_light_dirt.gif',
 		width: 16,

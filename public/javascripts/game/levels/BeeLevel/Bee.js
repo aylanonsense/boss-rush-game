@@ -2,10 +2,12 @@ if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'game/Global',
 	'game/base/FullCollisionActor',
+	'game/levels/BeeLevel/PollenEffect',
 	'game/display/SpriteLoader'
 ], function(
 	Global,
 	FullCollisionActor,
+	PollenEffect,
 	SpriteLoader
 ) {
 	var SUPERCLASS = FullCollisionActor;
@@ -20,11 +22,14 @@ define([
 	Bee.prototype = Object.create(SUPERCLASS.prototype);
 	Bee.prototype.startOfFrame = function() {
 		SUPERCLASS.prototype.startOfFrame.call(this);
-		this._frame += Math.PI / 10;
+		this._frame++;
+		if(this._frame % 13 === 0) {
+			this.level.spawnEffect(new PollenEffect(this.pos.x, this.pos.y));
+		}
 	};
 	Bee.prototype.render = function(ctx, camera) {
 		if(!Global.DEBUG_MODE) {
-			SPRITE.render(ctx, camera, this.pos.x, this.pos.y, Math.floor(this._frame), this._flipped);
+			SPRITE.render(ctx, camera, this.pos.x, this.pos.y, Math.floor(this._frame / 3), this._flipped);
 		}
 		SUPERCLASS.prototype.render.call(this, ctx, camera);
 	};
