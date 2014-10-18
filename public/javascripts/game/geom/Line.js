@@ -1,13 +1,11 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(function() {
-	function Line(start, end, color) {
+	function Line(start, end) {
 		this._geomType = 'line';
 		if(arguments.length >= 4) {
 			start = { x: arguments[0], y: arguments[1] };
 			end = { x: arguments[2], y: arguments[3] };
-			color = (arguments.length > 4 ? arguments[4] : null);
 		}
-		this._color = color || '#f00';
 		this._start = start;
 		this._end = end;
 		//we pre-calculate a lot of data to make it easier to detect intersections
@@ -238,9 +236,9 @@ define(function() {
 		}
 		return earliestIntersection;
 	};
-	Line.prototype.render = function(ctx, camera, color, lineWidth) {
-		ctx.strokeStyle = color || this._color;
-		ctx.lineWidth = lineWidth || 1;
+	Line.prototype.render = function(ctx, camera, color) {
+		ctx.strokeStyle = color || '#f0f';
+		ctx.lineWidth = 1.5;
 		ctx.beginPath();
 		ctx.moveTo(this._start.x - camera.x, this._start.y - camera.y);
 		ctx.lineTo(this._end.x - camera.x, this._end.y - camera.y);

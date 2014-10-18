@@ -1,8 +1,10 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
+	'game/Constants',
 	'game/actor/FullCollisionActor',
 	'game/display/SpriteLoader'
 ], function(
+	Constants,
 	FullCollisionActor,
 	SpriteLoader
 ) {
@@ -21,7 +23,9 @@ define([
 		this._frame += Math.PI / 10;
 	};
 	Bee.prototype.render = function(ctx, camera) {
-		SPRITE.render(ctx, camera, this.pos.x, this.pos.y, Math.floor(this._frame), this._flipped);
+		if(!Constants.DEBUG_MODE) {
+			SPRITE.render(ctx, camera, this.pos.x, this.pos.y, Math.floor(this._frame), this._flipped);
+		}
 		SUPERCLASS.prototype.render.call(this, ctx, camera);
 	};
 	Bee.prototype._recalculateCollisionBoxes = function() {

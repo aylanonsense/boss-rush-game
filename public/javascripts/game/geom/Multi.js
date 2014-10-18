@@ -38,9 +38,9 @@ define(function() {
 			throw new Error("Unsure how to find overlap between multi and '" + geom._geomType + "'");
 		}
 	};
-	Multi.prototype.render = function(ctx, camera, color) {
+	Multi.prototype.render = function(ctx, camera, color, borderOnly) {
 		for(var i = 0; i < this._geoms.length; i++) {
-			this._geoms[i].render(ctx, camera, color);
+			this._geoms[i].render(ctx, camera, color, borderOnly);
 		}
 	};
 	return Multi;

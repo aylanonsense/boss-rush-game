@@ -72,7 +72,7 @@ define([
 		//adjust camera
 		//TODO
 		//render background
-		ctx.fillStyle = (Constants.DEBUG ? '#000' : level.backgroundColor);
+		ctx.fillStyle = (Constants.DEBUG_MODE ? '#000' : level.backgroundColor);
 		ctx.fillRect(0, 0, Constants.WIDTH, Constants.HEIGHT);
 		//render tiles and obstacles
 		level.backgroundTileGrid.render(ctx, camera);

@@ -1,7 +1,9 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
+	'game/Constants',
 	'game/display/SpriteLoader'
 ], function(
+	Constants,
 	SpriteLoader
 ) {
 	function Widget(spriteKey, x, y, frame, flip) {
@@ -12,7 +14,9 @@ define([
 		this._flipped = flip || false;
 	}
 	Widget.prototype.render = function(ctx, camera) {
-		this._sprite.render(ctx, camera, this._x, this._y, this._frame, this._flipped);
+		if(!Constants.DEBUG_MODE) {
+			this._sprite.render(ctx, camera, this._x, this._y, this._frame, this._flipped);
+		}
 	};
 	return Widget;
 });

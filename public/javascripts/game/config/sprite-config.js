@@ -17,6 +17,15 @@ define({
 		crop: { x: 39, y: 6, width: 30, height: 8 },
 		loadingColor: '#fff200'
 	},
+	LOG: {
+		imagePath: '/image/flower_power.gif',
+		width: 29,
+		height: 18,
+		scale: 4,
+		flip: false,
+		crop: { x: 30, y: 21, width: 29, height: 18 },
+		loadingColor: '#f7941d'
+	},
 	FLOWER: {
 		imagePath: '/image/flower_power.gif',
 		width: 11,

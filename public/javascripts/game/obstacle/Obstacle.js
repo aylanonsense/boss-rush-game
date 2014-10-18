@@ -28,7 +28,7 @@ define([
 		return line.isCrossing(this._collisionShape);
 	};
 	Obstacle.prototype.render = function(ctx, camera) {
-		if(Constants.DEBUG || !this._sprite) {
+		if(Constants.DEBUG_MODE || !this._sprite) {
 			this._collisionShape.render(ctx, camera);
 		}
 		else {

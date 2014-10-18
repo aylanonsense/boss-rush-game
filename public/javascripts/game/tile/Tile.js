@@ -115,10 +115,10 @@ define([
 		}
 	};
 	Tile.prototype.render = function(ctx, camera) {
-		if(Constants.DEBUG || !this._sprite) {
-			this._shape.render(ctx, camera, (this.tileType.background || this.oneWayPlatform ? '#99f' : '#339'));
+		if(Constants.DEBUG_MODE || !this._sprite) {
+			this._shape.render(ctx, camera, (this.tileType.background || this.oneWayPlatform ? '#114' : '#34a'));
 			if(this.oneWayPlatform && this._topBorder) {
-				this._topBorder.render(ctx, camera, '#339', 3);
+				this._topBorder.render(ctx, camera, '#34a', 3);
 			}
 		}
 		else {

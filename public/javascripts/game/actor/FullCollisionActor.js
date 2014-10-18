@@ -108,11 +108,11 @@ define([
 	};
 	FullCollisionActor.prototype._onCollided = function(thing, dir) {};
 	FullCollisionActor.prototype.render = function(ctx, camera) {
-		if(Constants.DEBUG) {
-			this._bottomCollisionBox.render(ctx, camera, 'rgba(255, 255, 0, 0.5)');
-			this._topCollisionBox.render(ctx, camera, 'rgba(255, 255, 0, 0.5)');
-			this._leftCollisionBox.render(ctx, camera, 'rgba(255, 255, 0, 0.5)');
-			this._rightCollisionBox.render(ctx, camera, 'rgba(255, 255, 0, 0.5)');
+		if(Constants.DEBUG_MODE) {
+			this._boundingCollisionBox.render(ctx, camera, '#0f0');
+		}
+		else if(Constants.DEV_MODE) {
+			this._boundingCollisionBox.render(ctx, camera, '#ff0', true);
 		}
 	};
 	return FullCollisionActor;

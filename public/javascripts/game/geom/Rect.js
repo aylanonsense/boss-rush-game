@@ -1,12 +1,11 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(function() {
-	function Rect(x, y, width, height, color) {
+	function Rect(x, y, width, height) {
 		this._geomType = 'rect';
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
-		this._color = color || '#f44';
 	}
 	Rect.prototype.containsPoint = function(x, y) {
 		return (this.x <= x && x <= this.x + this.width && this.y <= y && y <= this.y + this.height);
@@ -44,12 +43,12 @@ define(function() {
 	};
 	Rect.prototype.render = function(ctx, camera, color, borderOnly) {
 		if(borderOnly) {
-			ctx.lineWidth = 2;
-			ctx.strokeStyle = color || this._color;
+			ctx.lineWidth = 1.5;
+			ctx.strokeStyle = color || '#f0f';
 			ctx.strokeRect(this.x - camera.x, this.y - camera.y, this.width, this.height);
 		}
 		else {
-			ctx.fillStyle = color || this._color;
+			ctx.fillStyle = color || '#f0f';
 			ctx.fillRect(this.x - camera.x, this.y - camera.y, this.width, this.height);
 		}
 	};

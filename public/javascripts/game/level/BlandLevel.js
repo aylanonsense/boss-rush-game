@@ -3,11 +3,13 @@ define([
 	'game/actor/Bee',
 	'game/detail/Widget',
 	'game/tile/TileGrid',
+	'game/obstacle/Log',
 	'game/config/level-config'
 ], function(
 	Bee,
 	Widget,
 	TileGrid,
+	Log,
 	levelConfig
 ) {
 	function BlandLevel() {
@@ -25,7 +27,7 @@ define([
 			levelConfig.LEVEL_1.foreground.shapes,
 			levelConfig.LEVEL_1.foreground.variants
 		);
-		this.obstacles = [];
+		this.obstacles = [ new Log(600, 457) ];
 		this.actors = [ new Bee(this) ];
 		this.actors[0].pos.x = 400;
 		this.actors[0].pos.y = 100;
