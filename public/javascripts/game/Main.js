@@ -1,13 +1,13 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'jquery',
-	'game/GameplayLoop',
 	'game/Global',
+	'game/GameplayLoop',
 	'game/levels/BeeLevel/Level'
 ], function(
 	$,
-	GameplayLoop,
 	Global,
+	GameplayLoop,
 	Level
 ) {
 	return function() {

@@ -1,16 +1,16 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'game/display/SpriteLoader',
+	'game/Global',
 	'game/config/tile-config',
 	'game/geom/Rect',
 	'game/geom/Triangle',
-	'game/Global'
+	'game/display/SpriteLoader'
 ], function(
-	SpriteLoader,
+	Global,
 	config,
 	Rect,
 	Triangle,
-	Global
+	SpriteLoader
 ) {
 	var HUD_WIDTH = 200;
 	var HUD_PADDING = 20;
@@ -73,7 +73,7 @@ define([
 				ctx.fillRect(this._tileSelectables[i].x - 1, this._tileSelectables[i].y - 1,
 					this._tileSelectables[i].sprite.width + 2, this._tileSelectables[i].sprite.height + 2);
 			}
-			this._tileSelectables[i].sprite.render(ctx, this._tileSelectables[i].x, this._tileSelectables[i].y, 0);
+			this._tileSelectables[i].sprite.render(ctx, { x: 0, y: 0 }, this._tileSelectables[i].x, this._tileSelectables[i].y, 0);
 		}
 	};
 	LevelEditorHUD.prototype.handleMouseEvent = function(evt, finishDrag) {

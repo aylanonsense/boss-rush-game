@@ -1,13 +1,5 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define([
-	'game/Global',
-	'game/geom/Rect',
-	'game/display/SpriteLoader'
-], function(
-	Global,
-	Rect,
-	SpriteLoader
-) {
+define(function() {
 	function Hitbox(params) {
 		this.enabled = true;
 		this.type = (params && params.type) || null;

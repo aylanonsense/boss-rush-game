@@ -1,11 +1,5 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define([
-	'game/base/Widget',
-	'game/base/TileGrid'
-], function(
-	Widget,
-	TileGrid
-) {
+define(function() {
 	function Level() {
 		this._frame = 0;
 		this.backgroundColor = '#222';

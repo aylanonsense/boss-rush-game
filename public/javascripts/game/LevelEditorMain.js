@@ -1,16 +1,16 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'jquery',
-	'game/LevelEditorHUD',
 	'game/Global',
-	'game/base/Tile',
-	'game/levels/BeeLevel/Level'
+	'game/LevelEditorHUD',
+	'game/levels/BeeLevel/Level',
+	'game/base/Tile'
 ], function(
 	$,
-	LevelEditorHUD,
 	Global,
-	Tile,
-	Level
+	LevelEditorHUD,
+	Level,
+	Tile
 ) {
 	return function() {
 		//canvas

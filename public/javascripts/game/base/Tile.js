@@ -122,8 +122,8 @@ define([
 			}
 		}
 		else {
-			this._sprite.render(ctx, camera, T * this.col - Global.TILE_DISPLAY_PADDING,
-				T * this.row - Global.TILE_DISPLAY_PADDING, this._frame);
+			//the tile sprites, blown up, have 4 px of padding to account for
+			this._sprite.render(ctx, camera, T * this.col - 4, T * this.row - 4, this._frame);
 		}
 	};
 	return Tile;

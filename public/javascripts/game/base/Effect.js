@@ -1,11 +1,5 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define([
-	'game/Global',
-	'game/display/SpriteLoader'
-], function(
-	Global,
-	SpriteLoader
-) {
+define(function() {
 	function Effect(x, y) {
 		this.pos = { x: x, y: y };
 	}

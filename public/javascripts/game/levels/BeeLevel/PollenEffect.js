@@ -1,20 +1,24 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'game/Global',
+	'game/base/Effect',
 	'game/display/SpriteLoader'
 ], function(
 	Global,
+	Effect,
 	SpriteLoader
 ) {
+	var SUPERCLASS = Effect;
 	var SPRITE = SpriteLoader.loadSpriteSheet('POLLEN');
 	function PollenEffect(x, y) {
-		this.pos = { x: x, y: y };
+		SUPERCLASS.call(this, x, y);
 		this._frame = 0;
 		this._framesLeftAlive = 39;
 	}
+	PollenEffect.prototype = Object.create(Effect.prototype);
 	PollenEffect.prototype.update = function() {
-		this.pos.y -= 0.3;
-		this._frame ++;
+		this.pos.y -= 1;
+		this._frame++;
 		this._framesLeftAlive--;
 	};
 	PollenEffect.prototype.isAlive = function() {

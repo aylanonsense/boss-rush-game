@@ -1,14 +1,12 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'game/base/Actor',
 	'game/Global',
-	'game/geom/Rect',
-	'game/display/SpriteLoader'
+	'game/base/Actor',
+	'game/geom/Rect'
 ], function(
-	Actor,
 	Global,
-	Rect,
-	SpriteLoader
+	Actor,
+	Rect
 ) {
 	var SUPERCLASS = Actor;
 	function FullCollisionActor(level) {

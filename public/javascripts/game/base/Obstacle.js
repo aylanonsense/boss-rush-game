@@ -1,10 +1,10 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'game/display/SpriteLoader',
-	'game/Global'
+	'game/Global',
+	'game/display/SpriteLoader'
 ], function(
-	SpriteLoader,
-	Global
+	Global,
+	SpriteLoader
 ) {
 	function Obstacle(x, y, shape, spriteKey, frame, flip) {
 		this._x = x;

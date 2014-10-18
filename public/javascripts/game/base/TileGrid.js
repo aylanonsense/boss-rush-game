@@ -1,12 +1,12 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'game/base/Tile',
+	'game/Global',
 	'game/config/tile-config',
-	'game/Global'
+	'game/base/Tile'
 ], function(
-	Tile,
+	Global,
 	config,
-	Global
+	Tile
 ) {
 	var T = Global.TILE_SIZE;
 	var TILE_SYMBOL_LOOKUP = {};
