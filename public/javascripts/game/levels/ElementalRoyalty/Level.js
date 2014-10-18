@@ -15,7 +15,7 @@ define([
 	map
 ) {
 	var SUPERCLASS = Level;
-	function BeeLevel() {
+	function ElementalRoyalty() {
 		SUPERCLASS.call(this);
 		this.backgroundColor = '#222';
 		this.player = new Bee(this);
@@ -35,7 +35,7 @@ define([
 		this.effects = [];
 		//TODO level bounds (for camera [and actors])
 	}
-	BeeLevel.prototype = Object.create(SUPERCLASS.prototype);
+	ElementalRoyalty.prototype = Object.create(SUPERCLASS.prototype);
 
-	return BeeLevel;
+	return ElementalRoyalty;
 });

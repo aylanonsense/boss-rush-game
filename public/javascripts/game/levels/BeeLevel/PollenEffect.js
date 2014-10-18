@@ -15,7 +15,7 @@ define([
 		this._frame = 0;
 		this._framesLeftAlive = 39;
 	}
-	PollenEffect.prototype = Object.create(Effect.prototype);
+	PollenEffect.prototype = Object.create(SUPERCLASS.prototype);
 	PollenEffect.prototype.update = function() {
 		this.pos.y -= 1;
 		this._frame++;

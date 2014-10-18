@@ -3,7 +3,7 @@ define([
 	'jquery',
 	'game/Global',
 	'game/LevelEditorHUD',
-	'game/levels/BeeLevel/Level',
+	'game/levels/ElementalRoyalty/Level',
 	'game/base/Tile'
 ], function(
 	$,

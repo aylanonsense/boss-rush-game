@@ -3,7 +3,7 @@ define([
 	'jquery',
 	'game/Global',
 	'game/GameplayLoop',
-	'game/levels/BeeLevel/Level'
+	'game/levels/ElementalRoyalty/Level'
 ], function(
 	$,
 	Global,
