@@ -1,10 +1,10 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(function() {
-	function Actor(level) {
+	function Actor(level, x, y) {
 		this.level = level;
 		this._isAlive = true;
 		this.health = 10;
-		this.pos = { x: 0, y: 0 };
+		this.pos = { x: x || 0, y: y || 0 };
 		this.vel = { x: 0, y: 0 };
 		this.MAX_HORIZONTAL_MOVEMENT_PER_TICK = 10;
 		this.MAX_VERTICAL_MOVEMENT_PER_TICK = 10;

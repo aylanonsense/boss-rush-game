@@ -9,8 +9,8 @@ define([
 	Rect
 ) {
 	var SUPERCLASS = Actor;
-	function FullCollisionActor(level) {
-		SUPERCLASS.call(this, level);
+	function FullCollisionActor(level, x, y) {
+		SUPERCLASS.call(this, level, x, y);
 		this.isCollidable = true;
 	}
 	FullCollisionActor.prototype = Object.create(SUPERCLASS.prototype);
@@ -56,7 +56,7 @@ define([
 		}
 	};
 	FullCollisionActor.prototype._checkForBottomCollisions = function(thing) {
-		var overlap = thing.isOverlapping(this._bottomCollisionBox);
+		var overlap = this._bottomCollisionBox && thing.isOverlapping(this._bottomCollisionBox);
 		if(overlap) {
 			if(!thing.oneWayPlatform || this.vel.y >= 0) { //TODO this may cause the actor to "snap"
 				this.pos.y = overlap.top - this._boundingCollisionBox.height - this._collisionBoxOffsetY;
@@ -71,7 +71,7 @@ define([
 	FullCollisionActor.prototype._checkForNonBottomCollisions = function(thing) {
 		if(!thing.oneWayPlatform) {
 			//left collision box
-			var overlap = thing.isOverlapping(this._leftCollisionBox);
+			var overlap = this._leftCollisionBox && thing.isOverlapping(this._leftCollisionBox);
 			if(overlap) {
 				this.pos.x = overlap.right - this._collisionBoxOffsetX;
 				if(this.vel.x <= 0) {
@@ -82,7 +82,7 @@ define([
 			}
 
 			//right collision box
-			overlap = thing.isOverlapping(this._rightCollisionBox);
+			overlap = this._rightCollisionBox && thing.isOverlapping(this._rightCollisionBox);
 			if(overlap) {
 				this.pos.x = overlap.left - this._boundingCollisionBox.width - this._collisionBoxOffsetX;
 				if(this.vel.x >= 0) {
@@ -93,7 +93,7 @@ define([
 			}
 
 			//top collision box (hitting your head on a platform)
-			overlap = thing.isOverlapping(this._topCollisionBox);
+			overlap = this._topCollisionBox && thing.isOverlapping(this._topCollisionBox);
 			if(overlap) {
 				this.pos.y = overlap.bottom - this._collisionBoxOffsetY;
 				if(this.vel.y <= 0) {
@@ -114,11 +114,13 @@ define([
 	};
 	FullCollisionActor.prototype._onCollided = function(thing, dir) {};
 	FullCollisionActor.prototype.render = function(ctx, camera) {
-		if(Global.DEBUG_MODE) {
-			this._boundingCollisionBox.render(ctx, camera, '#0f0');
-		}
-		else if(Global.DEV_MODE) {
-			this._boundingCollisionBox.render(ctx, camera, '#ff0', true);
+		if(this._boundingCollisionBox) {
+			if(Global.DEBUG_MODE) {
+				this._boundingCollisionBox.render(ctx, camera, '#0f0');
+			}
+			else if(Global.DEV_MODE) {
+				this._boundingCollisionBox.render(ctx, camera, '#ff0', true);
+			}
 		}
 	};
 	return FullCollisionActor;

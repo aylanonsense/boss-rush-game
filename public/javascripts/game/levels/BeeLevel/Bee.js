@@ -12,8 +12,8 @@ define([
 ) {
 	var SUPERCLASS = FullCollisionActor;
 	var SPRITE = SpriteLoader.loadSpriteSheet('BEE');
-	function Bee(level) {
-		SUPERCLASS.apply(this, arguments);
+	function Bee(level, x, y) {
+		SUPERCLASS.call(this, level, x, y);
 		this._frame = 0;
 		this._flipped = false;
 		this.vel.x = 250;

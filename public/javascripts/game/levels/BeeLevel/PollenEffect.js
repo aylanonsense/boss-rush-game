@@ -25,7 +25,9 @@ define([
 		return this._framesLeftAlive >= 0;
 	};
 	PollenEffect.prototype.render = function(ctx, camera) {
-		SPRITE.render(ctx, camera, this.pos.x, this.pos.y, Math.floor(this._frame / 10));
+		if(!Global.DEBUG_MODE) {
+			SPRITE.render(ctx, camera, this.pos.x, this.pos.y, Math.floor(this._frame / 10));
+		}
 	};
 	return PollenEffect;
 });

@@ -56,7 +56,7 @@ define([
 			if(level.actors[i].isAlive()) {
 				for(j = 0; j < level.actors.length; j++) {
 					if(i !== j && level.actors[j].isAlive()) {
-						level.actors[i].checkForHitting(actors[j]);
+						level.actors[i].checkForHitting(level.actors[j]);
 					}
 				}
 			}

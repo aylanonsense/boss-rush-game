@@ -1,5 +1,14 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define({
+	ICE_BLOCK: {
+		imagePath: '/image/elemental_royalty.gif',
+		width: 10,
+		height: 10,
+		scale: 4,
+		flip: false,
+		crop: { x: 65, y: 65, width: 30, height: 30 },
+		loadingColor: '#4bf'
+	},
 	PLAYER: {
 		imagePath: '/image/player.gif',
 		width: 24,
