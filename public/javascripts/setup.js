@@ -8,7 +8,7 @@ requirejs.config({
 });
 requirejs([
 	'game/Main',
-	'game/level/LevelEditorMain'
+	'game/LevelEditorMain'
 ], function(
 	Main,
 	LevelEditorMain

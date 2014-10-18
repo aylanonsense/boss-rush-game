@@ -1,8 +1,8 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'game/Constants'
+	'game/Global'
 ], function(
-	Constants
+	Global
 ) {
 	function update(level) {
 		var i, j, steps;
@@ -72,8 +72,8 @@ define([
 		//adjust camera
 		//TODO
 		//render background
-		ctx.fillStyle = (Constants.DEBUG_MODE ? '#000' : level.backgroundColor);
-		ctx.fillRect(0, 0, Constants.WIDTH, Constants.HEIGHT);
+		ctx.fillStyle = (Global.DEBUG_MODE ? '#000' : level.backgroundColor);
+		ctx.fillRect(0, 0, Global.WIDTH, Global.HEIGHT);
 		//render tiles and obstacles
 		level.backgroundTileGrid.render(ctx, camera);
 		level.tileGrid.render(ctx, camera);

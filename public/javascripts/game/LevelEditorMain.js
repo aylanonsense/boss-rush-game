@@ -1,20 +1,20 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'jquery',
-	'game/level/LevelEditorHUD',
-	'game/Constants',
-	'game/tile/Tile',
-	'game/level/BlandLevel'
+	'game/LevelEditorHUD',
+	'game/Global',
+	'game/base/Tile',
+	'game/levels/BeeLevel/Level'
 ], function(
 	$,
 	LevelEditorHUD,
-	Constants,
+	Global,
 	Tile,
 	Level
 ) {
 	return function() {
 		//canvas
-		var canvas = $('<canvas width="' + Constants.WIDTH + 'px" height = "' + Constants.HEIGHT + 'px" ' +
+		var canvas = $('<canvas width="' + Global.WIDTH + 'px" height = "' + Global.HEIGHT + 'px" ' +
 			'style="display:block;margin: 15px auto;" />').appendTo(document.body);
 		var ctx = canvas[0].getContext('2d');
 		var lastMousedOver = null;
@@ -38,16 +38,16 @@ define([
 
 		function render() {
 			ctx.fillStyle = '#fff';
-			ctx.fillRect(0, 0, Constants.WIDTH, Constants.HEIGHT);
+			ctx.fillRect(0, 0, Global.WIDTH, Global.HEIGHT);
 			level.backgroundTileGrid.render(ctx, camera, true);
 			level.tileGrid.render(ctx, camera);
 			if(startOfDrag && lastMousedOver) {
 				ctx.strokeStyle = '#f00';
 				ctx.lineWidth = 1;
-				ctx.strokeRect(Math.min(startOfDrag.col, lastMousedOver.col) * Constants.TILE_SIZE - camera.x,
-					Math.min(startOfDrag.row, lastMousedOver.row) * Constants.TILE_SIZE - camera.y,
-					(Math.abs(startOfDrag.col - lastMousedOver.col) + 1) * Constants.TILE_SIZE,
-					(Math.abs(startOfDrag.row - lastMousedOver.row) + 1) * Constants.TILE_SIZE);
+				ctx.strokeRect(Math.min(startOfDrag.col, lastMousedOver.col) * Global.TILE_SIZE - camera.x,
+					Math.min(startOfDrag.row, lastMousedOver.row) * Global.TILE_SIZE - camera.y,
+					(Math.abs(startOfDrag.col - lastMousedOver.col) + 1) * Global.TILE_SIZE,
+					(Math.abs(startOfDrag.row - lastMousedOver.row) + 1) * Global.TILE_SIZE);
 			}
 			hud.render(ctx, camera);
 		}
@@ -89,8 +89,8 @@ define([
 		function handleMouseEvent(evt, finishDrag) {
 			var x = evt.offsetX + camera.x;
 			var y = evt.offsetY + camera.y;
-			var col = Math.floor(x / Constants.TILE_SIZE);
-			var row = Math.floor(y / Constants.TILE_SIZE);
+			var col = Math.floor(x / Global.TILE_SIZE);
+			var row = Math.floor(y / Global.TILE_SIZE);
 			//always triggered by a mousedown event:
 			if(!mouseDown) {
 				mouseDown = true;

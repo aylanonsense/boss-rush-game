@@ -1,18 +1,18 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'game/actor/Bee',
-	'game/detail/Widget',
-	'game/tile/TileGrid',
-	'game/obstacle/Log',
+	'game/levels/BeeLevel/Bee',
+	'game/levels/BeeLevel/Log',
+	'game/base/Widget',
+	'game/base/TileGrid',
 	'game/config/level-config'
 ], function(
 	Bee,
+	Log,
 	Widget,
 	TileGrid,
-	Log,
 	levelConfig
 ) {
-	function BlandLevel() {
+	function BeeLevel() {
 		this.backgroundColor = '#222';
 		this.player = new Bee(this);
 		this.player.pos.x = 300;
@@ -39,7 +39,7 @@ define([
 		this.effects = [];
 		//TODO level bounds (for camera [and actors])
 	}
-	BlandLevel.prototype.startOfFrame = function() {};
-	BlandLevel.prototype.endOfFrame = function() {};
-	return BlandLevel;
+	BeeLevel.prototype.startOfFrame = function() {};
+	BeeLevel.prototype.endOfFrame = function() {};
+	return BeeLevel;
 });

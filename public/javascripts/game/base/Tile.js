@@ -1,20 +1,20 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'game/Constants',
+	'game/Global',
 	'game/geom/Line',
 	'game/geom/Rect',
 	'game/geom/Triangle',
 	'game/geom/Multi',
 	'game/display/SpriteLoader'
 ], function(
-	Constants,
+	Global,
 	Line,
 	Rect,
 	Triangle,
 	Multi,
 	SpriteLoader
 ) {
-	var T = Constants.TILE_SIZE; //for convenience
+	var T = Global.TILE_SIZE; //for convenience
 	function Tile(col, row, tileType, frame, variant) {
 		this.col = col;
 		this.row = row;
@@ -115,15 +115,15 @@ define([
 		}
 	};
 	Tile.prototype.render = function(ctx, camera) {
-		if(Constants.DEBUG_MODE || !this._sprite) {
+		if(Global.DEBUG_MODE || !this._sprite) {
 			this._shape.render(ctx, camera, (this.tileType.background || this.oneWayPlatform ? '#114' : '#34a'));
 			if(this.oneWayPlatform && this._topBorder) {
 				this._topBorder.render(ctx, camera, '#34a', 3);
 			}
 		}
 		else {
-			this._sprite.render(ctx, camera, T * this.col - Constants.TILE_DISPLAY_PADDING,
-				T * this.row - Constants.TILE_DISPLAY_PADDING, this._frame);
+			this._sprite.render(ctx, camera, T * this.col - Global.TILE_DISPLAY_PADDING,
+				T * this.row - Global.TILE_DISPLAY_PADDING, this._frame);
 		}
 	};
 	return Tile;

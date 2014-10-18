@@ -1,24 +1,24 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'jquery',
-	'game/gameplay/GameplayLoop',
-	'game/Constants',
-	'game/level/BlandLevel'
+	'game/GameplayLoop',
+	'game/Global',
+	'game/levels/BeeLevel/Level'
 ], function(
 	$,
 	GameplayLoop,
-	Constants,
-	BlandLevel
+	Global,
+	Level
 ) {
 	return function() {
 		//canvas
-		var canvas = $('<canvas width="' + Constants.WIDTH + 'px" height = "' + Constants.HEIGHT + 'px" ' +
+		var canvas = $('<canvas width="' + Global.WIDTH + 'px" height = "' + Global.HEIGHT + 'px" ' +
 			'style="display:block;margin: 15px auto;" />').appendTo(document.body);
 		var ctx = canvas[0].getContext('2d');
 
 		//init objects
 		var camera = { x: 0, y: 0 };
-		var level = new BlandLevel();
+		var level = new Level();
 
 		//set up animation frame functionality
 		function loop() {

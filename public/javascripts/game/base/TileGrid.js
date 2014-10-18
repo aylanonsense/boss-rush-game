@@ -1,14 +1,14 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'game/tile/Tile',
+	'game/base/Tile',
 	'game/config/tile-config',
-	'game/Constants'
+	'game/Global'
 ], function(
 	Tile,
 	config,
-	Constants
+	Global
 ) {
-	var T = Constants.TILE_SIZE;
+	var T = Global.TILE_SIZE;
 	var TILE_SYMBOL_LOOKUP = {};
 	for(var key in config) {
 		TILE_SYMBOL_LOOKUP[config[key].symbol] = config[key];
@@ -132,16 +132,16 @@ define([
 		if(drawGridLines) {
 			ctx.strokeStyle ='#eee';
 			ctx.lineWidth = 1;
-			for(var x = T * Math.floor(camera.x / T); x <= T * Math.floor((camera.x + Constants.WIDTH) / T); x += T) {
+			for(var x = T * Math.floor(camera.x / T); x <= T * Math.floor((camera.x + Global.WIDTH) / T); x += T) {
 				ctx.beginPath();
 				ctx.moveTo(x - camera.x, -1);
-				ctx.lineTo(x - camera.x, Constants.HEIGHT + 1);
+				ctx.lineTo(x - camera.x, Global.HEIGHT + 1);
 				ctx.stroke();
 			}
-			for(var y = T * Math.floor(camera.y / T); y <= T * Math.floor((camera.y + Constants.HEIGHT) / T); y += T) {
+			for(var y = T * Math.floor(camera.y / T); y <= T * Math.floor((camera.y + Global.HEIGHT) / T); y += T) {
 				ctx.beginPath();
 				ctx.moveTo(-1, y - camera.y);
-				ctx.lineTo(Constants.WIDTH + 1, y - camera.y);
+				ctx.lineTo(Global.WIDTH + 1, y - camera.y);
 				ctx.stroke();
 			}
 		}

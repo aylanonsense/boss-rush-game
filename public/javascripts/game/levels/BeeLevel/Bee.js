@@ -1,10 +1,10 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'game/Constants',
-	'game/actor/FullCollisionActor',
+	'game/Global',
+	'game/base/FullCollisionActor',
 	'game/display/SpriteLoader'
 ], function(
-	Constants,
+	Global,
 	FullCollisionActor,
 	SpriteLoader
 ) {
@@ -23,7 +23,7 @@ define([
 		this._frame += Math.PI / 10;
 	};
 	Bee.prototype.render = function(ctx, camera) {
-		if(!Constants.DEBUG_MODE) {
+		if(!Global.DEBUG_MODE) {
 			SPRITE.render(ctx, camera, this.pos.x, this.pos.y, Math.floor(this._frame), this._flipped);
 		}
 		SUPERCLASS.prototype.render.call(this, ctx, camera);

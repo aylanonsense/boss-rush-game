@@ -1,12 +1,12 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'game/actor/Actor',
-	'game/Constants',
+	'game/base/Actor',
+	'game/Global',
 	'game/geom/Rect',
 	'game/display/SpriteLoader'
 ], function(
 	Actor,
-	Constants,
+	Global,
 	Rect,
 	SpriteLoader
 ) {
@@ -108,10 +108,10 @@ define([
 	};
 	FullCollisionActor.prototype._onCollided = function(thing, dir) {};
 	FullCollisionActor.prototype.render = function(ctx, camera) {
-		if(Constants.DEBUG_MODE) {
+		if(Global.DEBUG_MODE) {
 			this._boundingCollisionBox.render(ctx, camera, '#0f0');
 		}
-		else if(Constants.DEV_MODE) {
+		else if(Global.DEV_MODE) {
 			this._boundingCollisionBox.render(ctx, camera, '#ff0', true);
 		}
 	};

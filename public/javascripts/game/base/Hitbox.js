@@ -1,10 +1,10 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
-	'game/Constants',
+	'game/Global',
 	'game/geom/Rect',
 	'game/display/SpriteLoader'
 ], function(
-	Constants,
+	Global,
 	Rect,
 	SpriteLoader
 ) {
