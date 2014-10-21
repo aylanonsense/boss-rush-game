@@ -18,7 +18,7 @@ define([
 	function ElementalRoyalty() {
 		SUPERCLASS.call(this);
 		this.backgroundColor = '#222';
-		this.player = new IceBlock(this, 300, 415);
+		this.player = null;
 		this.backgroundTileGrid = new TileGrid(map.background.tiles,map.background.shapes,map.background.variants);
 		this.tileGrid = new TileGrid(map.foreground.tiles,map.foreground.shapes,map.foreground.variants);
 		this.obstacles = [];

@@ -73,6 +73,9 @@ define(function() {
 		}
 		return null;
 	};
+	Line.prototype.isOverlapping = function(geom) {
+		return this.isCrossing(geom);
+	};
 	Line.prototype.isCrossing = function(geom) {
 		if(!geom) {
 			return false;
@@ -236,7 +239,7 @@ define(function() {
 		}
 		return earliestIntersection;
 	};
-	Line.prototype.render = function(ctx, camera, color, thickness) {
+	Line.prototype.render = function(ctx, camera, color, borderOnly, thickness) {
 		ctx.strokeStyle = color || '#f0f';
 		ctx.lineWidth = thickness || 1.5;
 		ctx.beginPath();

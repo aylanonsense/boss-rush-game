@@ -56,6 +56,10 @@ define([
 			}
 			else {
 				this.spawnIceBlock(32 * Math.floor(2 + 24 * Math.random()));
+				this.spawnIceBlock(32 * Math.floor(2 + 24 * Math.random()));
+				this.spawnIceBlock(32 * Math.floor(2 + 24 * Math.random()));
+				this.spawnIceBlock(32 * Math.floor(2 + 24 * Math.random()));
+				this.spawnIceBlock(32 * Math.floor(2 + 24 * Math.random()));
 			}
 		}
 

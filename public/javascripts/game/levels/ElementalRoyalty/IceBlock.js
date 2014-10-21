@@ -4,7 +4,8 @@ define([
 	'game/base/FullCollisionActor',
 	'game/base/Hitbox',
 	'game/geom/Rect',
-	'game/levels/ElementalRoyalty/SNowflake',
+	'game/levels/ElementalRoyalty/Snowflake',
+	'game/levels/ElementalRoyalty/IceShard',
 	'game/display/SpriteLoader'
 ], function(
 	Global,
@@ -12,6 +13,7 @@ define([
 	Hitbox,
 	Rect,
 	Snowflake,
+	IceShard,
 	SpriteLoader
 ) {
 	var SUPERCLASS = FullCollisionActor;
@@ -62,7 +64,11 @@ define([
 	IceBlock.prototype._onShattered = function() {
 		if(!this._shattered) {
 			this._shattered = true;
-			this.level.spawnEffect(new Snowflake(this.pos.x, this.pos.y));
+			this.level.spawnEffect(new Snowflake(this.pos.x, this.pos.y, 0));
+			this.level.spawnEffect(new Snowflake(this.pos.x, this.pos.y, Math.PI));
+			this.level.spawnEffect(new Snowflake(this.pos.x, this.pos.y, (Math.random() < 0.5 ? 0 : Math.PI)));
+			this.level.spawnActor(new IceShard(this.level, this.pos.x, this.pos.y, true));
+			this.level.spawnActor(new IceShard(this.level, this.pos.x, this.pos.y, false));
 		}
 	};
 	IceBlock.prototype.isAlive = function() {

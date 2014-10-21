@@ -18,6 +18,15 @@ define({
 		crop: { x: 65, y: 95, width: 30, height: 30 },
 		loadingColor: '#4bf'
 	},
+	ICE_SHARD: {
+		imagePath: '/image/elemental_royalty.gif',
+		width: 10,
+		height: 10,
+		scale: 4,
+		flip: false,
+		crop: { x: 75, y: 115, width: 20, height: 10 },
+		loadingColor: '#4bf'
+	},
 	FROZEN_KING: {
 		imagePath: '/image/elemental_royalty.gif',
 		width: 32,

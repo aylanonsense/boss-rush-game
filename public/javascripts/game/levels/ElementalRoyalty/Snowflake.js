@@ -10,17 +10,23 @@ define([
 ) {
 	var SUPERCLASS = Effect;
 	var SPRITE = SpriteLoader.loadSpriteSheet('SNOWFLAKE');
-	function Snowflake(x, y) {
+	function Snowflake(x, y, angle) {
 		SUPERCLASS.call(this, x, y);
-		this._frame = 0;
-		this._framesLeftAlive = 40;
+		//randomly determine dislay
+		this._framesLeftAlive = 25 + 20 * Math.random();
+		angle = angle - 0.33 + 0.66 * Math.random();
+		var speed = 250 + 300 * Math.random();
+		this.vel = { x: speed * Math.cos(angle), y: speed * Math.sin(angle) };
 		this._snowflakeFrame = 3 + Math.floor(4 * Math.random());
 	}
 	Snowflake.prototype = Object.create(SUPERCLASS.prototype);
 	Snowflake.prototype.update = function() {
-		//this.pos.y -= 1;
-		this._frame++;
 		this._framesLeftAlive--;
+		this.vel.x *= 0.9;
+		this.vel.y *= 0.9;
+		this.vel.y += 0.1;
+		this.pos.x += this.vel.x / 60;
+		this.pos.y += this.vel.y / 60;
 	};
 	Snowflake.prototype.isAlive = function() {
 		return this._framesLeftAlive >= 0;

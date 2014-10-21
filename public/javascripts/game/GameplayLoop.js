@@ -9,18 +9,22 @@ define([
 
 		//start of frame
 		level.startOfFrame();
-		level.player.startOfFrame();
+		if(level.player) {
+			level.player.startOfFrame();
+		}
 		for(i = 0; i < level.actors.length; i++) {
 			level.actors[i].startOfFrame();
 		}
 
 		//move everything
-		level.player.planMovement();
-		level.player.checkForCollisions(level.tileGrid, level.obstacles);
-		for(steps = 0; steps < 20 && level.player.hasMovementRemaining(); steps++) {
-			level.player.move();
-			if(level.player.isCollidable) {
-				level.player.checkForCollisions(level.tileGrid, level.obstacles);
+		if(level.player) {
+			level.player.planMovement();
+			level.player.checkForCollisions(level.tileGrid, level.obstacles);
+			for(steps = 0; steps < 20 && level.player.hasMovementRemaining(); steps++) {
+				level.player.move();
+				if(level.player.isCollidable) {
+					level.player.checkForCollisions(level.tileGrid, level.obstacles);
+				}
 			}
 		}
 		if(steps === 20) { throw new Error("Maximum move steps per frame exceeded."); }
@@ -39,7 +43,9 @@ define([
 		}
 
 		//end of movement
-		level.player.finishMovement();
+		if(level.player) {
+			level.player.finishMovement();
+		}
 		for(i = 0; i < level.actors.length; i++) {
 			if(level.actors[i].isAlive()) {
 				level.actors[i].finishMovement();
@@ -63,16 +69,20 @@ define([
 				}
 			}
 		}
-		for(i = 0; i < level.actors.length; i++) {
-			if(level.actors[i].isAlive()) {
-				level.player.checkForHitting(level.actors[i]);
-				level.actors[i].checkForHitting(level.player);
+		if(level.player) {
+			for(i = 0; i < level.actors.length; i++) {
+				if(level.actors[i].isAlive()) {
+					level.player.checkForHitting(level.actors[i]);
+					level.actors[i].checkForHitting(level.player);
+				}
 			}
 		}
 
 		//end of frame
 		level.endOfFrame();
-		level.player.endOfFrame();
+		if(level.player) {
+			level.player.endOfFrame();
+		}
 		for(i = 0; i < level.actors.length; i++) {
 			if(level.actors[i].isAlive()) {
 				level.actors[i].endOfFrame();
@@ -103,7 +113,9 @@ define([
 				level.actors[i].render(ctx, camera);
 			}
 		}
-		level.player.render(ctx, camera);
+		if(level.player) {
+			level.player.render(ctx, camera);
+		}
 		//render special effects
 		for(i = 0; i < level.effects.length; i++) {
 			if(level.effects[i].isAlive()) {
