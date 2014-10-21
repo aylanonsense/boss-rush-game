@@ -4,5 +4,5 @@ define({
 	DEV_MODE: false,
 	WIDTH: 800,
 	HEIGHT: 600,
-	TILE_SIZE: 24
+	TILE_SIZE: 32
 });

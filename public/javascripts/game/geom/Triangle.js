@@ -67,14 +67,14 @@ define([
 			}
 		}
 	};
-	Triangle.prototype.render = function(ctx, camera, color, borderOnly) {
+	Triangle.prototype.render = function(ctx, camera, color, borderOnly, thickness) {
 		ctx.beginPath();
 		ctx.moveTo(this._renderPoints[2].x - camera.x, this._renderPoints[2].y - camera.y);
 		for(var i = 0; i < this._renderPoints.length; i++) {
 			ctx.lineTo(this._renderPoints[i].x - camera.x, this._renderPoints[i].y - camera.y);
 		}
 		if(borderOnly) {
-			ctx.lineWidth = 1.5;
+			ctx.lineWidth = thickness || 1.5;
 			ctx.strokeStyle = color || '#f0f';
 			ctx.stroke();
 		}

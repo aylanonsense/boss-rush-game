@@ -9,6 +9,23 @@ define({
 		crop: { x: 65, y: 65, width: 30, height: 30 },
 		loadingColor: '#4bf'
 	},
+	SNOWFLAKE: {
+		imagePath: '/image/elemental_royalty.gif',
+		width: 10,
+		height: 10,
+		scale: 4,
+		flip: false,
+		crop: { x: 65, y: 95, width: 30, height: 30 },
+		loadingColor: '#4bf'
+	},
+	FROZEN_KING: {
+		imagePath: '/image/elemental_royalty.gif',
+		width: 32,
+		height: 32,
+		scale: 8,
+		flip: true,
+		loadingColor: '#4bf'
+	},
 	PLAYER: {
 		imagePath: '/image/player.gif',
 		width: 24,
@@ -53,6 +70,15 @@ define({
 		crop: { x: 10, y: 19, width: 12, height: 18 },
 		loadingColor: '#f7941d'
 	},
+	DUNGEON_TILE: {
+		imagePath: '/image/8bit_tiles.gif',
+		width: 10,
+		height: 10,
+		scale: 4,
+		flip: false,
+		crop: { x: 0, y: 0, width: 40, height: 70 },
+		loadingColor: '#4c4c4c'
+	},
 	GREEK_LIGHT_DIRT: {
 		imagePath: '/image/tile/greek_light_dirt.gif',
 		width: 16,
@@ -94,13 +120,5 @@ define({
 		scale: 2,
 		flip: false,
 		loadingColor: '#f1a597'
-	},
-	FROZEN_KING: {
-		imagePath: '/image/frozen_king.gif',
-		width: 32,
-		height: 32,
-		scale: 8,
-		flip: true,
-		loadingColor: '#00f'
 	}
 });

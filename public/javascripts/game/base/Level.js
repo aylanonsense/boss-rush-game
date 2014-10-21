@@ -23,6 +23,9 @@ define(function() {
 	Level.prototype.spawnEffect = function(effect) {
 		this.effects.push(effect);
 	};
+	Level.prototype.spawnActor = function(actor) {
+		this.actors.push(actor);
+	};
 	Level.prototype._cullDeadObjects = function() {
 		this.actors = this.actors.filter(function(actor) {
 			return actor.isAlive();

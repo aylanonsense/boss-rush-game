@@ -174,18 +174,18 @@ define([
 			level.tileGrid.remove(col, row);
 		}
 		function exportMap() {
-			console.log("\t\tforeground: {\n" +
+			console.log("\tforeground: {\n" +
 				exportTileGrid(level.tileGrid) +
-				"\n\t\t}," +
-				"\n\t\tbackground: {\n" +
+				"\n\t}," +
+				"\n\tbackground: {\n" +
 				exportTileGrid(level.backgroundTileGrid) +
-				"\n\t\t}");
+				"\n\t}");
 		}
 		function exportTileGrid(tileGrid) {
 			var minCol = Math.min(level.tileGrid.getMinCol(), level.backgroundTileGrid.getMinCol());
 			var minRow = Math.min(level.tileGrid.getMinRow(), level.backgroundTileGrid.getMinRow());
 			var symbols = tileGrid.toSymbolMaps(minCol, minRow);
-			var indent = "\t\t\t";
+			var indent = "\t\t";
 			var s = indent + "tiles: [";
 			for(var i = 0; i < symbols.tiles.length; i++) {
 				s += (i > 0 ? "," : "") + "\n" + indent + "\t'" + symbols.tiles[i] + "'";

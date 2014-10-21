@@ -116,12 +116,13 @@ define([
 	FullCollisionActor.prototype.render = function(ctx, camera) {
 		if(this._boundingCollisionBox) {
 			if(Global.DEBUG_MODE) {
-				this._boundingCollisionBox.render(ctx, camera, '#0f0');
+				this._boundingCollisionBox.render(ctx, camera, '#090');
 			}
 			else if(Global.DEV_MODE) {
 				this._boundingCollisionBox.render(ctx, camera, '#ff0', true);
 			}
 		}
+		SUPERCLASS.prototype.render.call(this, ctx, camera);
 	};
 	return FullCollisionActor;
 });

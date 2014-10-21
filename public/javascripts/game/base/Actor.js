@@ -1,5 +1,9 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(function() {
+define([
+	'game/Global'
+], function(
+	Global
+) {
 	function Actor(level, x, y) {
 		this.level = level;
 		this._isAlive = true;
@@ -48,6 +52,7 @@ define(function() {
 			x: this.pos.x + this.vel.x / 60,
 			y: this.pos.y + this.vel.y / 60
 		};
+		this._recalculateCollisionBoxes();
 	};
 	Actor.prototype.hasMovementRemaining = function() {
 		return this.pos.x !== this._finalPos.x || this.pos.y !== this._finalPos.y;
@@ -78,7 +83,32 @@ define(function() {
 		//to be implemented in subclasses
 	};
 	Actor.prototype.render = function(ctx, camera) {
-		//to be implemented in subclasses
+		if(Global.DEBUG_MODE || Global.DEV_MODE) {
+			//draw position
+			ctx.strokeStyle = (Global.DEBUG_MODE ? '#6f6' : '#fff');
+			ctx.lineWidth = 2;
+			ctx.beginPath();
+			ctx.moveTo(this.pos.x - camera.x, this.pos.y + 10 - camera.y);
+			ctx.lineTo(this.pos.x - camera.x, this.pos.y - camera.y);
+			ctx.lineTo(this.pos.x + 10 - camera.x, this.pos.y - camera.y);
+			ctx.stroke();
+
+			//draw hitboxes and hurtboxes
+			var color;
+			for(var i = 0; i < this._hurtboxes.length; i++) {
+				var color;
+				if(this._hurtboxes[i].type === 'enemy') { color = 'rgba(255, 255, 50, 0.6)'; }
+				else if(this._hurtboxes[i].type === 'shatter') { color = 'rgba(50, 255, 255, 0.6)'; }
+				else { color = 'rgba(255, 0, 0, 0.6)'; }
+				this._hurtboxes[i].shape.render(ctx, camera, color);
+			}
+			for(i = 0; i < this._hitboxes.length; i++) {
+				if(this._hitboxes[i].type === 'enemy') { color = 'rgb(255, 255, 50)'; }
+				else if(this._hitboxes[i].type === 'shatter') { color = 'rgb(50, 255, 255)'; }
+				else { color = 'rgb(255, 0, 0)'; }
+				this._hitboxes[i].shape.render(ctx, camera, color, true, 3);
+			}
+		}
 	};
 	Actor.prototype.checkForCollisions = function() {
 		//to be implemented in subclasses

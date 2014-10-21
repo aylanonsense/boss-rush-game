@@ -1,7 +1,7 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define({
 	GREEK_LIGHT_DIRT: {
-		symbol: '0',
+		symbol: '4',
 		sprite: 'GREEK_LIGHT_DIRT',
 		variants: 3
 	},
@@ -21,5 +21,10 @@ define({
 		sprite: 'GREEK_DARK_GRASS',
 		variants: 3,
 		oneWayPlatform: true
+	},
+	DUNGEON: {
+		symbol: '0',
+		sprite: 'DUNGEON_TILE',
+		variants: 1
 	}
 });

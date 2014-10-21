@@ -236,9 +236,9 @@ define(function() {
 		}
 		return earliestIntersection;
 	};
-	Line.prototype.render = function(ctx, camera, color) {
+	Line.prototype.render = function(ctx, camera, color, thickness) {
 		ctx.strokeStyle = color || '#f0f';
-		ctx.lineWidth = 1.5;
+		ctx.lineWidth = thickness || 1.5;
 		ctx.beginPath();
 		ctx.moveTo(this._start.x - camera.x, this._start.y - camera.y);
 		ctx.lineTo(this._end.x - camera.x, this._end.y - camera.y);

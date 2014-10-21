@@ -41,9 +41,9 @@ define(function() {
 			return false;
 		}
 	};
-	Rect.prototype.render = function(ctx, camera, color, borderOnly) {
+	Rect.prototype.render = function(ctx, camera, color, borderOnly, thickness) {
 		if(borderOnly) {
-			ctx.lineWidth = 1.5;
+			ctx.lineWidth = thickness || 1.5;
 			ctx.strokeStyle = color || '#f0f';
 			ctx.strokeRect(this.x - camera.x, this.y - camera.y, this.width, this.height);
 		}

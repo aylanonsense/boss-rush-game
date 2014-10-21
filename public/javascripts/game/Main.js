@@ -17,7 +17,7 @@ define([
 		var ctx = canvas[0].getContext('2d');
 
 		//init objects
-		var camera = { x: 0, y: 0 };
+		var camera = { x: 48, y: 48 };
 		var level = new Level();
 
 		//set up animation frame functionality

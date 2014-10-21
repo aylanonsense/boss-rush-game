@@ -16,6 +16,7 @@ define([
 
 		//move everything
 		level.player.planMovement();
+		level.player.checkForCollisions(level.tileGrid, level.obstacles);
 		for(steps = 0; steps < 20 && level.player.hasMovementRemaining(); steps++) {
 			level.player.move();
 			if(level.player.isCollidable) {
@@ -26,6 +27,7 @@ define([
 		for(i = 0; i < level.actors.length; i++) {
 			if(level.actors[i].isAlive()) {
 				level.actors[i].planMovement();
+				level.actors[i].checkForCollisions(level.tileGrid, level.obstacles);
 				for(steps = 0; steps < 20 && level.actors[i].hasMovementRemaining(); steps++) {
 					level.actors[i].move();
 					if(level.actors[i].isCollidable) {
@@ -95,17 +97,19 @@ define([
 		for(i = 0; i < level.widgets.length; i++) {
 			level.widgets[i].render(ctx, camera);
 		}
+		//render actors
+		for(i = 0; i < level.actors.length; i++) {
+			if(level.actors[i].isAlive()) {
+				level.actors[i].render(ctx, camera);
+			}
+		}
+		level.player.render(ctx, camera);
 		//render special effects
 		for(i = 0; i < level.effects.length; i++) {
 			if(level.effects[i].isAlive()) {
 				level.effects[i].render(ctx, camera);
 			}
 		}
-		//render actors
-		for(i = 0; i < level.actors.length; i++) {
-			level.actors[i].render(ctx, camera);
-		}
-		level.player.render(ctx, camera);
 	}
 
 	return {

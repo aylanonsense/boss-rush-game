@@ -2,12 +2,16 @@ if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
 	'game/Global',
 	'game/base/FullCollisionActor',
-	'game/levels/BeeLevel/PollenEffect',
+	'game/base/Hitbox',
+	'game/geom/Rect',
+	'game/levels/ElementalRoyalty/SNowflake',
 	'game/display/SpriteLoader'
 ], function(
 	Global,
 	FullCollisionActor,
-	PollenEffect,
+	Hitbox,
+	Rect,
+	Snowflake,
 	SpriteLoader
 ) {
 	var SUPERCLASS = FullCollisionActor;
@@ -18,6 +22,7 @@ define([
 	function IceBlock(level, x, y) {
 		SUPERCLASS.call(this, level, x, y);
 		this._frame = 0;
+		this._shattered = false;
 	}
 	IceBlock.prototype = Object.create(SUPERCLASS.prototype);
 	IceBlock.prototype.startOfFrame = function() {
@@ -33,13 +38,35 @@ define([
 			if(this._frame < SPAWN_FRAMES) {
 				frame = Math.floor(BLOCK_FRAME * this._frame / SPAWN_FRAMES);
 			}
-			SPRITE.render(ctx, camera, this.pos.x, this.pos.y, frame);
+			SPRITE.render(ctx, camera, this.pos.x - 4, this.pos.y - 4, frame);
 		}
 		SUPERCLASS.prototype.render.call(this, ctx, camera);
 	};
 	IceBlock.prototype._recalculateCollisionBoxes = function() {
 		SUPERCLASS.prototype._recalculateCollisionBoxes.call(this);
-		this._createCollisionBoxes(5, 10, 33, 20);
+		this._createCollisionBoxes(0, 0, 32, 32);
+	};
+	IceBlock.prototype._recalculateHitBoxes = function() {
+		var self = this;
+		this._hitboxes = [
+			new Hitbox({
+				type: 'shatter',
+				shape: new Rect(this.pos.x, this.pos.y, 32, 32),
+				onHit: function() {
+					self._onShattered.apply(self, arguments);
+				}
+			})
+		];
+		SUPERCLASS.prototype._recalculateHitBoxes.call(this);
+	};
+	IceBlock.prototype._onShattered = function() {
+		if(!this._shattered) {
+			this._shattered = true;
+			this.level.spawnEffect(new Snowflake(this.pos.x, this.pos.y));
+		}
+	};
+	IceBlock.prototype.isAlive = function() {
+		return !this._shattered;
 	};
 	IceBlock.prototype._onCollided = function(thing, dir) {
 		//TODO
