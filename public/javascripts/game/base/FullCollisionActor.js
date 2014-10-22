@@ -12,6 +12,7 @@ define([
 	function FullCollisionActor(level, x, y) {
 		SUPERCLASS.call(this, level, x, y);
 		this.isCollidable = true;
+		this.collidesWithActors = true;
 	}
 	FullCollisionActor.prototype = Object.create(SUPERCLASS.prototype);
 	FullCollisionActor.prototype._createCollisionBoxes = function(offsetX, offsetY, width, height) {
@@ -35,7 +36,7 @@ define([
 		this.MAX_HORIZONTAL_MOVEMENT_PER_TICK = xIndent;
 		this.MAX_VERTICAL_MOVEMENT_PER_TICK = yIndent;
 	};
-	FullCollisionActor.prototype.checkForCollisions = function(tileGrid, obstacles) {
+	FullCollisionActor.prototype.checkForCollisions = function(tileGrid, obstacles, actors) {
 		var self = this;
 		var overlap;
 
@@ -46,6 +47,13 @@ define([
 		for(var i = 0; i < obstacles.length; i++) {
 			self._checkForBottomCollisions(obstacles[i]);
 		}
+		if(this.collidesWithActors) {
+			for(i = 0; i < actors.length; i++) {
+				if(actors[i].isAlive() && !actors[i].sameAs(this) && actors[i].platform) {
+					self._checkForBottomCollisions(actors[i].platform);
+				}
+			}
+		}
 
 		//now move the actor out of any obstacles it may have been moved into
 		tileGrid.forEachNearby(this._boundingCollisionBox, function(tile) {
@@ -53,6 +61,13 @@ define([
 		});
 		for(i = 0; i < obstacles.length; i++) {
 			self._checkForNonBottomCollisions(obstacles[i]);
+		}
+		if(this.collidesWithActors) {
+			for(i = 0; i < actors.length; i++) {
+				if(actors[i].isAlive() && !actors[i].sameAs(this) && actors[i].platform) {
+					self._checkForNonBottomCollisions(actors[i].platform);
+				}
+			}
 		}
 	};
 	FullCollisionActor.prototype._checkForBottomCollisions = function(thing) {

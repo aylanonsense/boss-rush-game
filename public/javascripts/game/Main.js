@@ -37,14 +37,26 @@ define([
 			RIGHT: 68 //D
 		};
 		var JUMP_KEY = 32; //SPACE
+		var moveX = 0;
+		var moveY = 0;
 		$(document).on('keydown', function(evt) {
 			if(!keys[evt.which]) {
 				keys[evt.which] = true;
+				if(evt.which === MOVE_KEYS.UP) { moveY = -1; }
+				else if(evt.which === MOVE_KEYS.DOWN) { moveY = 1; }
+				else if(evt.which === MOVE_KEYS.LEFT) { moveX = -1; }
+				else if(evt.which === MOVE_KEYS.RIGHT) { moveX = 1; }
+				level.player.setMoveDir(moveX, moveY);
 			}
 		});
 		$(document).on('keyup', function(evt) {
 			if(keys[evt.which]) {
 				keys[evt.which] = false;
+				if(evt.which === MOVE_KEYS.UP) { moveY = (keys[MOVE_KEYS.DOWN] ? 1 : 0); }
+				else if(evt.which === MOVE_KEYS.DOWN) { moveY = (keys[MOVE_KEYS.UP] ? -1 : 0); }
+				else if(evt.which === MOVE_KEYS.LEFT) { moveX = (keys[MOVE_KEYS.RIGHT] ? 1 : 0); }
+				else if(evt.which === MOVE_KEYS.RIGHT) { moveX = (keys[MOVE_KEYS.LEFT] ? -1 : 0); }
+				level.player.setMoveDir(moveX, moveY);
 			}
 		});
 	};

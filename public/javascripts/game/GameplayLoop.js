@@ -17,30 +17,30 @@ define([
 		}
 
 		//move everything
-		if(level.player) {
-			level.player.planMovement();
-			level.player.checkForCollisions(level.tileGrid, level.obstacles);
-			for(steps = 0; steps < 20 && level.player.hasMovementRemaining(); steps++) {
-				level.player.move();
-				if(level.player.isCollidable) {
-					level.player.checkForCollisions(level.tileGrid, level.obstacles);
-				}
-			}
-		}
-		if(steps === 20) { throw new Error("Maximum move steps per frame exceeded."); }
 		for(i = 0; i < level.actors.length; i++) {
 			if(level.actors[i].isAlive()) {
 				level.actors[i].planMovement();
-				level.actors[i].checkForCollisions(level.tileGrid, level.obstacles);
+				level.actors[i].checkForCollisions(level.tileGrid, level.obstacles, level.actors);
 				for(steps = 0; steps < 20 && level.actors[i].hasMovementRemaining(); steps++) {
 					level.actors[i].move();
 					if(level.actors[i].isCollidable) {
-						level.actors[i].checkForCollisions(level.tileGrid, level.obstacles);
+						level.actors[i].checkForCollisions(level.tileGrid, level.obstacles, level.actors);
 					}
 				}
-				if(steps === 20) { throw new Error("Maximum move steps per frame exceeded."); }
+				if(steps === 20) { console.warn("Maximum move steps per frame exceeded."); }
 			}
 		}
+		if(level.player) {
+			level.player.planMovement();
+			level.player.checkForCollisions(level.tileGrid, level.obstacles, level.actors);
+			for(steps = 0; steps < 20 && level.player.hasMovementRemaining(); steps++) {
+				level.player.move();
+				if(level.player.isCollidable) {
+					level.player.checkForCollisions(level.tileGrid, level.obstacles, level.actors);
+				}
+			}
+		}
+		if(steps === 20) { console.warn("Maximum move steps per frame exceeded."); }
 
 		//end of movement
 		if(level.player) {

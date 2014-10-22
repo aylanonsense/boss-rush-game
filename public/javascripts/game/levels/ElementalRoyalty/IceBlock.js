@@ -25,6 +25,7 @@ define([
 		SUPERCLASS.call(this, level, x, y);
 		this._frame = 0;
 		this._shattered = false;
+		this._platforms = [];
 	}
 	IceBlock.prototype = Object.create(SUPERCLASS.prototype);
 	IceBlock.prototype.startOfFrame = function() {
@@ -59,6 +60,7 @@ define([
 				}
 			})
 		];
+		this.platform = new Rect(this.pos.x, this.pos.y, 32, 32);
 		SUPERCLASS.prototype._recalculateHitBoxes.call(this);
 	};
 	IceBlock.prototype._onShattered = function() {
@@ -75,7 +77,7 @@ define([
 		return !this._shattered;
 	};
 	IceBlock.prototype._onCollided = function(thing, dir) {
-		//TODO
+		this.vel.y = 0;
 	};
 	return IceBlock;
 });

@@ -4,10 +4,10 @@ define([
 ], function(
 	Global
 ) {
+	var NEXT_ACTOR_ID = 0;
 	function Actor(level, x, y) {
+		this._actorId = NEXT_ACTOR_ID++;
 		this.level = level;
-		this._isAlive = true;
-		this.health = 10;
 		this.pos = { x: x || 0, y: y || 0 };
 		this.vel = { x: 0, y: 0 };
 		this.MAX_HORIZONTAL_MOVEMENT_PER_TICK = 10;
@@ -15,6 +15,7 @@ define([
 		this.isCollidable = false;
 		this._hitboxes = [];
 		this._hurtboxes = [];
+		this.platform = null;
 	}
 	Actor.prototype.checkForHitting = function(actor) {
 		//dead actors don't tell no tales (or hit each other)
@@ -45,7 +46,7 @@ define([
 		return false;
 	};
 	Actor.prototype.isAlive = function() {
-		return this._isAlive;
+		return true;
 	};
 	Actor.prototype.planMovement = function() {
 		this._finalPos = {
@@ -84,19 +85,10 @@ define([
 	};
 	Actor.prototype.render = function(ctx, camera) {
 		if(Global.DEBUG_MODE || Global.DEV_MODE) {
-			//draw position
-			ctx.strokeStyle = (Global.DEBUG_MODE ? '#6f6' : '#fff');
-			ctx.lineWidth = 2;
-			ctx.beginPath();
-			ctx.moveTo(this.pos.x - camera.x, this.pos.y + 10 - camera.y);
-			ctx.lineTo(this.pos.x - camera.x, this.pos.y - camera.y);
-			ctx.lineTo(this.pos.x + 10 - camera.x, this.pos.y - camera.y);
-			ctx.stroke();
 
 			//draw hitboxes and hurtboxes
 			var color;
 			for(var i = 0; i < this._hurtboxes.length; i++) {
-				var color;
 				if(this._hurtboxes[i].type === 'enemy') { color = 'rgba(255, 255, 50, 0.6)'; }
 				else if(this._hurtboxes[i].type === 'shatter') { color = 'rgba(50, 255, 255, 0.6)'; }
 				else { color = 'rgba(255, 0, 0, 0.6)'; }
@@ -108,7 +100,24 @@ define([
 				else { color = 'rgb(255, 0, 0)'; }
 				this._hitboxes[i].shape.render(ctx, camera, color, true, 3);
 			}
+
+			//draw platform (solid ground)
+			if(this.platform) {
+				this.platform.render(ctx, camera, '#f06', true, 3);
+			}
+
+			//draw position
+			ctx.strokeStyle = (Global.DEBUG_MODE ? '#6f6' : '#fff');
+			ctx.lineWidth = 2;
+			ctx.beginPath();
+			ctx.moveTo(this.pos.x - camera.x, this.pos.y + 10 - camera.y);
+			ctx.lineTo(this.pos.x - camera.x, this.pos.y - camera.y);
+			ctx.lineTo(this.pos.x + 10 - camera.x, this.pos.y - camera.y);
+			ctx.stroke();
 		}
+	};
+	Actor.prototype.sameAs = function(actor) {
+		return this._actorId === actor._actorId;
 	};
 	Actor.prototype.checkForCollisions = function() {
 		//to be implemented in subclasses

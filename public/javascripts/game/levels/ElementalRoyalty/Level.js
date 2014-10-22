@@ -3,6 +3,7 @@ define([
 	'game/base/Level',
 	'game/levels/ElementalRoyalty/IceBlock',
 	'game/levels/ElementalRoyalty/FrozenKing',
+	'game/Player',
 	'game/base/Widget',
 	'game/base/TileGrid',
 	'game/levels/ElementalRoyalty/map',
@@ -10,6 +11,7 @@ define([
 	Level,
 	IceBlock,
 	FrozenKing,
+	Player,
 	Widget,
 	TileGrid,
 	map
@@ -18,7 +20,7 @@ define([
 	function ElementalRoyalty() {
 		SUPERCLASS.call(this);
 		this.backgroundColor = '#222';
-		this.player = null;
+		this.player = new Player(this, 300, 300);
 		this.backgroundTileGrid = new TileGrid(map.background.tiles,map.background.shapes,map.background.variants);
 		this.tileGrid = new TileGrid(map.foreground.tiles,map.foreground.shapes,map.foreground.variants);
 		this.obstacles = [];

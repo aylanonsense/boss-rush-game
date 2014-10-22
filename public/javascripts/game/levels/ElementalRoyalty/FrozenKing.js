@@ -23,6 +23,7 @@ define([
 		this._jumpTarget = 0;
 		this._facing = -1;
 		this.vel.x = 0;
+		this.collidesWithActors = false;
 		this._currentAction = 'pause';
 		this._currentActionFramesRemaining = 60;
 	}
@@ -55,10 +56,6 @@ define([
 				this.prepToJump();
 			}
 			else {
-				this.spawnIceBlock(32 * Math.floor(2 + 24 * Math.random()));
-				this.spawnIceBlock(32 * Math.floor(2 + 24 * Math.random()));
-				this.spawnIceBlock(32 * Math.floor(2 + 24 * Math.random()));
-				this.spawnIceBlock(32 * Math.floor(2 + 24 * Math.random()));
 				this.spawnIceBlock(32 * Math.floor(2 + 24 * Math.random()));
 			}
 		}
@@ -98,7 +95,7 @@ define([
 	};
 	FrozenKing.prototype._recalculateHitBoxes = function() {
 		this._hurtboxes = [
-			new Hitbox({ type: 'shatter', shape: new Rect(this.pos.x - 8, this.pos.y + 50, 96, 70) })
+			new Hitbox({ type: 'shatter', shape: new Rect(this.pos.x - 4, this.pos.y + 44, 88, 80) })
 		];
 		SUPERCLASS.prototype._recalculateHitBoxes.call(this);
 	};

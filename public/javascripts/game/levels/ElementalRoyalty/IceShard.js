@@ -22,6 +22,7 @@ define([
 		SUPERCLASS.call(this, level, x, y);
 		this.vel.x = (movingLeft ? -1 : 1) * 250;
 		this.vel.y = -250;
+		this.collidesWithActors = false;
 		this._isAlive = true;
 		this._shardFrame = (movingLeft ? 0: 1);
 	}
@@ -53,7 +54,7 @@ define([
 					new Line(this.pos.x, this.pos.y, this.pos.x + 20, this.pos.y + 20) :
 					new Line(this.pos.x + 20, this.pos.y, this.pos.x, this.pos.y + 20)),
 				onHit: function() {
-					self._onShattered.apply(self, arguments);
+					//TODO
 				}
 			})
 		];
