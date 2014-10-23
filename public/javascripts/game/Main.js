@@ -30,33 +30,28 @@ define([
 
 		//add input bindings
 		var keys = { pressed: {} };
-		var MOVE_KEYS = {
-			UP: 87, //W
-			LEFT: 65, //A
-			DOWN: 83, //S
-			RIGHT: 68 //D
-		};
+		var MOVE_LEFT_KEY = 37; //left arrow
+		var MOVE_RIGHT_KEY = 39; //right arrow
 		var JUMP_KEY = 32; //SPACE
+		var SHOOT_KEY = 65; //A
 		var moveX = 0;
-		var moveY = 0;
 		$(document).on('keydown', function(evt) {
 			if(!keys[evt.which]) {
 				keys[evt.which] = true;
-				if(evt.which === MOVE_KEYS.UP) { moveY = -1; }
-				else if(evt.which === MOVE_KEYS.DOWN) { moveY = 1; }
-				else if(evt.which === MOVE_KEYS.LEFT) { moveX = -1; }
-				else if(evt.which === MOVE_KEYS.RIGHT) { moveX = 1; }
-				level.player.setMoveDir(moveX, moveY);
+				if(evt.which === MOVE_LEFT_KEY) { moveX = -1; }
+				else if(evt.which === MOVE_RIGHT_KEY) { moveX = 1; }
+				else if(evt.which === JUMP_KEY) { level.player.jump(); }
+				else if(evt.which === SHOOT_KEY) { level.player.fireProjectile(); }
+				level.player.setMoveDir(moveX);
 			}
 		});
 		$(document).on('keyup', function(evt) {
 			if(keys[evt.which]) {
 				keys[evt.which] = false;
-				if(evt.which === MOVE_KEYS.UP) { moveY = (keys[MOVE_KEYS.DOWN] ? 1 : 0); }
-				else if(evt.which === MOVE_KEYS.DOWN) { moveY = (keys[MOVE_KEYS.UP] ? -1 : 0); }
-				else if(evt.which === MOVE_KEYS.LEFT) { moveX = (keys[MOVE_KEYS.RIGHT] ? 1 : 0); }
-				else if(evt.which === MOVE_KEYS.RIGHT) { moveX = (keys[MOVE_KEYS.LEFT] ? -1 : 0); }
-				level.player.setMoveDir(moveX, moveY);
+				if(evt.which === MOVE_LEFT_KEY) { moveX = (keys[MOVE_RIGHT_KEY] ? 1 : 0); }
+				else if(evt.which === MOVE_RIGHT_KEY) { moveX = (keys[MOVE_LEFT_KEY] ? -1 : 0); }
+				else if(evt.which === JUMP_KEY) { level.player.stopJumping(); }
+				level.player.setMoveDir(moveX);
 			}
 		});
 	};

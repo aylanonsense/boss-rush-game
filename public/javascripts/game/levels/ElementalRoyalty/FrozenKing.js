@@ -37,7 +37,7 @@ define([
 			this._currentActionFramesRemaining--;
 			if(this._currentActionFramesRemaining <= 0) {
 				if(this._currentAction === 'preppingtojump') {
-					this.jump(32 * Math.floor(5 + 18 * Math.random()));
+					this.jump(32 * Math.floor(2 + 22 * Math.random()));
 				}
 				else if(this._currentAction !== 'pause') {
 					this._currentAction = 'pause';

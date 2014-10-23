@@ -60,7 +60,12 @@ define([
 				}
 			})
 		];
-		this.platform = new Rect(this.pos.x, this.pos.y, 32, 32);
+		if(this.vel.y === 0 && this._frame > SPAWN_FRAMES + DELAY_FRAMES) {
+			this.platform = new Rect(this.pos.x, this.pos.y, 32, 32);
+		}
+		else {
+			this.platform = null;
+		}
 		SUPERCLASS.prototype._recalculateHitBoxes.call(this);
 	};
 	IceBlock.prototype._onShattered = function() {

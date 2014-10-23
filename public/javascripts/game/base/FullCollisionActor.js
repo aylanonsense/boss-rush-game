@@ -37,6 +37,9 @@ define([
 		this.MAX_VERTICAL_MOVEMENT_PER_TICK = yIndent;
 	};
 	FullCollisionActor.prototype.checkForCollisions = function(tileGrid, obstacles, actors) {
+		if(!this._boundingCollisionBox) {
+			return false;
+		}
 		var self = this;
 		var overlap;
 

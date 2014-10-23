@@ -24,7 +24,7 @@ define({
 		height: 10,
 		scale: 4,
 		flip: false,
-		crop: { x: 75, y: 115, width: 20, height: 10 },
+		crop: { x: 75, y: 115, width: 40, height: 10 },
 		loadingColor: '#4bf'
 	},
 	FROZEN_KING: {
@@ -41,6 +41,15 @@ define({
 		height: 24,
 		scale: 2,
 		flip: true,
+		loadingColor: '#0b85ff'
+	},
+	MAIL: {
+		imagePath: '/image/player.gif',
+		width: 8,
+		height: 8,
+		scale: 2,
+		flip: true,
+		crop: { x: 144, y: 96, width: 24, height: 24 },
 		loadingColor: '#0b85ff'
 	},
 	BEE: {
