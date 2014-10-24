@@ -20,7 +20,7 @@ define([
 	function ElementalRoyalty() {
 		SUPERCLASS.call(this);
 		this.backgroundColor = '#222';
-		this.player = new Player(this, 300, 300);
+		this.player = new Player(this, 300, 500);
 		this.backgroundTileGrid = new TileGrid(map.background.tiles,map.background.shapes,map.background.variants);
 		this.tileGrid = new TileGrid(map.foreground.tiles,map.foreground.shapes,map.foreground.variants);
 		this.obstacles = [];

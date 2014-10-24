@@ -24,9 +24,17 @@ define([
 		function loop() {
 			GameplayLoop.update(level);
 			GameplayLoop.render(ctx, camera, level);
-			requestAnimationFrame(loop);
+			scheduleLoop();
 		}
-		requestAnimationFrame(loop);
+		function scheduleLoop() {
+			if(Global.DEBUG_FRAMERATE) {
+				setTimeout(loop, 1000 / Global.DEBUG_FRAMERATE);
+			}
+			else {
+				requestAnimationFrame(loop);
+			}
+		}
+		scheduleLoop();
 
 		//add input bindings
 		var keys = { pressed: {} };

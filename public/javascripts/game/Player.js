@@ -16,15 +16,12 @@ define([
 ) {
 	var SUPERCLASS = FullCollisionActor;
 	var SPRITE = SpriteLoader.loadSpriteSheet('PLAYER');
-	var GROUND_MOVEMENT = {
-		ACC: { LESS: -80, DEFAULT: -30, MORE: 30 },
-		TOP_SPEED: 225,
-		INITIAL_SPEED: 30
-	};
+	var GROUND_MOVEMENT = { ACC: { LESS: -60, DEFAULT: -30, MORE: 30 }, TOP_SPEED: 235 };
 	var AIR_MOVEMENT = GROUND_MOVEMENT;
-	var GRAVITY = 10;
-	var JUMP_SPEED = 700;
+	var GRAVITY = 20;
+	var JUMP_SPEED = 600;
 	var STOP_JUMP_SPEED = 125;
+	var MAX_VERTICAL_SPEED = Math.max(JUMP_SPEED, 600);
 	function Player(level, x, y) {
 		SUPERCLASS.call(this, level, x, y);
 		this.setMoveDir(0, 0);
@@ -33,9 +30,18 @@ define([
 		this._isStanding = false;
 		this._autoFire = false;
 		this._facing = 1;
+		this._framesOfLandingAnimation = 0;
 		this._framesUntilAbleToFire = 0;
+		this._currentAnimation = null;
+		this._currentAnimationProgress = 0;
 	}
 	Player.prototype = Object.create(SUPERCLASS.prototype);
+	Player.prototype._setAnimation = function(anim) {
+		if(this._currentAnimation !== anim) {
+			this._currentAnimation = anim;
+			this._currentAnimationProgress = 0;
+		}
+	};
 	Player.prototype.startOfFrame = function() {
 		SUPERCLASS.prototype.startOfFrame.call(this);
 
@@ -46,7 +52,7 @@ define([
 			else if(this._moveDir < 0) { this.vel.x += MOVEMENT.ACC.LESS; }
 			else { this.vel.x += MOVEMENT.ACC.DEFAULT; }
 			if(this.vel.x < 0) {
-				this.vel.x = (this._moveDir < 0 ? -MOVEMENT.INITIAL_SPEED : 0);
+				this.vel.x = (this._moveDir < 0 ? this.vel.x : 0);
 			}
 		}
 		else if(this.vel.x < 0) {
@@ -54,20 +60,24 @@ define([
 			else if(this._moveDir < 0) { this.vel.x -= MOVEMENT.ACC.MORE; }
 			else { this.vel.x -= MOVEMENT.ACC.DEFAULT; }
 			if(this.vel.x > 0) {
-				this.vel.x = (this._moveDir > 0 ? MOVEMENT.INITIAL_SPEED : 0);
+				this.vel.x = (this._moveDir > 0 ? this.vel.x : 0);
 			}
 		}
 		else {
-			if(this._moveDir > 0) { this.vel.x = MOVEMENT.INITIAL_SPEED; }
-			else if(this._moveDir < 0) { this.vel.x = -MOVEMENT.INITIAL_SPEED; }
+			if(this._moveDir > 0) { this.vel.x = MOVEMENT.ACC.MORE; }
+			else if(this._moveDir < 0) { this.vel.x = -MOVEMENT.ACC.MORE; }
 		}
 		if(this.vel.x > MOVEMENT.TOP_SPEED) { this.vel.x = MOVEMENT.TOP_SPEED; }
 		else if(this.vel.x < -MOVEMENT.TOP_SPEED) { this.vel.x = -MOVEMENT.TOP_SPEED; }
-		if(this.vel.x < 0) { this._facing = -1; }
-		else if(this.vel.x > 0) { this._facing = 1; }
+		if(this.vel.x < 0 && this._isStanding) { this._facing = -1; }
+		else if(this.vel.x > 0 && this._isStanding) { this._facing = 1; }
+		else if(!this._isStanding && this._moveDir !== 0) { this._facing = this._moveDir; }
 		this.vel.y += GRAVITY;
+		if(this.vel.y < -MAX_VERTICAL_SPEED) { this.vel.y = -MAX_VERTICAL_SPEED; }
+		else if(this.vel.y > MAX_VERTICAL_SPEED) { this.vel.y = MAX_VERTICAL_SPEED; }
 
 		//handle jumping
+		this._framesOfLandingAnimation--;
 		this._framesOfAutoJump--;
 		if(this.vel.y > 0) {
 			this._isJumping = false;
@@ -83,13 +93,60 @@ define([
 	Player.prototype.render = function(ctx, camera) {
 		if(!Global.DEBUG_MODE) {
 			var frame;
+			this._currentAnimationProgress++;
 			if(this._isStanding) {
-				frame = 0;
+				if(this.vel.x === 0) {
+					if(this._framesOfLandingAnimation > 0) {
+						this._setAnimation('landing');
+						frame = 62;
+					}
+					else {
+						this._setAnimation('standing');
+						frame = 0;
+					}
+				}
+				else {
+					this._framesOfLandingAnimation = 0;
+					if(this._moveDir === 0) {
+						frame = 40;
+					}
+					else if(this._moveDir < 0 !== this.vel.x < 0) {
+						frame = 51;
+					}
+					else {
+						this._setAnimation('running');
+						var p = (this._currentAnimationProgress % 40);
+						if(p < 11) { frame = 20; }
+						else if(p < 20) { frame = 21; }
+						else if(p < 31) { frame = 22; }
+						else { frame = 23; }
+					}
+				}
 			}
 			else {
+				this._setAnimation('airborne');
 				frame = 17;
+				if(this.vel.x * this.vel.x + this.vel.y * this.vel.y > 250 * 250) {
+					var angle = (Math.atan2(this.vel.y, this.vel.x) + 2 * Math.PI) % (2 * Math.PI);
+					if(Math.PI * 1 / 8 < angle && angle < Math.PI * 7 / 8) {
+						//moving downward
+						frame += 10;
+					}
+					else if(Math.PI * 9 / 8 < angle && angle < Math.PI * 15 / 8) {
+						//moving upward
+						frame -= 10;
+					}
+					if(Math.PI * 5 / 8 < angle && angle < Math.PI * 11 / 8) {
+						//moving left
+						frame += (this._facing > 0 ? -1 : 1);
+					}
+					else if(angle < Math.PI * 3 / 8 || Math.PI * 13 / 8 < angle) {
+						//moving right
+						frame += (this._facing > 0 ? 1 : -1);
+					}
+				}
 			}
-			SPRITE.render(ctx, camera, this.pos.x - 12, this.pos.y - 10, frame, this._facing < 0);
+			SPRITE.render(ctx, camera, this.pos.x - 10, this.pos.y - 10, frame, this._facing < 0);
 		}
 		SUPERCLASS.prototype.render.call(this, ctx, camera);
 	};
@@ -121,6 +178,22 @@ define([
 				this._isJumping = true;
 				this._isStanding = false;
 			}
+			else if(this.vel.x === 0 && this.vel.y > 375) {
+				this._framesOfLandingAnimation = Math.floor(this.vel.y / 25) - 10;
+			}
+			if(this.vel.y > 0) {
+				this.vel.y = 0;
+			}
+		}
+		else if(dir === 'left') {
+			if(this.vel.x < 0) {
+				this.vel.x = 0;
+			}
+		}
+		else if(dir === 'right') {
+			if(this.vel.x > 0) {
+				this.vel.x = 0;
+			}
 		}
 	};
 	Player.prototype.setMoveDir = function(xDir) {
@@ -137,7 +210,7 @@ define([
 	Player.prototype.fireProjectile = function() {
 		if(this._framesUntilAbleToFire <= 0) {
 			this._framesUntilAbleToFire = 10;
-			this.level.spawnActor(new MailProjectile(this.level, this.pos.x, this.pos.y));
+			this.level.spawnActor(new MailProjectile(this.level, this.pos.x + 14 + 14 * this._facing, this.pos.y + 12, this._facing));
 			this._autoFire = false;
 		}
 		else if(this._framesUntilAbleToFire <= 6) {
