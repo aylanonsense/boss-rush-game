@@ -34,6 +34,8 @@ define([
 		this._framesUntilAbleToFire = 0;
 		this._currentAnimation = null;
 		this._currentAnimationProgress = 0;
+		this._isBeingHurt = false;
+		this._invincibilityFramesLeft = 0;
 	}
 	Player.prototype = Object.create(SUPERCLASS.prototype);
 	Player.prototype._setAnimation = function(anim) {
@@ -46,35 +48,37 @@ define([
 		SUPERCLASS.prototype.startOfFrame.call(this);
 
 		//handle movement
-		var MOVEMENT = (this._isStanding ? GROUND_MOVEMENT : AIR_MOVEMENT);
-		if(this.vel.x > 0) {
-			if(this._moveDir > 0) { this.vel.x += MOVEMENT.ACC.MORE; }
-			else if(this._moveDir < 0) { this.vel.x += MOVEMENT.ACC.LESS; }
-			else { this.vel.x += MOVEMENT.ACC.DEFAULT; }
-			if(this.vel.x < 0) {
-				this.vel.x = (this._moveDir < 0 ? this.vel.x : 0);
-			}
-		}
-		else if(this.vel.x < 0) {
-			if(this._moveDir > 0) { this.vel.x -= MOVEMENT.ACC.LESS; }
-			else if(this._moveDir < 0) { this.vel.x -= MOVEMENT.ACC.MORE; }
-			else { this.vel.x -= MOVEMENT.ACC.DEFAULT; }
+		if(!this._isBeingHurt) {
+			var MOVEMENT = (this._isStanding ? GROUND_MOVEMENT : AIR_MOVEMENT);
 			if(this.vel.x > 0) {
-				this.vel.x = (this._moveDir > 0 ? this.vel.x : 0);
+				if(this._moveDir > 0) { this.vel.x += MOVEMENT.ACC.MORE; }
+				else if(this._moveDir < 0) { this.vel.x += MOVEMENT.ACC.LESS; }
+				else { this.vel.x += MOVEMENT.ACC.DEFAULT; }
+				if(this.vel.x < 0) {
+					this.vel.x = (this._moveDir < 0 ? this.vel.x : 0);
+				}
 			}
+			else if(this.vel.x < 0) {
+				if(this._moveDir > 0) { this.vel.x -= MOVEMENT.ACC.LESS; }
+				else if(this._moveDir < 0) { this.vel.x -= MOVEMENT.ACC.MORE; }
+				else { this.vel.x -= MOVEMENT.ACC.DEFAULT; }
+				if(this.vel.x > 0) {
+					this.vel.x = (this._moveDir > 0 ? this.vel.x : 0);
+				}
+			}
+			else {
+				if(this._moveDir > 0) { this.vel.x = MOVEMENT.ACC.MORE; }
+				else if(this._moveDir < 0) { this.vel.x = -MOVEMENT.ACC.MORE; }
+			}
+			if(this.vel.x > MOVEMENT.TOP_SPEED) { this.vel.x = MOVEMENT.TOP_SPEED; }
+			else if(this.vel.x < -MOVEMENT.TOP_SPEED) { this.vel.x = -MOVEMENT.TOP_SPEED; }
+			if(this.vel.x < 0 && this._isStanding) { this._facing = -1; }
+			else if(this.vel.x > 0 && this._isStanding) { this._facing = 1; }
+			else if(!this._isStanding && this._moveDir !== 0) { this._facing = this._moveDir; }
+			this.vel.y += GRAVITY;
+			if(this.vel.y < -MAX_VERTICAL_SPEED) { this.vel.y = -MAX_VERTICAL_SPEED; }
+			else if(this.vel.y > MAX_VERTICAL_SPEED) { this.vel.y = MAX_VERTICAL_SPEED; }
 		}
-		else {
-			if(this._moveDir > 0) { this.vel.x = MOVEMENT.ACC.MORE; }
-			else if(this._moveDir < 0) { this.vel.x = -MOVEMENT.ACC.MORE; }
-		}
-		if(this.vel.x > MOVEMENT.TOP_SPEED) { this.vel.x = MOVEMENT.TOP_SPEED; }
-		else if(this.vel.x < -MOVEMENT.TOP_SPEED) { this.vel.x = -MOVEMENT.TOP_SPEED; }
-		if(this.vel.x < 0 && this._isStanding) { this._facing = -1; }
-		else if(this.vel.x > 0 && this._isStanding) { this._facing = 1; }
-		else if(!this._isStanding && this._moveDir !== 0) { this._facing = this._moveDir; }
-		this.vel.y += GRAVITY;
-		if(this.vel.y < -MAX_VERTICAL_SPEED) { this.vel.y = -MAX_VERTICAL_SPEED; }
-		else if(this.vel.y > MAX_VERTICAL_SPEED) { this.vel.y = MAX_VERTICAL_SPEED; }
 
 		//handle jumping
 		this._framesOfLandingAnimation--;
@@ -83,10 +87,14 @@ define([
 			this._isJumping = false;
 		}
 		this._bottomCollisionsThisFrame = 0;
+		this._invincibilityFramesLeft--;
+		if(this._invincibilityFramesLeft <= 85) {
+			this._isBeingHurt = false;
+		}
 
 		//handle firing
 		this._framesUntilAbleToFire--;
-		if(this._framesUntilAbleToFire <= 0 && this._autoFire) {
+		if(!this._isBeingHurt && this._framesUntilAbleToFire <= 0 && this._autoFire) {
 			this.fireProjectile();
 		}
 	};
@@ -94,7 +102,10 @@ define([
 		if(!Global.DEBUG_MODE) {
 			var frame;
 			this._currentAnimationProgress++;
-			if(this._isStanding) {
+			if(this._isBeingHurt) {
+				frame = (this._invincibilityFramesLeft % 16 > 7 ? 53 : 54);
+			}
+			else if(this._isStanding) {
 				if(this.vel.x === 0) {
 					if(this._framesOfLandingAnimation > 0) {
 						this._setAnimation('landing');
@@ -146,7 +157,9 @@ define([
 					}
 				}
 			}
-			SPRITE.render(ctx, camera, this.pos.x - 10, this.pos.y - 10, frame, this._facing < 0);
+			if(this._isBeingHurt || this._invincibilityFramesLeft <= 0 || this._invincibilityFramesLeft % 15 < 10) {
+				SPRITE.render(ctx, camera, this.pos.x - 10, this.pos.y - 10, frame, this._facing < 0);
+			}
 		}
 		SUPERCLASS.prototype.render.call(this, ctx, camera);
 	};
@@ -215,6 +228,14 @@ define([
 		}
 		else if(this._framesUntilAbleToFire <= 6) {
 			this._autoFire = true;
+		}
+	};
+	Player.prototype.hurt = function() {
+		if(!this._isBeingHurt && this._invincibilityFramesLeft <= 0) {
+			this._isBeingHurt = true;
+			this._invincibilityFramesLeft = 115;
+			this.vel.y = 0;
+			this.vel.x = -100 * this._facing;
 		}
 	};
 	return Player;

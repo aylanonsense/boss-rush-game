@@ -95,7 +95,12 @@ define([
 	};
 	FrozenKing.prototype._recalculateHitBoxes = function() {
 		this._hurtboxes = [
-			new Hitbox({ type: 'shatter', shape: new Rect(this.pos.x - 4, this.pos.y + 44, 88, 80) })
+			new Hitbox({ type: 'shatter', shape: new Rect(this.pos.x - 4, this.pos.y + 44, 88, 80) }),
+			new Hitbox({
+				type: 'player',
+				shape: new Rect(this.pos.x, this.pos.y + 8, 80, 112),
+				onHit: function(player) { player.hurt();}
+			})
 		];
 		SUPERCLASS.prototype._recalculateHitBoxes.call(this);
 	};

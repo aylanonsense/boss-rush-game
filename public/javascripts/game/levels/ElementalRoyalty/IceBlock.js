@@ -62,9 +62,17 @@ define([
 		];
 		if(this.vel.y === 0 && this._frame > SPAWN_FRAMES + DELAY_FRAMES) {
 			this.platform = new Rect(this.pos.x, this.pos.y, 32, 32);
+			this._hurtboxes = [];
 		}
 		else {
 			this.platform = null;
+			this._hurtboxes = [
+				new Hitbox({
+					type: 'player',
+					shape: new Rect(this.pos.x, this.pos.y, 32, 32),
+					onHit: function(player) { player.hurt(); }
+				})
+			];
 		}
 		SUPERCLASS.prototype._recalculateHitBoxes.call(this);
 	};
