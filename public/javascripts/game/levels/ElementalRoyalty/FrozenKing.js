@@ -16,6 +16,7 @@ define([
 ) {
 	var SUPERCLASS = FullCollisionActor;
 	var SPRITE = SpriteLoader.loadSpriteSheet('FROZEN_KING');
+	var SPRITE_DAMAGED = SpriteLoader.loadSpriteSheet('FROZEN_KING_DAMAGED');
 	var GRAVITY = 17;
 	function FrozenKing(level, x, y) {
 		SUPERCLASS.call(this, level, x, y);
@@ -26,11 +27,13 @@ define([
 		this.collidesWithActors = false;
 		this._currentAction = 'pause';
 		this._currentActionFramesRemaining = 60;
+		this._hurtFramesLeft = 0;
 	}
 	FrozenKing.prototype = Object.create(SUPERCLASS.prototype);
 	FrozenKing.prototype.startOfFrame = function() {
 		SUPERCLASS.prototype.startOfFrame.call(this);
 		this._frame++;
+		this._hurtFramesLeft--;
 
 		//complete actions and pause after them
 		if(this._currentAction !== null) {
@@ -75,7 +78,12 @@ define([
 			else if(this._currentAction === 'preppingtojump') {
 				frame = 1;
 			}
-			SPRITE.render(ctx, camera, this.pos.x - 88, this.pos.y - 120, frame, this._facing > 0);
+			var wiggle = 0;
+			if(this._hurtFramesLeft > 0) {
+				wiggle = 2 * (this._hurtFramesLeft % 2 === 0 ? -1 : 1);
+			}
+			var sprite = (this._hurtFramesLeft > 0 ? SPRITE_DAMAGED : SPRITE);
+			sprite.render(ctx, camera, this.pos.x - 88 + wiggle, this.pos.y - 120, frame, this._facing > 0);
 		}
 		SUPERCLASS.prototype.render.call(this, ctx, camera);
 		if(Global.DEV_MODE) {
@@ -94,12 +102,22 @@ define([
 		this._createCollisionBoxes(0, 0, 80, 120);
 	};
 	FrozenKing.prototype._recalculateHitBoxes = function() {
+		var self = this;
 		this._hurtboxes = [
 			new Hitbox({ type: 'shatter', shape: new Rect(this.pos.x - 4, this.pos.y + 44, 88, 80) }),
 			new Hitbox({
 				type: 'player',
 				shape: new Rect(this.pos.x, this.pos.y + 8, 80, 112),
 				onHit: function(player) { player.hurt();}
+			})
+		];
+		this._hitboxes = [
+			new Hitbox({
+				type: 'enemy',
+				shape: new Rect(this.pos.x, this.pos.y + 8, 80, 112),
+				onHit: function() {
+					self.hurt();
+				}
 			})
 		];
 		SUPERCLASS.prototype._recalculateHitBoxes.call(this);
@@ -133,6 +151,9 @@ define([
 		this._jumpTarget = x;
 		this._currentAction = 'jumping';
 		this._currentActionFramesRemaining = numFrames;
+	};
+	FrozenKing.prototype.hurt = function() {
+		this._hurtFramesLeft = 7;
 	};
 	return FrozenKing;
 });

@@ -57,8 +57,15 @@ define([
 		SUPERCLASS.prototype._recalculateCollisionBoxes.call(this);
 	};
 	MailProjectile.prototype._recalculateHitBoxes = function() {
-		this._hitboxes = [
-			new Hitbox({ type: 'enemy', shape: new Rect(this.pos.x, this.pos.y, 14, 8) })
+		var self = this;
+		this._hurtboxes = [
+			new Hitbox({
+				type: 'enemy',
+				shape: new Rect(this.pos.x, this.pos.y, 14, 8),
+				onHit: function() {
+					self._isAlive = false;
+				}
+			})
 		];
 		SUPERCLASS.prototype._recalculateHitBoxes.call(this);
 	};

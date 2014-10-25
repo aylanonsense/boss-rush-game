@@ -35,6 +35,15 @@ define({
 		flip: true,
 		loadingColor: '#4bf'
 	},
+	FROZEN_KING_DAMAGED: {
+		imagePath: '/image/elemental_royalty.gif',
+		width: 32,
+		height: 32,
+		scale: 8,
+		flip: true,
+		loadingColor: '#4bf',
+		replacements: { '#47c2ff': '#f66', '#0074fc': '#b00' }
+	},
 	PLAYER: {
 		imagePath: '/image/player.gif',
 		width: 24,
