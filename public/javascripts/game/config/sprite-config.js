@@ -1,5 +1,23 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define({
+	HUD_HEALTH_BAR: {
+		imagePath: '/image/hud.gif',
+		width: 43,
+		height: 10,
+		scale: 4,
+		flip: false,
+		crop: { x: 0, y: 62, width: 43, height: 20 },
+		loadingColor: '#fff'
+	},
+	HUD_HEALTH_PIP: {
+		imagePath: '/image/hud.gif',
+		width: 2,
+		height: 5,
+		scale: 4,
+		flip: false,
+		crop: { x: 0, y: 82, width: 4, height: 10 },
+		loadingColor: '#fff'
+	},
 	ICE_BLOCK: {
 		imagePath: '/image/elemental_royalty.gif',
 		width: 10,

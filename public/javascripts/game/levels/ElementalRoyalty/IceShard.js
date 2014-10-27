@@ -53,7 +53,7 @@ define([
 				shape: (this.vel.x < 0 ?
 					new Rect(this.pos.x + 4, this.pos.y + 4, 24, 12) :
 					new Rect(this.pos.x + 4, this.pos.y + 4, 24, 12)),
-				onHit: function(player) { player.hurt(); }
+				onHit: function(player) { player.hurt(1); }
 			})
 		];
 		SUPERCLASS.prototype._recalculateHitBoxes.call(this);

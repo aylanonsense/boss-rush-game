@@ -28,6 +28,8 @@ define([
 		this._currentAction = 'pause';
 		this._currentActionFramesRemaining = 60;
 		this._hurtFramesLeft = 0;
+		this.maxHealth = 80;
+		this.health = this.maxHealth;
 	}
 	FrozenKing.prototype = Object.create(SUPERCLASS.prototype);
 	FrozenKing.prototype.startOfFrame = function() {
@@ -108,7 +110,7 @@ define([
 			new Hitbox({
 				type: 'player',
 				shape: new Rect(this.pos.x, this.pos.y + 8, 80, 112),
-				onHit: function(player) { player.hurt();}
+				onHit: function(player) { player.hurt(1); }
 			})
 		];
 		this._hitboxes = [
@@ -142,7 +144,7 @@ define([
 	FrozenKing.prototype.jump = function(x) {
 		var dx = (x || this.pos.x) - this.pos.x;
 		//we want all jumps to last 60 frames
-		var numFrames = 105;
+		var numFrames = 95;
 		//here's the x vel that'll get us there in 60 frames
 		this.vel.x = dx * 60 / numFrames;
 		this._facing = (this.vel.x > 0 ? 1 : -1);
@@ -154,6 +156,7 @@ define([
 	};
 	FrozenKing.prototype.hurt = function() {
 		this._hurtFramesLeft = 7;
+		this.health -= 1;
 	};
 	return FrozenKing;
 });

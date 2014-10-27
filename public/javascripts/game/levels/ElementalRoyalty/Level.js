@@ -21,10 +21,13 @@ define([
 		SUPERCLASS.call(this);
 		this.backgroundColor = '#222';
 		this.player = new Player(this, 300, 500);
+		this.playerHealthBar.setActor(this.player);
 		this.backgroundTileGrid = new TileGrid(map.background.tiles,map.background.shapes,map.background.variants);
 		this.tileGrid = new TileGrid(map.foreground.tiles,map.foreground.shapes,map.foreground.variants);
 		this.obstacles = [];
-		this.actors = [ new FrozenKing(this, 600, 350) ];
+		var king = new FrozenKing(this, 600, 350);
+		this.bossHealthBar.setActor(king);
+		this.actors = [ king ];
 		this.widgets = [];
 		this.effects = [];
 		var self = this;

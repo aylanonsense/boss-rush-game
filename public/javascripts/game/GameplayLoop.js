@@ -122,6 +122,9 @@ define([
 				level.effects[i].render(ctx, camera);
 			}
 		}
+
+		//render hud
+		level.renderHUD(ctx);
 	}
 
 	return {

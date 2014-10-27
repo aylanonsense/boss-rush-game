@@ -36,6 +36,8 @@ define([
 		this._currentAnimationProgress = 0;
 		this._isBeingHurt = false;
 		this._invincibilityFramesLeft = 0;
+		this.maxHealth = 20;
+		this.health = this.maxHealth;
 	}
 	Player.prototype = Object.create(SUPERCLASS.prototype);
 	Player.prototype._setAnimation = function(anim) {
@@ -230,12 +232,13 @@ define([
 			this._autoFire = true;
 		}
 	};
-	Player.prototype.hurt = function() {
+	Player.prototype.hurt = function(damage) {
 		if(!this._isBeingHurt && this._invincibilityFramesLeft <= 0) {
 			this._isBeingHurt = true;
 			this._invincibilityFramesLeft = 115;
 			this.vel.y = 0;
 			this.vel.x = -100 * this._facing;
+			this.health -= damage;
 		}
 	};
 	return Player;

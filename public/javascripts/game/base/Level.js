@@ -1,5 +1,11 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(function() {
+define([
+	'game/Global',
+	'game/hud/HealthBar'
+], function(
+	Global,
+	HealthBar
+) {
 	function Level() {
 		this._frame = 0;
 		this.backgroundColor = '#222';
@@ -10,6 +16,8 @@ define(function() {
 		this.actors = [];
 		this.widgets = [];
 		this.effects = [];
+		this.bossHealthBar = new HealthBar('boss', 618, 10);
+		this.playerHealthBar = new HealthBar('player', 10, 10);
 	}
 	Level.prototype.startOfFrame = function() {
 		this._frame++;
@@ -33,6 +41,15 @@ define(function() {
 		this.effects = this.effects.filter(function(effect) {
 			return effect.isAlive();
 		});
+	};
+	Level.prototype.renderHUD = function(ctx) {
+		//draw black backdrop to HUD
+		ctx.fillStyle = '#111';
+		ctx.fillRect(0, 0, Global.WIDTH, 60);
+
+		//draw HUD elements
+		this.bossHealthBar.render(ctx);
+		this.playerHealthBar.render(ctx);
 	};
 	return Level;
 });
