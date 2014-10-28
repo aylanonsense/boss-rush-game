@@ -20,10 +20,11 @@ define([
 	var GRAVITY = 17;
 	function FrozenKing(level, x, y) {
 		SUPERCLASS.call(this, level, x, y);
+		this.width = 80;
+		this.height = 120;
 		this._frame = 0;
 		this._jumpTarget = 0;
 		this._facing = -1;
-		this.vel.x = 0;
 		this.collidesWithActors = false;
 		this._currentAction = 'pause';
 		this._currentActionFramesRemaining = 60;
@@ -88,7 +89,7 @@ define([
 			sprite.render(ctx, camera, this.pos.x - 88 + wiggle, this.pos.y - 120, frame, this._facing > 0);
 		}
 		SUPERCLASS.prototype.render.call(this, ctx, camera);
-		if(Global.DEV_MODE) {
+		if(Global.DEV_MODE && ! Global.DEBUG_MODE) {
 			if(this._jumpTarget) {
 				ctx.strokeStyle = '#f00';
 				ctx.lineWidth = 1.5;

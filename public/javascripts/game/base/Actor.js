@@ -7,6 +7,8 @@ define([
 	var NEXT_ACTOR_ID = 0;
 	function Actor(level, x, y) {
 		this._actorId = NEXT_ACTOR_ID++;
+		this.width = 0;
+		this.height = 0;
 		this.level = level;
 		this.pos = { x: x || 0, y: y || 0 };
 		this.vel = { x: 0, y: 0 };
@@ -81,11 +83,19 @@ define([
 		//to be implemented in subclasses
 	};
 	Actor.prototype._recalculateCollisionBoxes = function() {
-		//to be implemented in subclasses
+		this._recalculateCenter();
+	};
+	Actor.prototype._recalculateCenter = function() {
+		this.center = { x: this.pos.x + this.width / 2, y: this.pos.y + this.height / 2 };
 	};
 	Actor.prototype.render = function(ctx, camera) {
-		if(Global.DEBUG_MODE || Global.DEV_MODE) {
-
+		if(Global.DEBUG_MODE) {
+			ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
+			if(this.width > 0 && this.height > 0) {
+				ctx.fillRect(this.pos.x - camera.x, this.pos.y - camera.y, this.width, this.height);
+			}
+		}
+		else if(Global.DEV_MODE) {
 			//draw hitboxes and hurtboxes
 			var color;
 			for(var i = 0; i < this._hurtboxes.length; i++) {
@@ -105,14 +115,26 @@ define([
 			if(this.platform) {
 				this.platform.render(ctx, camera, '#f06', true, 3);
 			}
+		}
+		if(Global.DEV_MODE || Global.DEBUG_MODE) {
+			ctx.strokeStyle = '#fff';
+			ctx.lineWidth = 1;
 
 			//draw position
-			ctx.strokeStyle = (Global.DEBUG_MODE ? '#6f6' : '#fff');
-			ctx.lineWidth = 2;
+			if(this.width >= 5 && this.height >= 5) {
+				ctx.beginPath();
+				ctx.moveTo(this.pos.x - camera.x, this.pos.y + 5 - camera.y);
+				ctx.lineTo(this.pos.x - camera.x, this.pos.y - camera.y);
+				ctx.lineTo(this.pos.x + 5 - camera.x, this.pos.y - camera.y);
+				ctx.stroke();
+			}
+
+			//draw center
 			ctx.beginPath();
-			ctx.moveTo(this.pos.x - camera.x, this.pos.y + 10 - camera.y);
-			ctx.lineTo(this.pos.x - camera.x, this.pos.y - camera.y);
-			ctx.lineTo(this.pos.x + 10 - camera.x, this.pos.y - camera.y);
+			ctx.moveTo(this.center.x - camera.x - 5, this.center.y - camera.y);
+			ctx.lineTo(this.center.x - camera.x + 5, this.center.y - camera.y);
+			ctx.moveTo(this.center.x - camera.x, this.center.y - camera.y - 5);
+			ctx.lineTo(this.center.x - camera.x, this.center.y - camera.y + 5);
 			ctx.stroke();
 		}
 	};

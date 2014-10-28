@@ -23,6 +23,8 @@ define([
 	var BLOCK_FRAME = 7;
 	function IceBlock(level, x, y) {
 		SUPERCLASS.call(this, level, x, y);
+		this.width = 32;
+		this.height = 32;
 		this._frame = 0;
 		this._shattered = false;
 		this._platforms = [];

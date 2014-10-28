@@ -19,6 +19,8 @@ define([
 	var FALLOFF_DIST = 170;
 	function MailProjectile(level, x, y, dir) {
 		SUPERCLASS.call(this, level, x - 7 + 7 * dir, y);
+		this.width = 14;
+		this.height = 8;
 		this._frame = 0;
 		this._dir = dir;
 		this.vel.x = dir * 350;

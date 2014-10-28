@@ -25,6 +25,8 @@ define([
 	function Player(level, x, y) {
 		SUPERCLASS.call(this, level, x, y);
 		this.setMoveDir(0, 0);
+		this.width = 28;
+		this.height = 36;
 		this._framesOfAutoJump = 0;
 		this._isJumping = false;
 		this._isStanding = false;
@@ -223,13 +225,15 @@ define([
 		}
 	};
 	Player.prototype.fireProjectile = function() {
-		if(this._framesUntilAbleToFire <= 0) {
-			this._framesUntilAbleToFire = 10;
-			this.level.spawnActor(new MailProjectile(this.level, this.pos.x + 14 + 14 * this._facing, this.pos.y + 12, this._facing));
-			this._autoFire = false;
-		}
-		else if(this._framesUntilAbleToFire <= 6) {
-			this._autoFire = true;
+		if(!this._isBeingHurt) {
+			if(this._framesUntilAbleToFire <= 0) {
+				this._framesUntilAbleToFire = 10;
+				this.level.spawnActor(new MailProjectile(this.level, this.pos.x + 14 + 14 * this._facing, this.pos.y + 12, this._facing));
+				this._autoFire = false;
+			}
+			else if(this._framesUntilAbleToFire <= 6) {
+				this._autoFire = true;
+			}
 		}
 	};
 	Player.prototype.hurt = function(damage) {

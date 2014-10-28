@@ -20,6 +20,8 @@ define([
 	var SPRITE = SpriteLoader.loadSpriteSheet('ICE_SHARD');
 	function IceShard(level, x, y, movingLeft) {
 		SUPERCLASS.call(this, level, x, y);
+		this.width = 20;
+		this.height = 12;
 		this.vel.x = (movingLeft ? -1 : 1) * 425;
 		this.vel.y = -45;
 		this.collidesWithActors = false;

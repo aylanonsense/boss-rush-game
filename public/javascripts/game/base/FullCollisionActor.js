@@ -133,10 +133,7 @@ define([
 	FullCollisionActor.prototype._onCollided = function(thing, dir) {};
 	FullCollisionActor.prototype.render = function(ctx, camera) {
 		if(this._boundingCollisionBox) {
-			if(Global.DEBUG_MODE) {
-				this._boundingCollisionBox.render(ctx, camera, '#090');
-			}
-			else if(Global.DEV_MODE) {
+			if(Global.DEV_MODE && !Global.DEBUG_MODE) {
 				this._boundingCollisionBox.render(ctx, camera, '#ff0', true);
 			}
 		}
