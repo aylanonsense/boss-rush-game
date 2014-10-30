@@ -35,6 +35,7 @@ define([
 		if(!Global.DEBUG_MODE) {
 			SPRITE.render(ctx, camera, this.pos.x, this.pos.y, this._snowflakeFrame);
 		}
+		SUPERCLASS.prototype.render.call(this, ctx, camera);
 	};
 	return Snowflake;
 });

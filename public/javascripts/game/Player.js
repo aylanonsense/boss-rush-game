@@ -92,8 +92,9 @@ define([
 		}
 		this._bottomCollisionsThisFrame = 0;
 		this._invincibilityFramesLeft--;
-		if(this._invincibilityFramesLeft <= 85) {
+		if(this._isBeingHurt && this._invincibilityFramesLeft <= 85) {
 			this._isBeingHurt = false;
+			this.vel.x = 0;
 		}
 
 		//handle firing

@@ -36,13 +36,22 @@ define({
 		crop: { x: 65, y: 95, width: 30, height: 30 },
 		loadingColor: '#4bf'
 	},
-	ICE_SHARD: {
+	ICE_CHIP: {
 		imagePath: '/image/elemental_royalty.gif',
 		width: 10,
 		height: 10,
 		scale: 4,
 		flip: false,
-		crop: { x: 75, y: 115, width: 40, height: 10 },
+		crop: { x: 65, y: 95, width: 30, height: 10 },
+		loadingColor: '#4bf'
+	},
+	ICE_SHARD: {
+		imagePath: '/image/elemental_royalty.gif',
+		width: 11,
+		height: 11,
+		scale: 4,
+		flip: false,
+		crop: { x: 175, y: 65, width: 44, height: 44 },
 		loadingColor: '#4bf'
 	},
 	FROZEN_KING: {
@@ -60,7 +69,25 @@ define({
 		scale: 8,
 		flip: true,
 		loadingColor: '#4bf',
-		replacements: { '#47c2ff': '#f66', '#0074fc': '#b00' }
+		replacements: { '#4aa9ff': '#f66', '#0074fc': '#b00' }
+	},
+	FROZEN_KING_SCEPTER_SHINE: {
+		imagePath: '/image/elemental_royalty.gif',
+		width: 10,
+		height: 10,
+		scale: 8,
+		flip: false,
+		crop: { x: 95, y: 65, width: 20, height: 30 },
+		loadingColor: '#4bf'
+	},
+	FROZEN_GROUND: {
+		imagePath: '/image/elemental_royalty.gif',
+		width: 10,
+		height: 10,
+		scale: 4,
+		flip: false,
+		crop: { x: 115, y: 65, width: 40, height: 30 },
+		loadingColor: '#4bf'
 	},
 	PLAYER: {
 		imagePath: '/image/player.gif',

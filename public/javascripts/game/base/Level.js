@@ -30,11 +30,13 @@ define([
 	};
 	Level.prototype.spawnEffect = function(effect) {
 		this.effects.push(effect);
+		return effect;
 	};
 	Level.prototype.spawnActor = function(actor) {
 		actor._recalculateHitBoxes();
 		actor._recalculateCollisionBoxes();
 		this.actors.push(actor);
+		return actor;
 	};
 	Level.prototype._cullDeadObjects = function() {
 		this.actors = this.actors.filter(function(actor) {
