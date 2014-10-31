@@ -91,7 +91,7 @@ define([
 				new Hitbox({
 					type: 'player',
 					shape: new Rect(this.pos.x, this.pos.y, 32, 32),
-					onHit: function(player) { player.hurt(2); }
+					onHit: function(player) { player.hurt(3); }
 				})
 			];
 		}

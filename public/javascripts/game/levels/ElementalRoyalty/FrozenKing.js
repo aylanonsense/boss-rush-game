@@ -261,14 +261,14 @@ define([
 			new Hitbox({
 				type: 'player',
 				shape: new Rect(this.pos.x, this.pos.y + 8, 80, 112),
-				onHit: function(player) { player.hurt(self.vel.y > 0 ? 3 : 2); }
+				onHit: function(player) { player.hurt(self.vel.y > 0 ? 4 : 3); }
 			})
 		];
 		if(this._isFreezingGround) {
 			this._hurtboxes.push(new Hitbox({
 				type: 'player',
 				shape: new Rect(64, 570, 768, 64),
-				onHit: function(player) { player.hurt(3); }
+				onHit: function(player) { player.hurt(4); }
 			}));
 		}
 		this._hitboxes = [

@@ -52,7 +52,7 @@ define([
 			new Hitbox({
 				type: 'player',
 				shape: new Rect(this.pos.x, this.pos.y, 16, 16),
-				onHit: function(player) { player.hurt(2); }
+				onHit: function(player) { player.hurt(3); }
 			})
 		];
 		SUPERCLASS.prototype._recalculateHitBoxes.call(this);
