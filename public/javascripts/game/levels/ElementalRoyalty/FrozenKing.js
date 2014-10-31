@@ -33,6 +33,9 @@ define([
 		this.collidesWithActors = false;
 		this.maxHealth = 80;
 		this.health = this.maxHealth;
+		this.ignoreCollisions = true;
+		this._pose = 'start';
+		this._aiDisabled = true;
 		this._actionQueue = [];
 		this._currentAction = 'pause';
 		this._prevAction = null;
@@ -56,7 +59,7 @@ define([
 		this._handleCurrentAction();
 
 		//if you're done acting, do the next thing
-		if(!this._currentAction) {
+		if(!this._currentAction && !this._aiDisabled) {
 			if(this._actionQueue.length === 0) {
 				//at the start of the fight, just do a spawnblocks --> jump combo over and over
 				if(this.health > this.maxHealth * 0.75) {
@@ -96,6 +99,9 @@ define([
 
 		this._hurtFramesLeft--;
 		this.vel.y += GRAVITY;
+		if(this.vel.y > GRAVITY * 75 / 2) {
+			this.vel.y = GRAVITY * 75 / 2;
+		}
 	};
 	FrozenKing.prototype._handleCurrentAction = function() {
 		var i;
@@ -207,7 +213,13 @@ define([
 	FrozenKing.prototype.render = function(ctx, camera) {
 		if(!Global.DEBUG_MODE) {
 			var frame = 0;
-			if(this._currentAction === 'jump') {
+			if(this._pose === 'intro') {
+				frame = 8;
+			}
+			else if(this._pose === 'start') {
+				frame = (this.vel.y === 0 ? 7 : 3);
+			}
+			else if(this._currentAction === 'jump') {
 				if(this.vel.y > 0) { frame = 3; }
 				else if(this.vel.y < 0) { frame = 2; }
 				else { frame = 1; }
@@ -235,7 +247,9 @@ define([
 	};
 	FrozenKing.prototype._recalculateCollisionBoxes = function() {
 		SUPERCLASS.prototype._recalculateCollisionBoxes.call(this);
-		this._createCollisionBoxes(0, 0, 80, 120);
+		if(!this.ignoreCollisions) {
+			this._createCollisionBoxes(0, 0, 80, 120);
+		}
 	};
 	FrozenKing.prototype._recalculateHitBoxes = function() {
 		var self = this;
@@ -275,6 +289,13 @@ define([
 	FrozenKing.prototype.hurt = function() {
 		this._hurtFramesLeft = 7;
 		this.health -= 1;
+	};
+	FrozenKing.prototype.strikeIntroPose = function() {
+		this._pose = 'intro';
+	};
+	FrozenKing.prototype.startFighting = function() {
+		this._aiDisabled = false;
+		this._pose = null;
 	};
 	return FrozenKing;
 });

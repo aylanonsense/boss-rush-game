@@ -38,6 +38,7 @@ define([
 		this._currentAnimationProgress = 0;
 		this._isBeingHurt = false;
 		this._invincibilityFramesLeft = 0;
+		this._inputEnabled = true;
 		this.maxHealth = 20;
 		this.health = this.maxHealth;
 	}
@@ -228,8 +229,8 @@ define([
 	Player.prototype.fireProjectile = function() {
 		if(!this._isBeingHurt) {
 			if(this._framesUntilAbleToFire <= 0) {
-				this._framesUntilAbleToFire = 10;
-				this.level.spawnActor(new MailProjectile(this.level, this.pos.x + 14 + 14 * this._facing, this.pos.y + 12, this._facing));
+				this._framesUntilAbleToFire = 14;
+				this.level.spawnActor(new MailProjectile(this.level, this.pos.x + 14 + 8 * this._facing, this.pos.y + 12, this._facing));
 				this._autoFire = false;
 			}
 			else if(this._framesUntilAbleToFire <= 6) {
@@ -245,6 +246,15 @@ define([
 			this.vel.x = -100 * this._facing;
 			this.health -= damage;
 		}
+	};
+	Player.prototype.isInputEnabled = function() {
+		return this._inputEnabled;
+	};
+	Player.prototype.enableInput = function() {
+		this._inputEnabled = true;
+	};
+	Player.prototype.disableInput = function() {
+		this._inputEnabled = false;
 	};
 	return Player;
 });

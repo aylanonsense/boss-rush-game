@@ -1,5 +1,6 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
+	'game/Global',
 	'game/base/Level',
 	'game/levels/ElementalRoyalty/IceBlock',
 	'game/levels/ElementalRoyalty/FrozenKing',
@@ -8,6 +9,7 @@ define([
 	'game/base/TileGrid',
 	'game/levels/ElementalRoyalty/map',
 ], function(
+	Global,
 	Level,
 	IceBlock,
 	FrozenKing,
@@ -21,19 +23,51 @@ define([
 		SUPERCLASS.call(this);
 		this.backgroundColor = '#222';
 		this.player = new Player(this, 300, 500);
+		this.player.disableInput();
 		this.playerHealthBar.setActor(this.player);
+		this.playerHealthBar.hide();
+		this.bossHealthBar.hide();
 		this.backgroundTileGrid = new TileGrid(map.background.tiles,map.background.shapes,map.background.variants);
 		this.tileGrid = new TileGrid(map.foreground.tiles,map.foreground.shapes,map.foreground.variants);
 		this.obstacles = [];
-		var king = new FrozenKing(this, 600, 350);
-		this.bossHealthBar.setActor(king);
-		this.actors = [ king ];
+		this._king = null;
+		this.actors = [];
 		this.widgets = [];
 		this.effects = [];
 		var self = this;
-		//TODO level bounds (for camera [and actors])
 	}
 	ElementalRoyalty.prototype = Object.create(SUPERCLASS.prototype);
+	ElementalRoyalty.prototype.startOfFrame = function() {
+		SUPERCLASS.prototype.startOfFrame.call(this);
+		if(Global.SKIP_ANIMATIONS) {
+			if(this._frame === 0) {
+				this._king = this.spawnActor(new FrozenKing(this, 600, 500));
+				this.playerHealthBar.show();
+				this.bossHealthBar.show();
+				this.bossHealthBar.setActor(this._king);
+				this._king.ignoreCollisions = false;
+				this._king.startFighting();
+				this.player.enableInput();
+			}
+		}
+		else if(this._frame === 30) { this.spawnActor(new IceBlock(this, 600, 192)); }
+		else if(this._frame === 60) { this.spawnActor(new IceBlock(this, 600 + 32, 192)); }
+		else if(this._frame === 90) { this.spawnActor(new IceBlock(this, 600, 192 - 32)); }
+		else if(this._frame === 110) { this.spawnActor(new IceBlock(this, 600 + 32, 192 - 32)); }
+		else if(this._frame === 200) { this._king = this.spawnActor(new FrozenKing(this, 600, -150)); }
+		else if(this._frame === 250) { this._king.ignoreCollisions = false; }
+		else if(this._frame === 350) { this._king.strikeIntroPose(); }
+		else if(this._frame === 390) {
+			this.playerHealthBar.show();
+			this.bossHealthBar.show();
+			this.bossHealthBar.setActor(this._king);
+			this.bossHealthBar.fillFromEmpty();
+		}
+		else if(this._frame === 535) {
+			this._king.startFighting();
+			this.player.enableInput();
+		}
+	};
 
 	return ElementalRoyalty;
 });

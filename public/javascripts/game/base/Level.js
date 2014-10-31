@@ -7,7 +7,7 @@ define([
 	HealthBar
 ) {
 	function Level() {
-		this._frame = 0;
+		this._frame = -1;
 		this.backgroundColor = '#222';
 		this.player = null;
 		this.backgroundTileGrid = null;

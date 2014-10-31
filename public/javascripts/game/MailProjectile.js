@@ -60,15 +60,20 @@ define([
 	};
 	MailProjectile.prototype._recalculateHitBoxes = function() {
 		var self = this;
-		this._hurtboxes = [
-			new Hitbox({
-				type: 'enemy',
-				shape: new Rect(this.pos.x, this.pos.y, 14, 8),
-				onHit: function() {
-					self._isAlive = false;
-				}
-			})
-		];
+		if(this._frame > 3) {
+			this._hurtboxes = [
+				new Hitbox({
+					type: 'enemy',
+					shape: new Rect(this.pos.x, this.pos.y, 14, 8),
+					onHit: function() {
+						self._isAlive = false;
+					}
+				})
+			];
+		}
+		else {
+			this._hurtboxes = [];
+		}
 		SUPERCLASS.prototype._recalculateHitBoxes.call(this);
 	};
 	MailProjectile.prototype.finishMovement = function() {
