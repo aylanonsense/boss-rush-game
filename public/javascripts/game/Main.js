@@ -50,7 +50,7 @@ define([
 				else if(evt.which === MOVE_RIGHT_KEY) { moveX = 1; }
 				else if(evt.which === JUMP_KEY && level.player.isInputEnabled()) { level.player.jump(); }
 				else if(evt.which === SHOOT_KEY && level.player.isInputEnabled()) { level.player.fireProjectile(); }
-				if(level.player.isInputEnabled()) { level.player.setMoveDir(moveX); }
+				level.player.setMoveDir(moveX);
 			}
 		});
 		$(document).on('keyup', function(evt) {
@@ -59,7 +59,7 @@ define([
 				if(evt.which === MOVE_LEFT_KEY) { moveX = (keys[MOVE_RIGHT_KEY] ? 1 : 0); }
 				else if(evt.which === MOVE_RIGHT_KEY) { moveX = (keys[MOVE_LEFT_KEY] ? -1 : 0); }
 				else if(evt.which === JUMP_KEY && level.player.isInputEnabled()) { level.player.stopJumping(); }
-				if(level.player.isInputEnabled()) { level.player.setMoveDir(moveX); }
+				level.player.setMoveDir(moveX);
 			}
 		});
 	};

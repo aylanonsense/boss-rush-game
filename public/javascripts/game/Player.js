@@ -39,6 +39,7 @@ define([
 		this._isBeingHurt = false;
 		this._invincibilityFramesLeft = 0;
 		this._inputEnabled = true;
+		this._moveDir = 0;
 		this.maxHealth = 20;
 		this.health = this.maxHealth;
 	}
@@ -53,33 +54,34 @@ define([
 		SUPERCLASS.prototype.startOfFrame.call(this);
 
 		//handle movement
+		var moveDir = this._inputEnabled ? this._moveDir : 0;
 		if(!this._isBeingHurt) {
 			var MOVEMENT = (this._isStanding ? GROUND_MOVEMENT : AIR_MOVEMENT);
 			if(this.vel.x > 0) {
-				if(this._moveDir > 0) { this.vel.x += MOVEMENT.ACC.MORE; }
-				else if(this._moveDir < 0) { this.vel.x += MOVEMENT.ACC.LESS; }
+				if(moveDir > 0) { this.vel.x += MOVEMENT.ACC.MORE; }
+				else if(moveDir < 0) { this.vel.x += MOVEMENT.ACC.LESS; }
 				else { this.vel.x += MOVEMENT.ACC.DEFAULT; }
 				if(this.vel.x < 0) {
-					this.vel.x = (this._moveDir < 0 ? this.vel.x : 0);
+					this.vel.x = (moveDir < 0 ? this.vel.x : 0);
 				}
 			}
 			else if(this.vel.x < 0) {
-				if(this._moveDir > 0) { this.vel.x -= MOVEMENT.ACC.LESS; }
-				else if(this._moveDir < 0) { this.vel.x -= MOVEMENT.ACC.MORE; }
+				if(moveDir > 0) { this.vel.x -= MOVEMENT.ACC.LESS; }
+				else if(moveDir < 0) { this.vel.x -= MOVEMENT.ACC.MORE; }
 				else { this.vel.x -= MOVEMENT.ACC.DEFAULT; }
 				if(this.vel.x > 0) {
-					this.vel.x = (this._moveDir > 0 ? this.vel.x : 0);
+					this.vel.x = (moveDir > 0 ? this.vel.x : 0);
 				}
 			}
 			else {
-				if(this._moveDir > 0) { this.vel.x = MOVEMENT.ACC.MORE; }
-				else if(this._moveDir < 0) { this.vel.x = -MOVEMENT.ACC.MORE; }
+				if(moveDir > 0) { this.vel.x = MOVEMENT.ACC.MORE; }
+				else if(moveDir < 0) { this.vel.x = -MOVEMENT.ACC.MORE; }
 			}
 			if(this.vel.x > MOVEMENT.TOP_SPEED) { this.vel.x = MOVEMENT.TOP_SPEED; }
 			else if(this.vel.x < -MOVEMENT.TOP_SPEED) { this.vel.x = -MOVEMENT.TOP_SPEED; }
 			if(this.vel.x < 0 && this._isStanding) { this._facing = -1; }
 			else if(this.vel.x > 0 && this._isStanding) { this._facing = 1; }
-			else if(!this._isStanding && this._moveDir !== 0) { this._facing = this._moveDir; }
+			else if(!this._isStanding && moveDir !== 0) { this._facing = moveDir; }
 			this.vel.y += GRAVITY;
 			if(this.vel.y < -MAX_VERTICAL_SPEED) { this.vel.y = -MAX_VERTICAL_SPEED; }
 			else if(this.vel.y > MAX_VERTICAL_SPEED) { this.vel.y = MAX_VERTICAL_SPEED; }
@@ -107,6 +109,7 @@ define([
 	Player.prototype.render = function(ctx, camera) {
 		if(!Global.DEBUG_MODE) {
 			var frame;
+			var moveDir = this._inputEnabled ? this._moveDir : 0;
 			this._currentAnimationProgress++;
 			if(this._isBeingHurt) {
 				frame = (this._invincibilityFramesLeft % 16 > 7 ? 53 : 54);
@@ -124,10 +127,10 @@ define([
 				}
 				else {
 					this._framesOfLandingAnimation = 0;
-					if(this._moveDir === 0) {
+					if(moveDir === 0) {
 						frame = 40;
 					}
-					else if(this._moveDir < 0 !== this.vel.x < 0) {
+					else if(moveDir < 0 !== this.vel.x < 0) {
 						frame = 51;
 					}
 					else {
