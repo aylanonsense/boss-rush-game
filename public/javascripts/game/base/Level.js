@@ -16,17 +16,35 @@ define([
 		this.actors = [];
 		this.widgets = [];
 		this.effects = [];
+		this.timeScale = 1.0;
 		this.bossHealthBar = new HealthBar('boss', 618, 10);
 		this.playerHealthBar = new HealthBar('player', 10, 10);
+		this._playerIsDying = false;
+		this._isEndingLevel = false;
+		this._framesToLevelEnd = 0;
+		this.hasEnded = false;
 	}
 	Level.prototype.startOfFrame = function() {
 		this._frame++;
+		if(this._isEndingLevel) {
+			this._framesToLevelEnd--;
+			if(this._framesToLevelEnd <= 0) {
+				this.hasEnded = true;
+			}
+		}
 		if(this._frame % 10 === 0) {
 			this._cullDeadObjects();
 		}
 	};
 	Level.prototype.endOfFrame = function() {
-		//to be implemented by subclasses
+		if(this.player && this.player.health <= 0 && !this._isEndingLevel) {
+			this.endLevel();
+		}
+	};
+	Level.prototype.endLevel = function() {
+		this._isEndingLevel = true;
+		this._framesToLevelEnd = 25;
+		this.timeScale = 10.0;
 	};
 	Level.prototype.spawnEffect = function(effect) {
 		this.effects.push(effect);

@@ -53,17 +53,17 @@ define([
 		else if(this._frame === 30) { this.spawnActor(new IceBlock(this, 600, 192)); }
 		else if(this._frame === 60) { this.spawnActor(new IceBlock(this, 600 + 32, 192)); }
 		else if(this._frame === 90) { this.spawnActor(new IceBlock(this, 600, 192 - 32)); }
-		else if(this._frame === 110) { this.spawnActor(new IceBlock(this, 600 + 32, 192 - 32)); }
-		else if(this._frame === 200) { this._king = this.spawnActor(new FrozenKing(this, 600, -150)); }
-		else if(this._frame === 250) { this._king.ignoreCollisions = false; }
-		else if(this._frame === 350) { this._king.strikeIntroPose(); }
-		else if(this._frame === 390) {
+		else if(this._frame === 120) { this.spawnActor(new IceBlock(this, 600 + 32, 192 - 32)); }
+		else if(this._frame === 230) { this._king = this.spawnActor(new FrozenKing(this, 600, -150)); }
+		else if(this._frame === 280) { this._king.ignoreCollisions = false; }
+		else if(this._frame === 380) { this._king.strikeIntroPose(); }
+		else if(this._frame === 420) {
 			this.playerHealthBar.show();
 			this.bossHealthBar.show();
 			this.bossHealthBar.setActor(this._king);
 			this.bossHealthBar.fillFromEmpty();
 		}
-		else if(this._frame === 535) {
+		else if(this._frame === 565) {
 			this._king.startFighting();
 			this.player.enableInput();
 		}
