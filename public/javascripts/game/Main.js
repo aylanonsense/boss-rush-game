@@ -3,7 +3,7 @@ define([
 	'jquery',
 	'game/Global',
 	'game/GameplayLoop',
-	'game/levels/ElementalRoyalty/Level'
+	'game/levels/ElementalRoyalty/Phase2/SkipLevel'
 ], function(
 	$,
 	Global,
@@ -45,7 +45,7 @@ define([
 				framesUntilNextThing--;
 				ctx.fillStyle = '#000';
 				ctx.beginPath();
-				ctx.moveTo(Global.WIDTH, Global.HEIGHT)
+				ctx.moveTo(Global.WIDTH, Global.HEIGHT);
 				ctx.lineTo((Global.WIDTH + Global.HEIGHT) * framesUntilNextThing / 20 - Global.HEIGHT, Global.HEIGHT);
 				ctx.lineTo(Global.WIDTH, 2 * ((Global.WIDTH + Global.HEIGHT) * framesUntilNextThing / 20 - Global.WIDTH));
 				ctx.lineTo(Global.WIDTH, Global.HEIGHT);

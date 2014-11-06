@@ -18,6 +18,15 @@ define({
 		crop: { x: 0, y: 82, width: 4, height: 10 },
 		loadingColor: '#fff'
 	},
+	SCORCHING_QUEEN: {
+		imagePath: '/image/scorching_queen.gif',
+		width: 32,
+		height: 32,
+		scale: 6,
+		flip: true,
+		crop: { x: 0, y: 0, width: 288, height: 96 },
+		loadingColor: '#f00'
+	},
 	ICE_BLOCK: {
 		imagePath: '/image/elemental_royalty.gif',
 		width: 10,

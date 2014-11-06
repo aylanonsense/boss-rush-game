@@ -11,6 +11,7 @@ define([
 		this.height = 0;
 		this.level = level;
 		this.pos = { x: x || 0, y: y || 0 };
+		this._recalculateCenter();
 		this.vel = { x: 0, y: 0 };
 		this.MAX_HORIZONTAL_MOVEMENT_PER_TICK = 10;
 		this.MAX_VERTICAL_MOVEMENT_PER_TICK = 10;
