@@ -43,7 +43,7 @@ define([
 					framesUntilNextThing = 20;
 				}
 				framesUntilNextThing--;
-				ctx.fillStyle = '#000';
+				ctx.fillStyle = '#222';
 				ctx.beginPath();
 				ctx.moveTo(Global.WIDTH, Global.HEIGHT);
 				ctx.lineTo((Global.WIDTH + Global.HEIGHT) * framesUntilNextThing / 20 - Global.HEIGHT, Global.HEIGHT);

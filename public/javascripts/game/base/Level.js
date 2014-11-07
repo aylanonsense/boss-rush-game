@@ -8,6 +8,9 @@ define([
 ) {
 	function Level() {
 		this._frame = -1;
+		this.bounds.width = this.bounds.right - this.bounds.left;
+		this.bounds.height = this.bounds.bottom - this.bounds.top;
+		this.bounds.center = { x: this.bounds.left + this.bounds.width / 2, y : this.bounds.top + this.bounds.height / 2 };
 		this.backgroundColor = '#222';
 		this.player = null;
 		this.backgroundTileGrid = null;
@@ -64,7 +67,7 @@ define([
 			return effect.isAlive();
 		});
 	};
-	Level.prototype.renderHUD = function(ctx) {
+	Level.prototype.renderHUD = function(ctx, camera) {
 		//draw black backdrop to HUD
 		ctx.fillStyle = '#111';
 		ctx.fillRect(0, 0, Global.WIDTH, 60);
@@ -72,6 +75,11 @@ define([
 		//draw HUD elements
 		this.bossHealthBar.render(ctx);
 		this.playerHealthBar.render(ctx);
+		if(Global.DEV_MODE || Global.DEBUG_MODE) {
+			ctx.lineStyle = '#fff';
+			ctx.thickness = 0.5;
+			ctx.strokeRect(this.bounds.left - camera.x, this.bounds.top - camera.y, this.bounds.width, this.bounds.height);
+		}
 	};
 	return Level;
 });

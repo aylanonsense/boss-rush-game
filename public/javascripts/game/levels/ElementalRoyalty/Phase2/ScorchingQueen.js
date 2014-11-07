@@ -5,6 +5,8 @@ define([
 	'game/utils/ActionQueue',
 	'game/base/Hitbox',
 	'game/geom/Rect',
+	'game/levels/ElementalRoyalty/Phase2/ScorchingSlash',
+	'game/levels/ElementalRoyalty/Phase2/Fireball',
 	'game/display/SpriteLoader'
 ], function(
 	Global,
@@ -12,6 +14,8 @@ define([
 	ActionQueue,
 	Hitbox,
 	Rect,
+	ScorchingSlash,
+	Fireball,
 	SpriteLoader
 ) {
 	var SUPERCLASS = FullCollisionActor;
@@ -48,6 +52,9 @@ define([
 			.then(this._floatySlash)
 			.then(this._fallToGround)
 			.then(this._landOnGround)
+			.then(this._pause)
+			.then(this._runTowardsPlayer)
+			.then(this._runningSlash)
 			.then(this._pause);
 	};
 	ScorchingQueen.prototype.render = function(ctx, camera) {
@@ -74,13 +81,15 @@ define([
 		//prepare to jump
 		if(frame === 0) {
 			this._jumpTarget = {
-				x: (this.level.player.center.x > this.level.bounds.center.x ? this.level.bounds.left + 100 : this.level.bounds.right - 100),
-				y: 200
+				x: (this.level.player.center.x > this.level.bounds.center.x ?
+					this.level.bounds.left + 140 :
+					this.level.bounds.right - 140),
+				y: this.level.bounds.top + 164
 			};
 			var dx = (this._jumpTarget.x - this.center.x);
 			var dy = (this._jumpTarget.y - this.center.y);
 			var dist = Math.sqrt(dx * dx + dy * dy);
-			var speed = 500;
+			var speed = 800;
 			this._jumpTarget.vel = { x: speed * dx / dist, y: speed * dy / dist };
 			this._jumpTarget.frames = Math.floor(dist * 60 / speed);
 			this._renderFrame = 6; //landing OR preparing to jump
@@ -92,8 +101,8 @@ define([
 		if(frame === frameToJump) {
 			this.vel.x = this._jumpTarget.vel.x;
 			this.vel.y = this._jumpTarget.vel.y;
-			if(this.vel.x < -50) { this._renderFrame = (this._facing < 0 ? 7 : 9); } //jumping forward / backward
-			else if(this.vel.x > 50) { this._renderFrame = (this._facing < 0 ? 9 : 7); } //jumping backward / forward
+			if(this.vel.x < -150) { this._renderFrame = (this._facing < 0 ? 7 : 9); } //jumping forward / backward
+			else if(this.vel.x > 150) { this._renderFrame = (this._facing < 0 ? 9 : 7); } //jumping backward / forward
 			else { this._renderFrame = 8; } //jumping straight up
 			this._isFloating = true;
 		}
@@ -103,8 +112,8 @@ define([
 			this._facing = (this.center.x < this.level.bounds.center.x ? 1 : -1);
 			this.vel.x = 0;
 			this.vel.y = 0;
-			this.center.x = this._jumpTarget.x;
-			this.center.y = this._jumpTarget.y;
+			this.pos.x = this._jumpTarget.x - this.width / 2;
+			this.pos.y = this._jumpTarget.y - this.height / 2;
 		}
 		//pause for a sec
 		if(frame === frameToStopPausingAfterArriving) {
@@ -113,18 +122,35 @@ define([
 	};
 	ScorchingQueen.prototype._floatySlash = function(frame, done) {
 		var frameToStartCharging = 0;
-		var frameToFirstSlash = 20 + frameToStartCharging;
-		var frameToPause = 20 + frameToFirstSlash;
-		var frameToEnd = 20 + frameToPause;
+		var frameToSlashOnce = 20 + frameToStartCharging;
+		var frameToSlashTwice = 25 + frameToSlashOnce;
+		var frameToSlashThrice = 25 + frameToSlashTwice;
+		var frameToPause = 25 + frameToSlashThrice;
+		var frameToEnd = 25 + frameToPause;
 		//charge floaty slash
 		if(frame === frameToStartCharging) {
 			this._renderFrame = 11; //charging floaty slash
 		}
 		//first slash
-		if(frame === frameToFirstSlash) {
+		if(frame === frameToSlashOnce) {
 			this._renderFrame = 12; //slashing (first floaty slash)
-			//TODO slash effect
-			//TODO shoot fireball
+			this.level.spawnEffect(new ScorchingSlash(this.center.x, this.center.y, this._facing > 0, 'first-floaty-slash'));
+			this.level.spawnActor(new Fireball(this.level, this.center.x, this.center.y,
+				this.level.player.center.x - 21, this.level.player.center.y - 21));
+		}
+		//second slash
+		if(frame === frameToSlashTwice) {
+			this._renderFrame = 13; //slashing (second floaty slash)
+			this.level.spawnEffect(new ScorchingSlash(this.center.x, this.center.y, this._facing > 0, 'second-floaty-slash'));
+			this.level.spawnActor(new Fireball(this.level, this.center.x, this.center.y,
+				this.level.player.center.x - 21, this.level.player.center.y - 21));
+		}
+		//third slash
+		if(frame === frameToSlashThrice) {
+			this._renderFrame = 14; //slashing (third floaty slash)
+			this.level.spawnEffect(new ScorchingSlash(this.center.x, this.center.y, this._facing > 0, 'third-floaty-slash'));
+			this.level.spawnActor(new Fireball(this.level, this.center.x, this.center.y,
+				this.level.player.center.x - 21, this.level.player.center.y - 21));
 		}
 		//float in mid-air
 		if(frame === frameToPause) {
@@ -142,7 +168,7 @@ define([
 				this.vel.y = GRAVITY;
 			}
 			this._isFloating = false;
-			this._renderFrame = 13; //falling
+			this._renderFrame = 15; //falling
 			this._hasHitGround = false;
 		}
 		if(this._hasHitGround) {
@@ -163,6 +189,74 @@ define([
 	};
 	ScorchingQueen.prototype._pause = function(frame, done) {
 		if(frame === 20) {
+			done(true);
+		}
+	};
+	ScorchingQueen.prototype._stabGround = function(frame, done) {
+		var frameToStartCharging = 0;
+		var frameToStabGround = 50 + frameToStartCharging;
+		var frameToReleaseFromGround = 60 + frameToStabGround;
+		var frameToEnd = 15 + frameToReleaseFromGround;
+		//charge stab
+		if(frame === frameToStartCharging) {
+			this._renderFrame = 16;
+		}
+		//stab ground
+		if(frame === frameToStabGround) {
+			this._renderFrame = 17;
+			//TODO spawn fire pillars
+		}
+		//release grab
+		if(frame === frameToReleaseFromGround) {
+			this._renderFrame = 16;
+		}
+		//next action
+		if(frame === frameToEnd) {
+			this._renderFrame = 0; //standing
+			done(true);
+		}
+	};
+	ScorchingQueen.prototype._runTowardsPlayer = function(frame, done) {
+		var frameToStartPrepping = 0;
+		var frameToStartRunning = 20 + frameToStartPrepping;
+		if(frame === frameToStartPrepping) {
+			this._renderFrame = 6; //landing OR preparing to jump
+		}
+		if(frame >= frameToStartRunning) {
+			this._facing = (this.level.player.center.x < this.center.x ? -1 : 1);
+			this.vel.x = this._facing * 400;
+			this._renderFrame = ((frame - frameToStartRunning) % 20 < 10 ? 1 : 2);
+			if(this.level.player.center.x - 100 < this.center.x && this.center.x < this.level.player.center.x + 100) {
+				this.vel.x = 0;
+				this._renderFrame = 0; //standing
+				done(true);
+			}
+		}
+	};
+	ScorchingQueen.prototype._runningSlash = function(frame, done) {
+		var frameToChargeSlash = 0;
+		var frameToSlash = 20 + frameToChargeSlash;
+		var frameToRecover = 80 + frameToSlash;
+		var frameToEnd = 30 + frameToRecover;
+		//charge running slash
+		if(frame === frameToChargeSlash) {
+			this.vel.x = this._facing * 100;
+			this._renderFrame = 3;
+		}
+		//running slash
+		if(frame === frameToSlash) {
+			this.vel.x = 0;
+			this._renderFrame = 4;
+			this.level.spawnEffect(new ScorchingSlash(this.center.x, this.center.y, this._facing > 0, 'third-floaty-slash'));
+			//TODO spawn bombs
+		}
+		//recover from running slash
+		if(frame === frameToRecover) {
+			this._renderFrame = 5;
+		}
+		//next action
+		if(frame === frameToEnd) {
+			this._renderFrame = 0; //standing
 			done(true);
 		}
 	};

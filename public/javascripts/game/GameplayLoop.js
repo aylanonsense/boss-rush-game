@@ -124,7 +124,7 @@ define([
 		}
 
 		//render hud
-		level.renderHUD(ctx);
+		level.renderHUD(ctx, camera);
 	}
 
 	return {

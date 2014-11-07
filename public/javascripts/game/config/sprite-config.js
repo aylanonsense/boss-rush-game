@@ -27,6 +27,24 @@ define({
 		crop: { x: 0, y: 0, width: 288, height: 96 },
 		loadingColor: '#f00'
 	},
+	SCORCHING_SLASH: {
+		imagePath: '/image/scorching_queen.gif',
+		width: 50,
+		height: 50,
+		scale: 6,
+		flip: true,
+		crop: { x: 31, y: 198, width: 200, height: 200 },
+		loadingColor: '#f00'
+	},
+	FIREBALL: {
+		imagePath: '/image/scorching_queen.gif',
+		width: 23,
+		height: 23,
+		scale: 6,
+		flip: true,
+		crop: { x: 0, y: 97, width: 138, height: 46 },
+		loadingColor: '#f00'
+	},
 	ICE_BLOCK: {
 		imagePath: '/image/elemental_royalty.gif',
 		width: 10,

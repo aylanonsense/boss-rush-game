@@ -16,9 +16,9 @@ define([
 ) {
 	var SUPERCLASS = Level;
 	function SkipLevel() {
+		this.bounds = { left: 64, right: 832, top: 128, bottom: 576 };
 		SUPERCLASS.call(this);
 		this.backgroundColor = '#222';
-		this.bounds = { center: { x : 400, y: 400 }, left: 100, right: 700 };
 		this.player = new Player(this, 300, 500);
 		this.playerHealthBar.setActor(this.player);
 		this.backgroundTileGrid = new TileGrid(map.background.tiles, map.background.shapes, map.background.variants);
