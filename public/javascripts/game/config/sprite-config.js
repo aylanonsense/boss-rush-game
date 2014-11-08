@@ -45,6 +45,15 @@ define({
 		crop: { x: 0, y: 97, width: 138, height: 46 },
 		loadingColor: '#f00'
 	},
+	FIRE_PILLAR: {
+		imagePath: '/image/scorching_queen.gif',
+		width: 8,
+		height: 29,
+		scale: 6,
+		flip: true,
+		crop: { x: 88, y: 144, width: 40, height: 29 },
+		loadingColor: '#f00'
+	},
 	ICE_BLOCK: {
 		imagePath: '/image/elemental_royalty.gif',
 		width: 10,

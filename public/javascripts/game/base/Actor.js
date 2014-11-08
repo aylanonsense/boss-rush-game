@@ -7,8 +7,8 @@ define([
 	var NEXT_ACTOR_ID = 0;
 	function Actor(level, x, y) {
 		this._actorId = NEXT_ACTOR_ID++;
-		this.width = 0;
-		this.height = 0;
+		this.width = this.width || 0;
+		this.height = this.height || 0;
 		this.level = level;
 		this.pos = { x: x || 0, y: y || 0 };
 		this._recalculateCenter();

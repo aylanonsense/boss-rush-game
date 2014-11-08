@@ -7,6 +7,7 @@ define([
 	'game/geom/Rect',
 	'game/levels/ElementalRoyalty/Phase2/ScorchingSlash',
 	'game/levels/ElementalRoyalty/Phase2/Fireball',
+	'game/levels/ElementalRoyalty/Phase2/FirePillarWave',
 	'game/display/SpriteLoader'
 ], function(
 	Global,
@@ -16,6 +17,7 @@ define([
 	Rect,
 	ScorchingSlash,
 	Fireball,
+	FirePillarWave,
 	SpriteLoader
 ) {
 	var SUPERCLASS = FullCollisionActor;
@@ -55,6 +57,11 @@ define([
 			.then(this._pause)
 			.then(this._runTowardsPlayer)
 			.then(this._runningSlash)
+			.then(this._pause)
+			.then(this._jumpToCorner)
+			.then(this._fallToGround)
+			.then(this._landOnGround)
+			.then(this._stabGround)
 			.then(this._pause);
 	};
 	ScorchingQueen.prototype.render = function(ctx, camera) {
@@ -199,16 +206,16 @@ define([
 		var frameToEnd = 15 + frameToReleaseFromGround;
 		//charge stab
 		if(frame === frameToStartCharging) {
-			this._renderFrame = 16;
+			this._renderFrame = 16; //preparring to / recovering from stabbing the ground
 		}
 		//stab ground
 		if(frame === frameToStabGround) {
-			this._renderFrame = 17;
-			//TODO spawn fire pillars
+			this._renderFrame = 17; //stabbing the ground
+			this.level.spawnActor(new FirePillarWave(this.level, this.center.x, this.pos.y + this.height));//this.pos.x, this.pos.y));
 		}
 		//release grab
 		if(frame === frameToReleaseFromGround) {
-			this._renderFrame = 16;
+			this._renderFrame = 16; //preparring to / recovering from stabbing the ground
 		}
 		//next action
 		if(frame === frameToEnd) {
