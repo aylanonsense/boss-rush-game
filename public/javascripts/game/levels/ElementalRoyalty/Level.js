@@ -20,6 +20,7 @@ define([
 ) {
 	var SUPERCLASS = Level;
 	function ElementalRoyalty() {
+		this.bounds = { left: 64, right: 832, top: 128, bottom: 576 };
 		SUPERCLASS.call(this);
 		this.backgroundColor = '#222';
 		this.player = new Player(this, 300, 500);

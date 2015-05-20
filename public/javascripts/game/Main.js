@@ -3,7 +3,7 @@ define([
 	'jquery',
 	'game/Global',
 	'game/GameplayLoop',
-	'game/levels/ElementalRoyalty/Phase2/SkipLevel'
+	'game/levels/ElementalRoyalty/Level'
 ], function(
 	$,
 	Global,
