@@ -4,7 +4,7 @@ define({
 		imagePath: '/image/hud.gif',
 		width: 43,
 		height: 10,
-		scale: 4,
+		scale: 2,
 		flip: false,
 		crop: { x: 0, y: 62, width: 43, height: 20 },
 		loadingColor: '#fff'
@@ -13,7 +13,7 @@ define({
 		imagePath: '/image/hud.gif',
 		width: 2,
 		height: 5,
-		scale: 4,
+		scale: 2,
 		flip: false,
 		crop: { x: 0, y: 82, width: 4, height: 10 },
 		loadingColor: '#fff'
@@ -22,7 +22,7 @@ define({
 		imagePath: '/image/elemental_royalty.gif',
 		width: 10,
 		height: 10,
-		scale: 4,
+		scale: 2,
 		flip: false,
 		crop: { x: 65, y: 65, width: 30, height: 30 },
 		loadingColor: '#4bf'
@@ -31,7 +31,7 @@ define({
 		imagePath: '/image/elemental_royalty.gif',
 		width: 10,
 		height: 10,
-		scale: 4,
+		scale: 2,
 		flip: false,
 		crop: { x: 65, y: 95, width: 30, height: 30 },
 		loadingColor: '#4bf'
@@ -40,7 +40,7 @@ define({
 		imagePath: '/image/elemental_royalty.gif',
 		width: 10,
 		height: 10,
-		scale: 4,
+		scale: 2,
 		flip: false,
 		crop: { x: 65, y: 95, width: 30, height: 10 },
 		loadingColor: '#4bf'
@@ -49,7 +49,7 @@ define({
 		imagePath: '/image/elemental_royalty.gif',
 		width: 11,
 		height: 11,
-		scale: 4,
+		scale: 2,
 		flip: false,
 		crop: { x: 175, y: 65, width: 44, height: 44 },
 		loadingColor: '#4bf'
@@ -58,7 +58,7 @@ define({
 		imagePath: '/image/elemental_royalty.gif',
 		width: 32,
 		height: 32,
-		scale: 8,
+		scale: 4,
 		flip: true,
 		loadingColor: '#4bf'
 	},
@@ -66,7 +66,7 @@ define({
 		imagePath: '/image/elemental_royalty.gif',
 		width: 32,
 		height: 32,
-		scale: 8,
+		scale: 4,
 		flip: true,
 		loadingColor: '#4bf',
 		replacements: { '#4aa9ff': '#f66', '#0074fc': '#b00' }
@@ -75,7 +75,7 @@ define({
 		imagePath: '/image/elemental_royalty.gif',
 		width: 10,
 		height: 10,
-		scale: 8,
+		scale: 4,
 		flip: false,
 		crop: { x: 95, y: 65, width: 20, height: 30 },
 		loadingColor: '#4bf'
@@ -84,7 +84,7 @@ define({
 		imagePath: '/image/elemental_royalty.gif',
 		width: 10,
 		height: 10,
-		scale: 4,
+		scale: 2,
 		flip: false,
 		crop: { x: 115, y: 65, width: 40, height: 30 },
 		loadingColor: '#4bf'
@@ -93,7 +93,7 @@ define({
 		imagePath: '/image/player.gif',
 		width: 24,
 		height: 24,
-		scale: 2,
+		scale: 1,
 		flip: true,
 		loadingColor: '#0b85ff'
 	},
@@ -101,7 +101,7 @@ define({
 		imagePath: '/image/player.gif',
 		width: 8,
 		height: 8,
-		scale: 2,
+		scale: 1,
 		flip: true,
 		crop: { x: 144, y: 96, width: 24, height: 24 },
 		loadingColor: '#0b85ff'
@@ -110,7 +110,7 @@ define({
 		imagePath: '/image/flower_power.gif',
 		width: 10,
 		height: 8,
-		scale: 4,
+		scale: 2,
 		flip: true,
 		crop: { x: 39, y: 6, width: 30, height: 8 },
 		loadingColor: '#fff200'
@@ -119,7 +119,7 @@ define({
 		imagePath: '/image/flower_power.gif',
 		width: 29,
 		height: 18,
-		scale: 4,
+		scale: 2,
 		flip: false,
 		crop: { x: 30, y: 21, width: 29, height: 18 },
 		loadingColor: '#f7941d'
@@ -128,7 +128,7 @@ define({
 		imagePath: '/image/flower_power.gif',
 		width: 11,
 		height: 10,
-		scale: 4,
+		scale: 2,
 		flip: false,
 		crop: { x: 0, y: 2, width: 33, height: 10 },
 		loadingColor: '#fff200'
@@ -137,7 +137,7 @@ define({
 		imagePath: '/image/flower_power.gif',
 		width: 6,
 		height: 9,
-		scale: 4,
+		scale: 2,
 		flip: false,
 		crop: { x: 10, y: 19, width: 12, height: 18 },
 		loadingColor: '#f7941d'
@@ -146,7 +146,7 @@ define({
 		imagePath: '/image/8bit_tiles.gif',
 		width: 10,
 		height: 10,
-		scale: 4,
+		scale: 2,
 		flip: false,
 		crop: { x: 0, y: 0, width: 40, height: 70 },
 		loadingColor: '#4c4c4c'
@@ -155,7 +155,7 @@ define({
 		imagePath: '/image/tile/greek_light_dirt.gif',
 		width: 16,
 		height: 16,
-		scale: 2,
+		scale: 1,
 		flip: false,
 		loadingColor: '#e4bb6a'
 	},
@@ -163,7 +163,7 @@ define({
 		imagePath: '/image/tile/greek_light_grass.gif',
 		width: 16,
 		height: 16,
-		scale: 2,
+		scale: 1,
 		flip: false,
 		loadingColor: '#e4bb6a'
 	},
@@ -171,7 +171,7 @@ define({
 		imagePath: '/image/tile/greek_light_dirt.gif',
 		width: 16,
 		height: 16,
-		scale: 2,
+		scale: 1,
 		flip: false,
 		loadingColor: '#bd8753',
 		replacements: { '#eacb8e': '#cc9763', '#e4bb6a': '#bd8753', '#cca666': '#b37f51' }
@@ -180,7 +180,7 @@ define({
 		imagePath: '/image/tile/greek_light_grass.gif',
 		width: 16,
 		height: 16,
-		scale: 2,
+		scale: 1,
 		flip: false,
 		loadingColor: '#bd8753',
 		replacements: { '#eacb8e': '#cc9763', '#e4bb6a': '#bd8753', '#cca666': '#b37f51' }
@@ -189,7 +189,7 @@ define({
 		imagePath: '/image/greek_obstacles.gif',
 		width: 24,
 		height: 60,
-		scale: 2,
+		scale: 1,
 		flip: false,
 		loadingColor: '#f1a597'
 	}

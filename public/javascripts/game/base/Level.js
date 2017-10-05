@@ -49,7 +49,7 @@ define([
 	Level.prototype.renderHUD = function(ctx) {
 		//draw black backdrop to HUD
 		ctx.fillStyle = '#111';
-		ctx.fillRect(0, 0, Global.WIDTH, 60);
+		ctx.fillRect(0, 0, Global.WIDTH, 30);
 
 		//draw HUD elements
 		this.bossHealthBar.render(ctx);

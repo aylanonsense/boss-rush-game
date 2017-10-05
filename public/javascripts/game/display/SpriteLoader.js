@@ -18,7 +18,7 @@ define([
 		if(!SPRITESHEETS[key]) {
 			SPRITESHEETS[key] = new SpriteSheet(config[key], key);
 			//if the image isn't loaded... well, we need to load it
-			var imagePath = config[key].imagePath;
+			var imagePath = BASE_URL + config[key].imagePath;
 			if(!IMAGES[imagePath]) {
 				var image = new Image();
 				IMAGES[imagePath] = {

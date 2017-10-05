@@ -68,7 +68,7 @@ define(function() {
 			ctx.drawImage(this._canvas,
 				frameX * this.width, frameY * this.height,
 				this.width, this.height,
-				x - camera.x, y - camera.y,
+				(x - camera.x) / 2, (y - camera.y) / 2,
 				this.width, this.height
 			);
 		}

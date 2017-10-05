@@ -20,8 +20,8 @@ define([
 		this._collisionBoxOffsetY = offsetY;
 		var x = this.pos.x + offsetX;
 		var y = this.pos.y + offsetY;
-		var xIndent = Math.max(2, Math.floor(width / 10)); //TODO
-		var yIndent = Math.max(2, Math.floor(height / 10)); //TODO
+		var xIndent = 2;
+		var yIndent = 2;
 		if(yIndent <= xIndent) {
 			xIndent = yIndent - 1;
 		}

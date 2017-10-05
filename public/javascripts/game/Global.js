@@ -4,7 +4,7 @@ define({
 	DEV_MODE: false,
 	SKIP_ANIMATIONS: false,
 	DEBUG_FRAMERATE: null, //only use for debug purposes, set to null
-	WIDTH: 800,
-	HEIGHT: 600,
+	WIDTH: 400,
+	HEIGHT: 300,
 	TILE_SIZE: 32
 });
