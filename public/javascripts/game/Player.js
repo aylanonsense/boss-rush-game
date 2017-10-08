@@ -97,6 +97,14 @@ define([
 		else {
 			this._framesOfLandingAnimation--;
 		}
+		if (this.pos.y > 2500) {
+			this.pos.x = 800;
+			this.pos.y = 250;
+			this.pos.prev.x = this.pos.x;
+			this.pos.prev.y = this.pos.y;
+			this.vel.x = 0;
+			this.vel.y = 0;
+		}
 	};
 	Player.prototype._recalculateCollisionBoxes = function() {
 		var x = this.pos.x, y = this.pos.y, w = this.width, h = this.height;

@@ -1,9 +1,9 @@
 requirejs.config({
-	baseUrl: 'javascripts',
+	baseUrl: BASE_URL + '/javascripts',
 	paths: {
-		lib: '/javascripts/lib',
-		game: '/javascripts/game',
-		jquery: '/javascripts/lib/jquery'
+		lib: 'lib',
+		game: 'game',
+		jquery: 'lib/jquery'
 	}
 });
 requirejs([

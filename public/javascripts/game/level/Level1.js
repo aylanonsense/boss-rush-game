@@ -21,10 +21,10 @@ define([
 			levelConfig.LEVEL_1.background.shapes,
 			levelConfig.LEVEL_1.background.variants
 		);
-		this.playerStartPoint = { x: 350, y: 250 };
+		this.playerStartPoint = { x: 350 + 450, y: 250 };
 		this.obstacles = [
-			new Obstacle(24 * 5, 24 * 11, obstacleConfig.GREEK_PILLAR),
-			new Obstacle(24 * 17.5, 24 * 0, obstacleConfig.GREEK_PILLAR)
+			new Obstacle(24 * 5 + 450, 24 * 11, obstacleConfig.GREEK_PILLAR),
+			new Obstacle(24 * 17.5 + 450, 24 * 0, obstacleConfig.GREEK_PILLAR)
 		];
 	}
 	return Level1;

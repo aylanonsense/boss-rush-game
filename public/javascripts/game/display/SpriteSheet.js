@@ -53,7 +53,7 @@ define(function() {
 			}
 			self._loaded = true;
 		};
-		img.src = params.imagePath;
+		img.src = BASE_URL + params.imagePath;
 	}
 	SpriteSheet.prototype.render = function(ctx, x, y, frame, flip) {
 		if(this._loaded) {
