@@ -106,6 +106,7 @@ define([
 					}
 				}
 			}
+			evt.preventDefault();
 		});
 		$(document).on('keyup', function(evt) {
 			if(keys[evt.which]) {
