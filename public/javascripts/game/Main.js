@@ -52,6 +52,7 @@ define([
 				else if(evt.which === SHOOT_KEY && level.player.isInputEnabled()) { level.player.fireProjectile(); }
 				if(level.player.isInputEnabled()) { level.player.setMoveDir(moveX); }
 			}
+			evt.preventDefault();
 		});
 		$(document).on('keyup', function(evt) {
 			if(keys[evt.which]) {
